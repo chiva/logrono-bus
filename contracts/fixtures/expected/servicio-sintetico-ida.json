@@ -1,0 +1,34 @@
+[
+  {
+    "state": "antes",
+    "first": "06:30",
+    "last": "00:10",
+    "next_departure": "06:30",
+    "interval_min": null,
+    "interval_max_min": null
+  },
+  {
+    "state": "en_servicio",
+    "first": "06:30",
+    "last": "00:10",
+    "next_departure": "07:48",
+    "interval_min": 12,
+    "interval_max_min": 15
+  },
+  {
+    "state": "en_servicio",
+    "first": "06:30",
+    "last": "00:10",
+    "next_departure": "23:50",
+    "interval_min": 20,
+    "interval_max_min": 20
+  },
+  {
+    "state": "en_servicio",
+    "first": "06:30",
+    "last": "00:10",
+    "next_departure": "00:10",
+    "interval_min": 20,
+    "interval_max_min": 20
+  }
+]

@@ -1,0 +1,40 @@
+{
+ "result": {
+  "arrivals": [
+   {
+    "lineRef": "1",
+    "directionRef": "402",
+    "journeyCode": "",
+    "vehicleRef": "54",
+    "stopPointRef": "98",
+    "order": 19,
+    "aimedArrivalTime": "2026-10-03T18:01:51+02:00",
+    "expectedArrivalTime": "2026-10-03T18:05:02+02:00",
+    "aimedDepartureTime": "2026-10-03T18:01:51+02:00",
+    "expectedDepartureTime": "2026-10-03T18:05:02+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 191
+   },
+   {
+    "lineRef": "1",
+    "directionRef": "402",
+    "journeyCode": "",
+    "vehicleRef": "13",
+    "stopPointRef": "98",
+    "order": 19,
+    "aimedArrivalTime": "2026-10-03T18:16:51+02:00",
+    "expectedArrivalTime": "2026-10-03T18:17:15+02:00",
+    "aimedDepartureTime": "2026-10-03T18:16:51+02:00",
+    "expectedDepartureTime": "2026-10-03T18:17:15+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 24
+   }
+  ]
+ }
+}

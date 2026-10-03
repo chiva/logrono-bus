@@ -1,0 +1,91 @@
+{
+ "result": {
+  "activities": [
+   {
+    "vehicleMonitoringRef": "7290",
+    "vehicleRef": "7290",
+    "lineRef": "10",
+    "directionRef": "Ida",
+    "publishedLineName": "EL ARCO-VAREA",
+    "latitude": 42.462991,
+    "longitude": -2.463867,
+    "locationRecordedAtTime": "2026-10-03T20:30:29Z",
+    "delaySeconds": -79,
+    "monitored": true,
+    "predictionInaccurate": false,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "",
+    "nextStopExpectedArrivalTime": "",
+    "nextStopAimedArrivalTime": ""
+   },
+   {
+    "vehicleMonitoringRef": "2315",
+    "vehicleRef": "2315",
+    "lineRef": "10",
+    "directionRef": "Vuelta",
+    "publishedLineName": "VAREA-EL ARCO",
+    "latitude": 42.461601,
+    "longitude": -2.406506,
+    "locationRecordedAtTime": "2026-10-03T20:30:30Z",
+    "delaySeconds": 30,
+    "monitored": true,
+    "predictionInaccurate": false,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0005",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:31:15Z",
+    "nextStopAimedArrivalTime": "2026-10-03T22:30:56Z"
+   },
+   {
+    "vehicleMonitoringRef": "1200",
+    "vehicleRef": "1200",
+    "lineRef": "10",
+    "directionRef": "Vuelta",
+    "publishedLineName": "VAREA-EL ARCO",
+    "latitude": 42.464574,
+    "longitude": -2.451823,
+    "locationRecordedAtTime": "2026-10-03T20:30:27Z",
+    "delaySeconds": 378,
+    "monitored": true,
+    "predictionInaccurate": true,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0021",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:32:29Z",
+    "nextStopAimedArrivalTime": "2026-10-03T22:26:16Z"
+   },
+   {
+    "vehicleMonitoringRef": "2109",
+    "vehicleRef": "2109",
+    "lineRef": "10",
+    "directionRef": "Ida",
+    "publishedLineName": "EL ARCO-VAREA",
+    "latitude": 42.464136,
+    "longitude": -2.434068,
+    "locationRecordedAtTime": "2026-10-03T20:30:30Z",
+    "delaySeconds": -224,
+    "monitored": true,
+    "predictionInaccurate": false,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0077",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:31:20Z",
+    "nextStopAimedArrivalTime": "2026-10-03T22:35:04Z"
+   },
+   {
+    "vehicleMonitoringRef": "0946",
+    "vehicleRef": "0946",
+    "lineRef": "10",
+    "directionRef": "Vuelta",
+    "publishedLineName": "VAREA-EL ARCO",
+    "latitude": 42.46439,
+    "longitude": -2.434419,
+    "locationRecordedAtTime": "2026-10-03T20:30:30Z",
+    "delaySeconds": 57,
+    "monitored": true,
+    "predictionInaccurate": false,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0128",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:31:18Z",
+    "nextStopAimedArrivalTime": "2026-10-03T22:30:11Z"
+   }
+  ]
+ }
+}

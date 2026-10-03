@@ -1,0 +1,28 @@
+# Privacidad y aviso legal
+
+## Proyecto no oficial
+
+Logroño Bus **no está relacionado** con el Ayuntamiento de Logroño ni con la empresa que presta el
+servicio de autobuses urbanos. Los datos proceden del servicio web público del Ayuntamiento
+([transporteurbano.logrono.es](https://transporteurbano.logrono.es/)), que es la fuente de verdad.
+Se ofrecen tal cual, sin garantía.
+
+Para no cargar el servicio público, la web consulta cada parada como mucho cada 30 segundos, se
+identifica en cada petición y, con un servidor propio, todas las pantallas comparten una sola
+consulta.
+
+## Tus datos
+
+- **No hay cuentas, anuncios ni estadísticas de uso.**
+- Tus paradas viven en el **enlace** del panel. Si guardas paneles o ajustes «en este dispositivo»,
+  se guardan solo en tu navegador.
+- La **ubicación**, si la usas, no sale de tu dispositivo: solo ordena las paradas por distancia.
+- Para mostrar las llegadas, tu navegador pide los datos directamente al Ayuntamiento (o a tu
+  servidor). El mapa descarga imágenes de [OpenStreetMap](https://www.openstreetmap.org/copyright).
+- La web se aloja en GitHub Pages, que como cualquier servidor web registra direcciones IP
+  ([política de GitHub](https://docs.github.com/es/site-policy/privacy-policies/github-general-privacy-statement)).
+
+## Licencias
+
+Código con licencia **MIT**. Tipografía Atkinson Hyperlegible: SIL Open Font License. Datos de
+mapas: © colaboradores de OpenStreetMap.

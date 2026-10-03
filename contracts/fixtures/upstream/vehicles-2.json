@@ -1,0 +1,91 @@
+{
+ "result": {
+  "activities": [
+   {
+    "vehicleMonitoringRef": "8348",
+    "vehicleRef": "8348",
+    "lineRef": "2",
+    "directionRef": "Ida",
+    "publishedLineName": "YAG\u00dcE-VAREA",
+    "latitude": 42.4613,
+    "longitude": -2.42159,
+    "locationRecordedAtTime": "2026-10-03T20:30:35Z",
+    "delaySeconds": 2624,
+    "monitored": true,
+    "predictionInaccurate": true,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0091",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:18:06Z",
+    "nextStopAimedArrivalTime": "2026-10-03T21:52:03Z"
+   },
+   {
+    "vehicleMonitoringRef": "1400",
+    "vehicleRef": "1400",
+    "lineRef": "2",
+    "directionRef": "Vuelta",
+    "publishedLineName": "VAREA-YAG\u00dcE",
+    "latitude": 42.46317,
+    "longitude": -2.446581,
+    "locationRecordedAtTime": "2026-10-03T20:30:33Z",
+    "delaySeconds": 388,
+    "monitored": true,
+    "predictionInaccurate": true,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0104",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:31:04Z",
+    "nextStopAimedArrivalTime": "2026-10-03T22:24:42Z"
+   },
+   {
+    "vehicleMonitoringRef": "2751",
+    "vehicleRef": "2751",
+    "lineRef": "2",
+    "directionRef": "Ida",
+    "publishedLineName": "YAG\u00dcE-VAREA",
+    "latitude": 42.463292,
+    "longitude": -2.447407,
+    "locationRecordedAtTime": "2026-10-03T20:30:34Z",
+    "delaySeconds": 130,
+    "monitored": true,
+    "predictionInaccurate": true,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0061",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:32:04Z",
+    "nextStopAimedArrivalTime": "2026-10-03T22:29:46Z"
+   },
+   {
+    "vehicleMonitoringRef": "7323",
+    "vehicleRef": "7323",
+    "lineRef": "2",
+    "directionRef": "Ida",
+    "publishedLineName": "YAG\u00dcE-VAREA",
+    "latitude": 42.461731,
+    "longitude": -2.481647,
+    "locationRecordedAtTime": "2026-10-03T20:30:32Z",
+    "delaySeconds": 14,
+    "monitored": true,
+    "predictionInaccurate": false,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0056",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:31:07Z",
+    "nextStopAimedArrivalTime": "2026-10-03T22:30:52Z"
+   },
+   {
+    "vehicleMonitoringRef": "9613",
+    "vehicleRef": "9613",
+    "lineRef": "2",
+    "directionRef": "Ida",
+    "publishedLineName": "YAG\u00dcE-VAREA",
+    "latitude": 42.463838,
+    "longitude": -2.407263,
+    "locationRecordedAtTime": "2026-10-03T20:30:35Z",
+    "delaySeconds": -18,
+    "monitored": true,
+    "predictionInaccurate": false,
+    "confidenceLevel": "CERTAIN",
+    "nextStopRef": "0037",
+    "nextStopExpectedArrivalTime": "2026-10-03T22:31:40Z",
+    "nextStopAimedArrivalTime": "2026-10-03T22:32:03Z"
+   }
+  ]
+ }
+}

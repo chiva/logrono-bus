@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/board"
+    },
+    {
+      "path": "packages/ha-card"
+    },
+    {
+      "path": "apps/pwa"
+    }
+  ]
+}

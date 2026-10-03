@@ -1,0 +1,10 @@
+[
+  {
+    "state": "sin_servicio",
+    "first": null,
+    "last": null,
+    "next_departure": null,
+    "interval_min": null,
+    "interval_max_min": null
+  }
+]

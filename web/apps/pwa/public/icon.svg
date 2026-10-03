@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Logroño Bus">
+  <rect width="512" height="512" rx="112" fill="#8c1c2c"/>
+  <g fill="none" stroke="#fffaf3" stroke-width="22" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="136" y="96" width="240" height="268" rx="44"/>
+    <path d="M136 230h240"/>
+    <path d="M176 364v40M336 364v40"/>
+    <path d="M206 140h100"/>
+  </g>
+  <g fill="#fffaf3">
+    <circle cx="186" cy="304" r="20"/>
+    <circle cx="326" cy="304" r="20"/>
+  </g>
+  <g fill="none" stroke="#f6c453" stroke-width="18" stroke-linecap="round">
+    <path d="M392 72a56 56 0 0 1 40 40"/>
+    <path d="M392 32a96 96 0 0 1 80 80"/>
+  </g>
+</svg>

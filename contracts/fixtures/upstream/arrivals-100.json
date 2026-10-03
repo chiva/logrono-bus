@@ -1,0 +1,74 @@
+{
+ "result": {
+  "arrivals": [
+   {
+    "lineRef": "5",
+    "directionRef": "463",
+    "journeyCode": "",
+    "vehicleRef": "134",
+    "stopPointRef": "100",
+    "order": 17,
+    "aimedArrivalTime": "2026-10-03T18:10:30+02:00",
+    "expectedArrivalTime": "2026-10-03T18:06:26+02:00",
+    "aimedDepartureTime": "2026-10-03T18:10:30+02:00",
+    "expectedDepartureTime": "2026-10-03T18:06:26+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": -244
+   },
+   {
+    "lineRef": "2",
+    "directionRef": "320",
+    "journeyCode": "",
+    "vehicleRef": "61",
+    "stopPointRef": "100",
+    "order": 14,
+    "aimedArrivalTime": "2026-10-03T18:05:19+02:00",
+    "expectedArrivalTime": "2026-10-03T18:10:50+02:00",
+    "aimedDepartureTime": "2026-10-03T18:05:19+02:00",
+    "expectedDepartureTime": "2026-10-03T18:10:50+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 331
+   },
+   {
+    "lineRef": "10",
+    "directionRef": "380",
+    "journeyCode": "",
+    "vehicleRef": "70",
+    "stopPointRef": "100",
+    "order": 14,
+    "aimedArrivalTime": "2026-10-03T18:17:07+02:00",
+    "expectedArrivalTime": "2026-10-03T18:15:52+02:00",
+    "aimedDepartureTime": "2026-10-03T18:17:07+02:00",
+    "expectedDepartureTime": "2026-10-03T18:15:52+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": -75
+   },
+   {
+    "lineRef": "2",
+    "directionRef": "320",
+    "journeyCode": "320175000",
+    "vehicleRef": "53",
+    "stopPointRef": "100",
+    "order": 14,
+    "aimedArrivalTime": "2026-10-03T18:10:19+02:00",
+    "expectedArrivalTime": "2026-10-03T18:20:48+02:00",
+    "aimedDepartureTime": "2026-10-03T18:10:19+02:00",
+    "expectedDepartureTime": "2026-10-03T18:20:48+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 629
+   }
+  ]
+ }
+}

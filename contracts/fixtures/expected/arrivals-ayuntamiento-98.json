@@ -1,0 +1,38 @@
+{
+  "stop_id": "98",
+  "generated_at": "2026-10-03T17:54:30+02:00",
+  "arrivals": [
+    {
+      "stop_id": "98",
+      "line_id": "1",
+      "pattern_id": "1:desc",
+      "direction": "desc",
+      "headsign": "Puente Madre-Hospital",
+      "aimed": "2026-10-03T18:01:51+02:00",
+      "expected": "2026-10-03T18:05:02+02:00",
+      "minutes": 10,
+      "delay_s": 191,
+      "is_realtime": true,
+      "is_approximate": true,
+      "terminates": false,
+      "cancelled": false,
+      "vehicle_id": "54"
+    },
+    {
+      "stop_id": "98",
+      "line_id": "1",
+      "pattern_id": "1:desc",
+      "direction": "desc",
+      "headsign": "Puente Madre-Hospital",
+      "aimed": "2026-10-03T18:16:51+02:00",
+      "expected": "2026-10-03T18:17:15+02:00",
+      "minutes": 22,
+      "delay_s": 24,
+      "is_realtime": true,
+      "is_approximate": true,
+      "terminates": false,
+      "cancelled": false,
+      "vehicle_id": "13"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+name: Idea o mejora
+description: Algo que te gustaría que hiciera
+labels: [mejora]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: ¿Qué te gustaría?
+      description: Cuéntalo como lo usarías («Cuando estoy en la cocina quiero…»).
+    validations:
+      required: true

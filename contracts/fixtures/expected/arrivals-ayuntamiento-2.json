@@ -1,0 +1,22 @@
+{
+  "stop_id": "2",
+  "generated_at": "2026-10-03T17:54:30+02:00",
+  "arrivals": [
+    {
+      "stop_id": "2",
+      "line_id": "1",
+      "pattern_id": "1:asc",
+      "direction": "asc",
+      "headsign": "Iglesia de Lardero",
+      "aimed": "2026-10-03T17:54:00+02:00",
+      "expected": "2026-10-03T17:55:31+02:00",
+      "minutes": 1,
+      "delay_s": 91,
+      "is_realtime": true,
+      "is_approximate": true,
+      "terminates": false,
+      "cancelled": false,
+      "vehicle_id": "18"
+    }
+  ]
+}

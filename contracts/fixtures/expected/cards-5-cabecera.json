@@ -1,0 +1,101 @@
+[
+  {
+    "stop_id": "5",
+    "stop_name": "Artesanos",
+    "line_id": "2",
+    "line_label": "2",
+    "line_name": "Yagüe – Varea",
+    "colour": "#FFFF00",
+    "text_colour": "#000000",
+    "direction": "desc",
+    "headsign": "Manresa",
+    "arrivals": []
+  },
+  {
+    "stop_id": "5",
+    "stop_name": "Artesanos",
+    "line_id": "10",
+    "line_label": "10",
+    "line_name": "El Arco – Hospital San Pedro",
+    "colour": "#0FDCFC",
+    "text_colour": "#000000",
+    "direction": "desc",
+    "headsign": "Manuel de Falla",
+    "arrivals": [
+      {
+        "stop_id": "5",
+        "line_id": "10",
+        "pattern_id": "10:desc",
+        "direction": "desc",
+        "headsign": "Manuel de Falla",
+        "aimed": "2026-10-03T18:15:00+02:00",
+        "expected": "2026-10-03T18:15:00+02:00",
+        "minutes": 15,
+        "delay_s": 0,
+        "is_realtime": true,
+        "is_approximate": true,
+        "terminates": false,
+        "cancelled": true,
+        "vehicle_id": "70"
+      }
+    ]
+  },
+  {
+    "stop_id": "5",
+    "stop_name": "Artesanos",
+    "line_id": "31",
+    "line_label": "B1",
+    "line_name": "Varea – La Cava",
+    "colour": "#FD0200",
+    "text_colour": "#000000",
+    "direction": "asc",
+    "headsign": "La Cava",
+    "arrivals": [
+      {
+        "stop_id": "5",
+        "line_id": "31",
+        "pattern_id": "31:asc",
+        "direction": "asc",
+        "headsign": "La Cava",
+        "aimed": "2026-10-03T18:20:00+02:00",
+        "expected": "2026-10-03T18:20:00+02:00",
+        "minutes": 20,
+        "delay_s": 0,
+        "is_realtime": false,
+        "is_approximate": false,
+        "terminates": false,
+        "cancelled": false,
+        "vehicle_id": null
+      }
+    ]
+  },
+  {
+    "stop_id": "5",
+    "stop_name": "Artesanos",
+    "line_id": "2",
+    "line_label": "2",
+    "line_name": "Yagüe – Varea",
+    "colour": "#FFFF00",
+    "text_colour": "#000000",
+    "direction": null,
+    "headsign": null,
+    "arrivals": [
+      {
+        "stop_id": "5",
+        "line_id": "2",
+        "pattern_id": null,
+        "direction": null,
+        "headsign": null,
+        "aimed": "2026-10-03T18:30:00+02:00",
+        "expected": "2026-10-03T18:30:00+02:00",
+        "minutes": 30,
+        "delay_s": 0,
+        "is_realtime": false,
+        "is_approximate": false,
+        "terminates": false,
+        "cancelled": false,
+        "vehicle_id": null
+      }
+    ]
+  }
+]

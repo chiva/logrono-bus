@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "logrono-bus-api"
+version = "0.1.0"
+description = "Servicio HTTP opcional de logrono-bus: caché, API normalizada /api/v1 y la web"
+license = "MIT"
+requires-python = ">=3.13"
+# An application shipped as a container image: every dependency is pinned exactly, and Renovate
+# bumps the pins (rangeStrategy "pin"), so the version declared is the version tested.
+dependencies = [
+    "logrono-bus",
+    "fastapi==0.142.2",
+    "uvicorn[standard]==0.54.0",
+    "pydantic==2.13.5",
+    "pydantic-settings==2.15.0",
+    "prometheus-client==0.26.0",
+]
+
+[project.scripts]
+logrono-bus-api = "logrono_bus_api.__main__:main"
+
+[tool.uv.sources]
+logrono-bus = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/logrono_bus_api"]

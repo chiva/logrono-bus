@@ -1,0 +1,23 @@
+# Docker does not read .gitignore: everything not needed by docker/Dockerfile stays out of the
+# build context, so local state (venvs, node_modules, .env) can never be baked into an image.
+**
+!pyproject.toml
+!uv.lock
+!packages/logrono-bus/pyproject.toml
+!packages/logrono-bus/README.md
+!packages/logrono-bus/LICENSE
+!packages/logrono-bus/src/**
+!services/api/pyproject.toml
+!services/api/src/**
+!contracts/openapi.json
+!web/package.json
+!web/pnpm-lock.yaml
+!web/pnpm-workspace.yaml
+!web/tsconfig*.json
+!web/packages/**
+!web/apps/pwa/**
+web/**/node_modules
+web/**/dist
+web/**/test
+web/apps/pwa/e2e
+**/__pycache__

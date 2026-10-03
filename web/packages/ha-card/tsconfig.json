@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../node_modules/.tsc/ha-card",
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": ["src", "test", "vite.config.ts", "package.json"],
+  "references": [{ "path": "../core" }, { "path": "../board" }]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@logrono-bus/pwa",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Web de logrono-bus: asistente, panel y modo pantalla (kiosko)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "icons": "node scripts/icons.mjs",
+    "e2e": "playwright test",
+    "screenshots": "SCREENSHOTS=1 playwright test --project=capturas"
+  },
+  "dependencies": {
+    "@fontsource/atkinson-hyperlegible-next": "5.3.0",
+    "@logrono-bus/board": "workspace:*",
+    "@logrono-bus/core": "workspace:*",
+    "leaflet": "1.9.4",
+    "lit": "3.3.3",
+    "qrcode-generator": "2.0.4"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "@types/leaflet": "1.9.22",
+    "vite": "8.3.2",
+    "vite-plugin-pwa": "2.0.0",
+    "workbox-window": "7.4.1"
+  }
+}

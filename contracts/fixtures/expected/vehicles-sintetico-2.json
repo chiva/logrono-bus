@@ -1,0 +1,50 @@
+{
+  "line_id": "2",
+  "generated_at": "2026-10-03T20:30:36+00:00",
+  "vehicles": [
+    {
+      "id": "42",
+      "line_id": "2",
+      "direction": "desc",
+      "pattern_id": "2:desc",
+      "lat": 42.4656,
+      "lon": -2.4389,
+      "next_stop_id": "101",
+      "recorded_at": "2026-10-03T20:30:00+00:00",
+      "delay_s": 30
+    },
+    {
+      "id": "77",
+      "line_id": "2",
+      "direction": "asc",
+      "pattern_id": "2:asc",
+      "lat": 42.463,
+      "lon": -2.43,
+      "next_stop_id": "100",
+      "recorded_at": "2026-10-03T20:30:10+00:00",
+      "delay_s": 0
+    },
+    {
+      "id": "78",
+      "line_id": "2",
+      "direction": null,
+      "pattern_id": null,
+      "lat": 42.4617,
+      "lon": -2.4065,
+      "next_stop_id": "5",
+      "recorded_at": "2026-10-03T20:30:10+00:00",
+      "delay_s": 0
+    },
+    {
+      "id": "79",
+      "line_id": "2",
+      "direction": "asc",
+      "pattern_id": "2:asc",
+      "lat": 42.47,
+      "lon": -2.44,
+      "next_stop_id": null,
+      "recorded_at": "2026-10-03T20:30:10+00:00",
+      "delay_s": 0
+    }
+  ]
+}

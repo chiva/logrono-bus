@@ -1,0 +1,1836 @@
+{
+  "components": {
+    "schemas": {
+      "Arrival": {
+        "properties": {
+          "aimed": {
+            "format": "date-time",
+            "title": "Aimed",
+            "type": "string"
+          },
+          "cancelled": {
+            "title": "Cancelled",
+            "type": "boolean"
+          },
+          "delay_s": {
+            "title": "Delay S",
+            "type": "integer"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Direction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected": {
+            "format": "date-time",
+            "title": "Expected",
+            "type": "string"
+          },
+          "headsign": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headsign"
+          },
+          "is_approximate": {
+            "title": "Is Approximate",
+            "type": "boolean"
+          },
+          "is_realtime": {
+            "title": "Is Realtime",
+            "type": "boolean"
+          },
+          "line_id": {
+            "title": "Line Id",
+            "type": "string"
+          },
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "pattern_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Id"
+          },
+          "stop_id": {
+            "title": "Stop Id",
+            "type": "string"
+          },
+          "terminates": {
+            "title": "Terminates",
+            "type": "boolean"
+          },
+          "vehicle_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vehicle Id"
+          }
+        },
+        "required": [
+          "stop_id",
+          "line_id",
+          "pattern_id",
+          "direction",
+          "headsign",
+          "aimed",
+          "expected",
+          "minutes",
+          "delay_s",
+          "is_realtime",
+          "is_approximate",
+          "terminates",
+          "cancelled",
+          "vehicle_id"
+        ],
+        "title": "Arrival",
+        "type": "object"
+      },
+      "Board": {
+        "properties": {
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/Card"
+            },
+            "title": "Cards",
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "stale": {
+            "title": "Stale",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "generated_at",
+          "stale",
+          "cards"
+        ],
+        "title": "Board",
+        "type": "object"
+      },
+      "BoardFormat": {
+        "enum": [
+          "json",
+          "text"
+        ],
+        "title": "BoardFormat",
+        "type": "string"
+      },
+      "Card": {
+        "properties": {
+          "arrivals": {
+            "items": {
+              "$ref": "#/components/schemas/Arrival"
+            },
+            "title": "Arrivals",
+            "type": "array"
+          },
+          "colour": {
+            "title": "Colour",
+            "type": "string"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Direction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "headsign": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headsign"
+          },
+          "line_id": {
+            "title": "Line Id",
+            "type": "string"
+          },
+          "line_label": {
+            "title": "Line Label",
+            "type": "string"
+          },
+          "line_name": {
+            "title": "Line Name",
+            "type": "string"
+          },
+          "stop_id": {
+            "title": "Stop Id",
+            "type": "string"
+          },
+          "stop_name": {
+            "title": "Stop Name",
+            "type": "string"
+          },
+          "text_colour": {
+            "title": "Text Colour",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stop_id",
+          "stop_name",
+          "line_id",
+          "line_label",
+          "line_name",
+          "colour",
+          "text_colour",
+          "direction",
+          "headsign",
+          "arrivals"
+        ],
+        "title": "Card",
+        "type": "object"
+      },
+      "CardOrder": {
+        "enum": [
+          "seleccion",
+          "linea",
+          "llegada"
+        ],
+        "type": "string"
+      },
+      "Catalog": {
+        "description": "Static network description: lines, their directions, and stops.\n\nLookups are indexed lazily (``cached_property`` writes straight into the instance ``__dict__``,\nso it works on a frozen dataclass without slots).",
+        "properties": {
+          "fetched_at": {
+            "format": "date-time",
+            "title": "Fetched At",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/Line"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "patterns": {
+            "items": {
+              "$ref": "#/components/schemas/Pattern"
+            },
+            "title": "Patterns",
+            "type": "array"
+          },
+          "stops": {
+            "items": {
+              "$ref": "#/components/schemas/Stop"
+            },
+            "title": "Stops",
+            "type": "array"
+          }
+        },
+        "required": [
+          "lines",
+          "patterns",
+          "stops",
+          "fetched_at"
+        ],
+        "title": "Catalog",
+        "type": "object"
+      },
+      "CircuitState": {
+        "enum": [
+          "closed",
+          "open",
+          "half_open"
+        ],
+        "title": "CircuitState",
+        "type": "string"
+      },
+      "Direction": {
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "type": "string"
+      },
+      "DirectionTimetable": {
+        "description": "Today's service in one direction of a line.",
+        "properties": {
+          "departures": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Departures",
+            "type": "array"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/Direction"
+          },
+          "headsign": {
+            "title": "Headsign",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "pattern_id": {
+            "title": "Pattern Id",
+            "type": "string"
+          },
+          "periods": {
+            "items": {
+              "$ref": "#/components/schemas/ServicePeriod"
+            },
+            "title": "Periods",
+            "type": "array"
+          }
+        },
+        "required": [
+          "pattern_id",
+          "direction",
+          "origin",
+          "headsign",
+          "departures",
+          "periods"
+        ],
+        "title": "DirectionTimetable",
+        "type": "object"
+      },
+      "Health": {
+        "properties": {
+          "api_version": {
+            "title": "Api Version",
+            "type": "integer"
+          },
+          "library_version": {
+            "title": "Library Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "degraded"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "upstream": {
+            "$ref": "#/components/schemas/UpstreamHealth"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "version",
+          "library_version",
+          "api_version",
+          "upstream"
+        ],
+        "title": "Health",
+        "type": "object"
+      },
+      "Line": {
+        "properties": {
+          "colour": {
+            "title": "Colour",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "text_colour": {
+            "title": "Text Colour",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "name",
+          "colour",
+          "text_colour"
+        ],
+        "title": "Line",
+        "type": "object"
+      },
+      "LineDetail": {
+        "properties": {
+          "line": {
+            "$ref": "#/components/schemas/Line"
+          },
+          "patterns": {
+            "items": {
+              "$ref": "#/components/schemas/Pattern"
+            },
+            "title": "Patterns",
+            "type": "array"
+          }
+        },
+        "required": [
+          "line",
+          "patterns"
+        ],
+        "title": "LineDetail",
+        "type": "object"
+      },
+      "LineTimetable": {
+        "properties": {
+          "directions": {
+            "items": {
+              "$ref": "#/components/schemas/DirectionTimetable"
+            },
+            "title": "Directions",
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "line_id": {
+            "title": "Line Id",
+            "type": "string"
+          },
+          "service_date": {
+            "title": "Service Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_id",
+          "service_date",
+          "generated_at",
+          "directions"
+        ],
+        "title": "LineTimetable",
+        "type": "object"
+      },
+      "LineVehicles": {
+        "properties": {
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "line_id": {
+            "title": "Line Id",
+            "type": "string"
+          },
+          "vehicles": {
+            "items": {
+              "$ref": "#/components/schemas/Vehicle"
+            },
+            "title": "Vehicles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "line_id",
+          "generated_at",
+          "vehicles"
+        ],
+        "title": "LineVehicles",
+        "type": "object"
+      },
+      "NearbyStop": {
+        "properties": {
+          "distance_m": {
+            "title": "Distance M",
+            "type": "number"
+          },
+          "stop": {
+            "$ref": "#/components/schemas/Stop"
+          }
+        },
+        "required": [
+          "stop",
+          "distance_m"
+        ],
+        "title": "NearbyStop",
+        "type": "object"
+      },
+      "Pattern": {
+        "description": "One direction of a line: the ordered list of stops a bus visits.",
+        "properties": {
+          "direction": {
+            "$ref": "#/components/schemas/Direction"
+          },
+          "headsign": {
+            "title": "Headsign",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "line_id": {
+            "title": "Line Id",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "stop_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Stop Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "line_id",
+          "direction",
+          "origin",
+          "headsign",
+          "stop_ids"
+        ],
+        "title": "Pattern",
+        "type": "object"
+      },
+      "Problem": {
+        "description": "RFC 9457 error body (``application/problem+json``). Branch on ``type``.",
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "instance": {
+            "title": "Instance",
+            "type": "string"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "instance"
+        ],
+        "title": "Problem",
+        "type": "object"
+      },
+      "ServicePeriod": {
+        "description": "A stretch of the day with a regular headway.",
+        "properties": {
+          "first": {
+            "title": "First",
+            "type": "string"
+          },
+          "interval_max_min": {
+            "title": "Interval Max Min",
+            "type": "integer"
+          },
+          "interval_min": {
+            "title": "Interval Min",
+            "type": "integer"
+          },
+          "last": {
+            "title": "Last",
+            "type": "string"
+          }
+        },
+        "required": [
+          "first",
+          "last",
+          "interval_min",
+          "interval_max_min"
+        ],
+        "title": "ServicePeriod",
+        "type": "object"
+      },
+      "Stop": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "lat": {
+            "title": "Lat",
+            "type": "number"
+          },
+          "line_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Line Ids",
+            "type": "array"
+          },
+          "lon": {
+            "title": "Lon",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "lat",
+          "lon",
+          "line_ids"
+        ],
+        "title": "Stop",
+        "type": "object"
+      },
+      "StopArrivals": {
+        "properties": {
+          "arrivals": {
+            "items": {
+              "$ref": "#/components/schemas/Arrival"
+            },
+            "title": "Arrivals",
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "stop_id": {
+            "title": "Stop Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stop_id",
+          "generated_at",
+          "arrivals"
+        ],
+        "title": "StopArrivals",
+        "type": "object"
+      },
+      "StopDetail": {
+        "properties": {
+          "patterns": {
+            "items": {
+              "$ref": "#/components/schemas/Pattern"
+            },
+            "title": "Patterns",
+            "type": "array"
+          },
+          "stop": {
+            "$ref": "#/components/schemas/Stop"
+          }
+        },
+        "required": [
+          "stop",
+          "patterns"
+        ],
+        "title": "StopDetail",
+        "type": "object"
+      },
+      "TimeStyle": {
+        "description": "How the text board writes each arrival.",
+        "enum": [
+          "minutos",
+          "hora"
+        ],
+        "title": "TimeStyle",
+        "type": "string"
+      },
+      "UpstreamHealth": {
+        "properties": {
+          "catalog_fetched_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalog Fetched At"
+          },
+          "circuit": {
+            "$ref": "#/components/schemas/CircuitState"
+          }
+        },
+        "required": [
+          "circuit",
+          "catalog_fetched_at"
+        ],
+        "title": "UpstreamHealth",
+        "type": "object"
+      },
+      "Vehicle": {
+        "description": "A bus on the road, as last reported.",
+        "properties": {
+          "delay_s": {
+            "title": "Delay S",
+            "type": "integer"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Direction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "lat": {
+            "title": "Lat",
+            "type": "number"
+          },
+          "line_id": {
+            "title": "Line Id",
+            "type": "string"
+          },
+          "lon": {
+            "title": "Lon",
+            "type": "number"
+          },
+          "next_stop_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Stop Id"
+          },
+          "pattern_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pattern Id"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "line_id",
+          "direction",
+          "pattern_id",
+          "lat",
+          "lon",
+          "next_stop_id",
+          "recorded_at",
+          "delay_s"
+        ],
+        "title": "Vehicle",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "\nEstimaciones de paso de los autobuses urbanos de Logroño, normalizadas y con caché compartida.\n\n**Proyecto no oficial.** Los datos proceden del servicio web público del Ayuntamiento de Logroño;\neste servicio solo los reorganiza y limita la frecuencia de consulta.\n",
+    "license": {
+      "identifier": "MIT",
+      "name": "MIT"
+    },
+    "title": "Logroño Bus API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/board": {
+      "get": {
+        "description": "Lo mismo que muestra la web: una tarjeta por línea y sentido, con sus próximas llegadas.",
+        "operationId": "board_api_v1_board_get",
+        "parameters": [
+          {
+            "description": "Selección del panel (como en la URL de la web), p. ej. `101-2d.5a~100-2a`",
+            "in": "query",
+            "name": "p",
+            "required": true,
+            "schema": {
+              "description": "Selección del panel (como en la URL de la web), p. ej. `101-2d.5a~100-2a`",
+              "examples": [
+                "101-2d.5a~100-2a"
+              ],
+              "title": "P",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 3,
+              "maximum": 10,
+              "minimum": 0,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "`text` para widgets de texto",
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/BoardFormat",
+              "default": "json",
+              "description": "`text` para widgets de texto"
+            }
+          },
+          {
+            "description": "`seleccion` (como en `p`), `linea` (por número) o `llegada` (la primera)",
+            "in": "query",
+            "name": "orden",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/CardOrder",
+              "default": "seleccion",
+              "description": "`seleccion` (como en `p`), `linea` (por número) o `llegada` (la primera)"
+            }
+          },
+          {
+            "description": "Con `format=text`: `minutos` (4, 12 min) o `hora` (18:04, 18:12), que sigue siendo cierta aunque el widget tarde en refrescarse",
+            "in": "query",
+            "name": "tiempo",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TimeStyle",
+              "default": "minutos",
+              "description": "Con `format=text`: `minutos` (4, 12 min) o `hora` (18:04, 18:12), que sigue siendo cierta aunque el widget tarde en refrescarse"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Board"
+                }
+              },
+              "text/plain": {}
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Panel: tarjetas de varias paradas",
+        "tags": [
+          "llegadas"
+        ]
+      }
+    },
+    "/api/v1/catalog": {
+      "get": {
+        "description": "Líneas, sentidos y paradas en una sola respuesta: lo que la web carga al arrancar.",
+        "operationId": "get_catalog_api_v1_catalog_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Catalog"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Catálogo completo",
+        "tags": [
+          "catálogo"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "description": "Versión, versión de la API y estado del origen. La web lo usa para detectar el servidor.",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Estado del servicio",
+        "tags": [
+          "operación"
+        ]
+      }
+    },
+    "/api/v1/lines": {
+      "get": {
+        "operationId": "list_lines_api_v1_lines_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Line"
+                  },
+                  "title": "Response List Lines Api V1 Lines Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Líneas",
+        "tags": [
+          "catálogo"
+        ]
+      }
+    },
+    "/api/v1/lines/{line_id}": {
+      "get": {
+        "operationId": "get_line_api_v1_lines__line_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "line_id",
+            "required": true,
+            "schema": {
+              "title": "Line Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LineDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Una línea y sus sentidos",
+        "tags": [
+          "catálogo"
+        ]
+      }
+    },
+    "/api/v1/lines/{line_id}/timetable": {
+      "get": {
+        "description": "Salidas de hoy desde la cabecera de cada sentido y la frecuencia por franjas. Son las horas\nde salida del primer punto de la línea, no las de paso por cada parada.",
+        "operationId": "line_timetable_api_v1_lines__line_id__timetable_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "line_id",
+            "required": true,
+            "schema": {
+              "title": "Line Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LineTimetable"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Horario de hoy de una línea",
+        "tags": [
+          "llegadas"
+        ]
+      }
+    },
+    "/api/v1/lines/{line_id}/vehicles": {
+      "get": {
+        "description": "Última posición conocida de cada autobús de la línea, con su sentido y la parada a la que\nse dirige. Las posiciones de más de 3 minutos se descartan.",
+        "operationId": "line_vehicles_api_v1_lines__line_id__vehicles_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "line_id",
+            "required": true,
+            "schema": {
+              "title": "Line Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LineVehicles"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Dónde están los autobuses de una línea",
+        "tags": [
+          "llegadas"
+        ]
+      }
+    },
+    "/api/v1/stops": {
+      "get": {
+        "operationId": "list_stops_api_v1_stops_get",
+        "parameters": [
+          {
+            "description": "Nombre o número; sin acentos ni mayúsculas",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nombre o número; sin acentos ni mayúsculas",
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Stop"
+                  },
+                  "title": "Response List Stops Api V1 Stops Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Buscar paradas",
+        "tags": [
+          "catálogo"
+        ]
+      }
+    },
+    "/api/v1/stops/nearby": {
+      "get": {
+        "operationId": "nearby_stops_api_v1_stops_nearby_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lat",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "radius_m",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "exclusiveMinimum": 0,
+              "maximum": 5000,
+              "title": "Radius M",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NearbyStop"
+                  },
+                  "title": "Response Nearby Stops Api V1 Stops Nearby Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Paradas cercanas",
+        "tags": [
+          "catálogo"
+        ]
+      }
+    },
+    "/api/v1/stops/{stop_id}": {
+      "get": {
+        "operationId": "get_stop_api_v1_stops__stop_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "stop_id",
+            "required": true,
+            "schema": {
+              "title": "Stop Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StopDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Una parada y sus sentidos",
+        "tags": [
+          "catálogo"
+        ]
+      }
+    },
+    "/api/v1/stops/{stop_id}/arrivals": {
+      "get": {
+        "description": "Llegadas de todas las líneas de la parada, de la más próxima a la más lejana.\n\nLos datos se comparten entre todos los clientes y se renuevan como mucho cada\n`LOGRONO_BUS_ARRIVALS_TTL_S` segundos; la cabecera `X-Cache` dice si vienen de caché.",
+        "operationId": "stop_arrivals_api_v1_stops__stop_id__arrivals_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "stop_id",
+            "required": true,
+            "schema": {
+              "title": "Stop Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filtro de líneas y sentidos, p. ej. `2d.5a` (a=ida, d=vuelta, x=ambos)",
+            "in": "query",
+            "name": "lines",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtro de líneas y sentidos, p. ej. `2d.5a` (a=ida, d=vuelta, x=ambos)",
+              "examples": [
+                "2d.5a"
+              ],
+              "title": "Lines"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StopArrivals"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Selección no válida"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parada o línea inexistente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Parámetros no válidos"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento ha cambiado de formato"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "El servicio del Ayuntamiento no responde (ver `Retry-After`)"
+          }
+        },
+        "summary": "Próximas llegadas a una parada",
+        "tags": [
+          "llegadas"
+        ]
+      }
+    }
+  }
+}

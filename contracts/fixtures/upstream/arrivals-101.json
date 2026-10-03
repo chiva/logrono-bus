@@ -1,0 +1,91 @@
+{
+ "result": {
+  "arrivals": [
+   {
+    "lineRef": "2",
+    "directionRef": "321",
+    "journeyCode": "",
+    "vehicleRef": "55",
+    "stopPointRef": "101",
+    "order": 9,
+    "aimedArrivalTime": "2026-10-03T17:48:36+02:00",
+    "expectedArrivalTime": "2026-10-03T18:02:28+02:00",
+    "aimedDepartureTime": "2026-10-03T17:48:36+02:00",
+    "expectedDepartureTime": "2026-10-03T18:02:28+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 832
+   },
+   {
+    "lineRef": "10",
+    "directionRef": "381",
+    "journeyCode": "",
+    "vehicleRef": "15",
+    "stopPointRef": "101",
+    "order": 14,
+    "aimedArrivalTime": "2026-10-03T18:02:18+02:00",
+    "expectedArrivalTime": "2026-10-03T18:04:07+02:00",
+    "aimedDepartureTime": "2026-10-03T18:02:18+02:00",
+    "expectedDepartureTime": "2026-10-03T18:04:07+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 109
+   },
+   {
+    "lineRef": "5",
+    "directionRef": "462",
+    "journeyCode": "",
+    "vehicleRef": "63",
+    "stopPointRef": "101",
+    "order": 6,
+    "aimedArrivalTime": "2026-10-03T18:06:44+02:00",
+    "expectedArrivalTime": "2026-10-03T18:07:05+02:00",
+    "aimedDepartureTime": "2026-10-03T18:06:44+02:00",
+    "expectedDepartureTime": "2026-10-03T18:07:05+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 21
+   },
+   {
+    "lineRef": "2",
+    "directionRef": "321",
+    "journeyCode": "",
+    "vehicleRef": "88",
+    "stopPointRef": "101",
+    "order": 9,
+    "aimedArrivalTime": "2026-10-03T18:03:36+02:00",
+    "expectedArrivalTime": "2026-10-03T18:08:02+02:00",
+    "aimedDepartureTime": "2026-10-03T18:03:36+02:00",
+    "expectedDepartureTime": "2026-10-03T18:08:02+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 266
+   },
+   {
+    "lineRef": "10",
+    "directionRef": "381",
+    "journeyCode": "",
+    "vehicleRef": "80",
+    "stopPointRef": "101",
+    "order": 14,
+    "aimedArrivalTime": "2026-10-03T18:17:18+02:00",
+    "expectedArrivalTime": "2026-10-03T18:17:29+02:00",
+    "aimedDepartureTime": "2026-10-03T18:17:18+02:00",
+    "expectedDepartureTime": "2026-10-03T18:17:29+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 11
+   }
+  ]
+ }
+}

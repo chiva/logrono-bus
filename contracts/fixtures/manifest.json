@@ -1,0 +1,273 @@
+{
+  "$comment": "Golden fixtures shared by the Python library (pytest) and the TypeScript core (vitest). Regenerate expected/ with `just golden` and review the diff.",
+  "catalog": {
+    "lines": "upstream/lines.json",
+    "stops": "upstream/stops.json",
+    "fetched_at": "2026-10-03T16:00:00+00:00",
+    "expected": "expected/catalog.json"
+  },
+  "arrivals": [
+    {
+      "name": "ayuntamiento-101",
+      "description": "Ayuntamiento hacia Manresa/Dinamarca/Manuel de Falla, mezcla tiempo real y programado",
+      "stop_id": "101",
+      "now": "2026-10-03T18:00:45+02:00",
+      "upstream": "upstream/arrivals-101.json",
+      "expected": "expected/arrivals-ayuntamiento-101.json"
+    },
+    {
+      "name": "ayuntamiento-100",
+      "description": "Ayuntamiento, sentido contrario a la 101",
+      "stop_id": "100",
+      "now": "2026-10-03T18:00:45+02:00",
+      "upstream": "upstream/arrivals-100.json",
+      "expected": "expected/arrivals-ayuntamiento-100.json"
+    },
+    {
+      "name": "ayuntamiento-2",
+      "description": "Línea 1 hacia Iglesia de Lardero",
+      "stop_id": "2",
+      "now": "2026-10-03T17:54:30+02:00",
+      "upstream": "upstream/arrivals-2.json",
+      "expected": "expected/arrivals-ayuntamiento-2.json"
+    },
+    {
+      "name": "ayuntamiento-98",
+      "description": "Línea 1 hacia Puente Madre-Hospital",
+      "stop_id": "98",
+      "now": "2026-10-03T17:54:30+02:00",
+      "upstream": "upstream/arrivals-98.json",
+      "expected": "expected/arrivals-ayuntamiento-98.json"
+    },
+    {
+      "name": "portales-69",
+      "description": "Seis líneas, incluida la B3 (id 33) con horario programado",
+      "stop_id": "69",
+      "now": "2026-10-03T17:54:30+02:00",
+      "upstream": "upstream/arrivals-69.json",
+      "expected": "expected/arrivals-portales-69.json"
+    },
+    {
+      "name": "glorieta-28",
+      "description": "Glorieta Dr. Zubía",
+      "stop_id": "28",
+      "now": "2026-10-03T17:54:30+02:00",
+      "upstream": "upstream/arrivals-28.json",
+      "expected": "expected/arrivals-glorieta-28.json"
+    },
+    {
+      "name": "artesanos-5",
+      "description": "Cabecera: autobuses que terminan aquí y salidas de la B1",
+      "stop_id": "5",
+      "now": "2026-10-03T18:00:45+02:00",
+      "upstream": "upstream/arrivals-5.json",
+      "expected": "expected/arrivals-artesanos-5.json"
+    },
+    {
+      "name": "sintetico-5",
+      "description": "Casos límite: sentido aprendido, sin resolver, cancelado, pasado, línea ajena, id con ceros",
+      "stop_id": "5",
+      "now": "2026-10-03T18:00:00+02:00",
+      "upstream": "upstream/arrivals-sintetico-5.json",
+      "expected": "expected/arrivals-sintetico-5.json"
+    },
+    {
+      "name": "vacio-101",
+      "description": "Sin llegadas",
+      "stop_id": "101",
+      "now": "2026-10-03T18:00:45+02:00",
+      "upstream": "upstream/arrivals-vacio-101.json",
+      "expected": "expected/arrivals-vacio-101.json"
+    },
+    {
+      "name": "noche-101",
+      "description": "Misma hora que las posiciones: línea 10 con autobús a dos paradas",
+      "stop_id": "101",
+      "now": "2026-10-03T20:30:36+00:00",
+      "upstream": "upstream/arrivals-101-noche.json",
+      "expected": "expected/arrivals-noche-101.json"
+    },
+    {
+      "name": "noche-100",
+      "description": "Misma hora que las posiciones: línea 2 hacia Artesanos",
+      "stop_id": "100",
+      "now": "2026-10-03T20:30:36+00:00",
+      "upstream": "upstream/arrivals-100-noche.json",
+      "expected": "expected/arrivals-noche-100.json"
+    }
+  ],
+  "cards": [
+    {
+      "name": "101-parada-completa",
+      "arrivals": "ayuntamiento-101",
+      "p": "101",
+      "limit": 3,
+      "description": "Parada completa: una tarjeta por sentido que pasa (incluida la 7 sin llegadas)",
+      "expected": "expected/cards-101-parada-completa.json"
+    },
+    {
+      "name": "101-seleccion",
+      "arrivals": "ayuntamiento-101",
+      "p": "101-10x.2d.7d",
+      "limit": 2,
+      "description": "Selección explícita en su orden, con límite de 2 llegadas",
+      "expected": "expected/cards-101-seleccion.json"
+    },
+    {
+      "name": "5-cabecera",
+      "arrivals": "sintetico-5",
+      "p": "5",
+      "limit": 3,
+      "description": "Cabecera: se omiten los sentidos que terminan aquí; llegada sin sentido en tarjeta propia",
+      "expected": "expected/cards-5-cabecera.json"
+    },
+    {
+      "name": "5-seleccion-sin-sentido",
+      "arrivals": "sintetico-5",
+      "p": "5-2a.2x.8d",
+      "limit": 3,
+      "description": "La línea 8 no existe: se omite; 2x recoge también la llegada sin sentido",
+      "expected": "expected/cards-5-seleccion-sin-sentido.json"
+    },
+    {
+      "name": "69-b3",
+      "arrivals": "portales-69",
+      "p": "69-33x.9a",
+      "limit": 3,
+      "description": "B3 con etiqueta y 9 en el sentido que no pasa ahora",
+      "expected": "expected/cards-69-b3.json"
+    }
+  ],
+  "sorts": [
+    {
+      "name": "101-parada-completa-seleccion",
+      "cards": "101-parada-completa",
+      "order": "seleccion",
+      "expected": "expected/sort-101-parada-completa-seleccion.json"
+    },
+    {
+      "name": "101-parada-completa-linea",
+      "cards": "101-parada-completa",
+      "order": "linea",
+      "expected": "expected/sort-101-parada-completa-linea.json"
+    },
+    {
+      "name": "101-parada-completa-llegada",
+      "cards": "101-parada-completa",
+      "order": "llegada",
+      "expected": "expected/sort-101-parada-completa-llegada.json"
+    },
+    {
+      "name": "5-cabecera-seleccion",
+      "cards": "5-cabecera",
+      "order": "seleccion",
+      "expected": "expected/sort-5-cabecera-seleccion.json"
+    },
+    {
+      "name": "5-cabecera-linea",
+      "cards": "5-cabecera",
+      "order": "linea",
+      "expected": "expected/sort-5-cabecera-linea.json"
+    },
+    {
+      "name": "5-cabecera-llegada",
+      "cards": "5-cabecera",
+      "order": "llegada",
+      "expected": "expected/sort-5-cabecera-llegada.json"
+    }
+  ],
+  "vehicles": [
+    {
+      "name": "linea-2",
+      "line_id": "2",
+      "now": "2026-10-03T20:30:36+00:00",
+      "upstream": "upstream/vehicles-2.json",
+      "expected": "expected/vehicles-linea-2.json"
+    },
+    {
+      "name": "linea-10",
+      "line_id": "10",
+      "now": "2026-10-03T20:30:36+00:00",
+      "upstream": "upstream/vehicles-10.json",
+      "expected": "expected/vehicles-linea-10.json"
+    },
+    {
+      "name": "sintetico-2",
+      "line_id": "2",
+      "now": "2026-10-03T20:30:36+00:00",
+      "upstream": "upstream/vehicles-sintetico-2.json",
+      "expected": "expected/vehicles-sintetico-2.json"
+    }
+  ],
+  "timetables": [
+    {
+      "name": "linea-2",
+      "line_id": "2",
+      "now": "2026-10-03T22:45:12+00:00",
+      "upstream": "upstream/timetable-2.json",
+      "expected": "expected/timetable-linea-2.json"
+    },
+    {
+      "name": "linea-10",
+      "line_id": "10",
+      "now": "2026-10-03T22:47:30+00:00",
+      "upstream": "upstream/timetable-10.json",
+      "expected": "expected/timetable-linea-10.json"
+    },
+    {
+      "name": "sintetico",
+      "line_id": "2",
+      "now": "2026-10-03T22:45:12+00:00",
+      "description": "Headway as a range, trips past midnight, a direction name the catalogue does not know, a direction with no data",
+      "upstream": "upstream/timetable-sintetico.json",
+      "expected": "expected/timetable-sintetico.json"
+    }
+  ],
+  "services": [
+    {
+      "name": "linea-10-ida",
+      "timetable": "linea-10",
+      "pattern_id": "10:asc",
+      "at": [
+        "2026-10-04T05:00:00+00:00",
+        "2026-10-04T05:15:00+00:00",
+        "2026-10-04T13:20:00+00:00",
+        "2026-10-04T13:40:00+00:00",
+        "2026-10-04T20:45:00+00:00",
+        "2026-10-04T21:00:00+00:00"
+      ],
+      "expected": "expected/servicio-linea-10-ida.json"
+    },
+    {
+      "name": "linea-10-vuelta",
+      "timetable": "linea-10",
+      "pattern_id": "10:desc",
+      "at": [
+        "2026-10-04T21:00:00+00:00",
+        "2026-10-04T21:01:00+00:00"
+      ],
+      "expected": "expected/servicio-linea-10-vuelta.json"
+    },
+    {
+      "name": "sintetico-ida",
+      "timetable": "sintetico",
+      "pattern_id": "2:asc",
+      "at": [
+        "2026-10-04T04:00:00+00:00",
+        "2026-10-04T05:40:00+00:00",
+        "2026-10-04T21:35:00+00:00",
+        "2026-10-04T21:55:00+00:00"
+      ],
+      "expected": "expected/servicio-sintetico-ida.json"
+    },
+    {
+      "name": "sintetico-vuelta",
+      "timetable": "sintetico",
+      "pattern_id": "2:desc",
+      "at": [
+        "2026-10-04T10:00:00+00:00"
+      ],
+      "expected": "expected/servicio-sintetico-vuelta.json"
+    }
+  ]
+}

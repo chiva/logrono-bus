@@ -1,0 +1,104 @@
+[
+  {
+    "stop_id": "101",
+    "stop_name": "Ayuntamiento",
+    "line_id": "10",
+    "line_label": "10",
+    "line_name": "El Arco – Hospital San Pedro",
+    "colour": "#0FDCFC",
+    "text_colour": "#000000",
+    "direction": null,
+    "headsign": null,
+    "arrivals": [
+      {
+        "stop_id": "101",
+        "line_id": "10",
+        "pattern_id": "10:desc",
+        "direction": "desc",
+        "headsign": "Manuel de Falla",
+        "aimed": "2026-10-03T18:02:18+02:00",
+        "expected": "2026-10-03T18:04:07+02:00",
+        "minutes": 3,
+        "delay_s": 109,
+        "is_realtime": true,
+        "is_approximate": true,
+        "terminates": false,
+        "cancelled": false,
+        "vehicle_id": "15"
+      },
+      {
+        "stop_id": "101",
+        "line_id": "10",
+        "pattern_id": "10:desc",
+        "direction": "desc",
+        "headsign": "Manuel de Falla",
+        "aimed": "2026-10-03T18:17:18+02:00",
+        "expected": "2026-10-03T18:17:29+02:00",
+        "minutes": 16,
+        "delay_s": 11,
+        "is_realtime": true,
+        "is_approximate": true,
+        "terminates": false,
+        "cancelled": false,
+        "vehicle_id": "80"
+      }
+    ]
+  },
+  {
+    "stop_id": "101",
+    "stop_name": "Ayuntamiento",
+    "line_id": "2",
+    "line_label": "2",
+    "line_name": "Yagüe – Varea",
+    "colour": "#FFFF00",
+    "text_colour": "#000000",
+    "direction": "desc",
+    "headsign": "Manresa",
+    "arrivals": [
+      {
+        "stop_id": "101",
+        "line_id": "2",
+        "pattern_id": "2:desc",
+        "direction": "desc",
+        "headsign": "Manresa",
+        "aimed": "2026-10-03T17:48:36+02:00",
+        "expected": "2026-10-03T18:02:28+02:00",
+        "minutes": 1,
+        "delay_s": 832,
+        "is_realtime": true,
+        "is_approximate": true,
+        "terminates": false,
+        "cancelled": false,
+        "vehicle_id": "55"
+      },
+      {
+        "stop_id": "101",
+        "line_id": "2",
+        "pattern_id": "2:desc",
+        "direction": "desc",
+        "headsign": "Manresa",
+        "aimed": "2026-10-03T18:03:36+02:00",
+        "expected": "2026-10-03T18:08:02+02:00",
+        "minutes": 7,
+        "delay_s": 266,
+        "is_realtime": true,
+        "is_approximate": true,
+        "terminates": false,
+        "cancelled": false,
+        "vehicle_id": "88"
+      }
+    ]
+  },
+  {
+    "stop_id": "101",
+    "stop_name": "Ayuntamiento",
+    "line_id": "7",
+    "line_label": "7",
+    "line_name": "El Arco – Polígono Cantabria",
+    "colour": "#BABABA",
+    "text_colour": "#000000",
+    "direction": "desc",
+    "headsign": "Enrique Granados",
+    "arrivals": []
+  }
+]

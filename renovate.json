@@ -1,0 +1,52 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices", ":semanticCommits"],
+  "enabledManagers": ["pep621", "npm", "github-actions", "dockerfile", "pre-commit"],
+  "minimumReleaseAge": "3 days",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 4am on monday"]
+  },
+  "packageRules": [
+    {
+      "description": "The service and the web app are applications: pin exact versions so the version declared is the version tested. The library (packages/logrono-bus) keeps floors, because Home Assistant resolves it together with its own pins.",
+      "matchManagers": ["pep621", "npm"],
+      "matchFileNames": ["pyproject.toml", "services/api/pyproject.toml", "web/**"],
+      "rangeStrategy": "pin"
+    },
+    {
+      "description": "The library's dependency ranges are a contract with downstream users (Home Assistant): widen them, never pin.",
+      "matchManagers": ["pep621"],
+      "matchFileNames": ["packages/logrono-bus/pyproject.toml"],
+      "rangeStrategy": "widen"
+    },
+    {
+      "description": "requires-python is support policy, not a dependency.",
+      "matchDepTypes": ["requires-python"],
+      "enabled": false
+    },
+    {
+      "description": "One PR for all non-major updates.",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "non-major dependencies"
+    },
+    {
+      "description": "typescript-eslint supports TypeScript <6.1; hold TypeScript until it catches up.",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1"
+    },
+    {
+      "description": "uv builder and python runtime images must stay on the same Python minor: update them together.",
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["python", "ghcr.io/astral-sh/uv"],
+      "groupName": "python runtime",
+      "allowedVersions": "<3.14"
+    },
+    {
+      "description": "Read the Python version out of the uv image's compound tag (python3.13-trixie-slim).",
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["ghcr.io/astral-sh/uv"],
+      "versioning": "regex:^python(?<major>\\d+)\\.(?<minor>\\d+)-(?<compatibility>.+)$"
+    }
+  ]
+}

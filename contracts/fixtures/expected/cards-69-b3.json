@@ -1,0 +1,43 @@
+[
+  {
+    "stop_id": "69",
+    "stop_name": "Portales",
+    "line_id": "33",
+    "line_label": "B3",
+    "line_name": "Lardero – El Campillo",
+    "colour": "#01FF01",
+    "text_colour": "#000000",
+    "direction": null,
+    "headsign": null,
+    "arrivals": [
+      {
+        "stop_id": "69",
+        "line_id": "33",
+        "pattern_id": "33:desc",
+        "direction": "desc",
+        "headsign": "Iglesia de Lardero",
+        "aimed": "2026-10-03T23:00:50+02:00",
+        "expected": "2026-10-03T23:00:50+02:00",
+        "minutes": 306,
+        "delay_s": 0,
+        "is_realtime": false,
+        "is_approximate": false,
+        "terminates": false,
+        "cancelled": false,
+        "vehicle_id": null
+      }
+    ]
+  },
+  {
+    "stop_id": "69",
+    "stop_name": "Portales",
+    "line_id": "9",
+    "line_label": "9",
+    "line_name": "Pradoviejo – Las Norias",
+    "colour": "#0002FD",
+    "text_colour": "#FFFFFF",
+    "direction": "asc",
+    "headsign": "Las Norias",
+    "arrivals": []
+  }
+]

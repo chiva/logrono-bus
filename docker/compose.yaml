@@ -1,0 +1,27 @@
+# Run your own logrono-bus server (optional: the public web at https://chiva.github.io/logrono-bus/
+# works without it). Benefits: every screen in the house shares one cache, and Home Assistant
+# `rest` sensors and Android widgets (KWGT, HTTP Shortcuts) get a simple JSON/text endpoint.
+#
+#   docker compose -f docker/compose.yaml up -d
+#   then open http://<ip-of-this-machine>:8000
+#
+# Guide: docs/guia/08-servidor-docker.md
+services:
+  logrono-bus:
+    image: ghcr.io/chiva/logrono-bus:latest
+    container_name: logrono-bus
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Every setting is optional; defaults shown. See docs/desarrollo/configuracion.md.
+      LOGRONO_BUS_LOG_LEVEL: INFO
+      # How often each stop is asked to the Ayuntamiento at most, however many screens look at it.
+      LOGRONO_BUS_ARRIVALS_TTL_S: "15"
+      # If you put it behind a reverse proxy under a sub-path (https://casa.example/bus/):
+      # LOGRONO_BUS_ROOT_PATH: /bus
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

@@ -1,0 +1,14 @@
+{
+  "name": "@logrono-bus/board",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Componentes web (Lit) del panel de llegadas: <logrono-bus-board> y <lb-card>",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@logrono-bus/core": "workspace:*",
+    "lit": "3.3.3"
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "state": "en_servicio",
+    "first": "08:00",
+    "last": "23:00",
+    "next_departure": "23:00",
+    "interval_min": 30,
+    "interval_max_min": 30
+  },
+  {
+    "state": "terminado",
+    "first": "08:00",
+    "last": "23:00",
+    "next_departure": null,
+    "interval_min": null,
+    "interval_max_min": null
+  }
+]

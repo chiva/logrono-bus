@@ -1,0 +1,38 @@
+{
+  "$comment": "Board selection codec (URL parameter p, version 1). Shared by logrono_bus.board and web/packages/core/src/selection.ts.",
+  "valid": [
+    {
+      "p": "101",
+      "stops": [{ "stop_id": "101", "lines": [] }]
+    },
+    {
+      "p": "101-2d.5a.7d.10d~100-2a",
+      "stops": [
+        {
+          "stop_id": "101",
+          "lines": [
+            { "line_id": "2", "direction": "desc" },
+            { "line_id": "5", "direction": "asc" },
+            { "line_id": "7", "direction": "desc" },
+            { "line_id": "10", "direction": "desc" }
+          ]
+        },
+        { "stop_id": "100", "lines": [{ "line_id": "2", "direction": "asc" }] }
+      ]
+    },
+    {
+      "p": "69-33x.9d~2-1a",
+      "stops": [
+        {
+          "stop_id": "69",
+          "lines": [
+            { "line_id": "33", "direction": null },
+            { "line_id": "9", "direction": "desc" }
+          ]
+        },
+        { "stop_id": "2", "lines": [{ "line_id": "1", "direction": "asc" }] }
+      ]
+    }
+  ],
+  "invalid": ["", "   ", "101-", "101-2", "101-2q", "10 1", "101-2d..5a", "~101", "101~", "a/b", "1~2~3~4~5~6~7~8~9~10~11~12~13"]
+}

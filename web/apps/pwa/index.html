@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es" data-theme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Logroño Bus · Próximos autobuses</title>
+    <meta
+      name="description"
+      content="Cuánto falta para tu autobús urbano en Logroño. En el móvil, en una pantalla o en Home Assistant. Proyecto no oficial."
+    />
+    <meta name="theme-color" content="#8c1c2c" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <script>
+      // Pre-paint theme: apply the board's `tema` (or the saved preference) before first paint,
+      // so a dark kitchen screen never flashes white on reload.
+      (function () {
+        var theme = 'auto';
+        try {
+          theme =
+            new URLSearchParams(location.search).get('tema') ||
+            JSON.parse(localStorage.getItem('logrono-bus:pantalla:v1') || '{}').theme ||
+            'auto';
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body>
+    <lb-app></lb-app>
+    <noscript>Esta web necesita JavaScript para mostrar las llegadas de los autobuses.</noscript>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

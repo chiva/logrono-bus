@@ -1,0 +1,60 @@
+# Local hooks run the project's own pinned tools through `uv run` / pnpm, so a commit that passes
+# here passes the same checks in CI (no separately-pinned mirror versions drifting apart).
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (lint + autofix)
+        entry: uv run ruff check --fix
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+      - id: mypy
+        name: mypy (strict)
+        entry: uv run mypy
+        language: system
+        pass_filenames: false
+        types_or: [python, pyi]
+      - id: uv-lock
+        name: uv lock --check
+        entry: uv lock --check
+        language: system
+        files: ^(.*pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+      - id: yamllint
+        name: yamllint
+        entry: uv run yamllint
+        language: system
+        types: [yaml]
+      - id: eslint
+        name: eslint (web)
+        entry: pnpm --dir web exec eslint --max-warnings 0
+        language: system
+        files: ^web/.*\.(ts|js)$
+        exclude: \.gen\.ts$
+        pass_filenames: false
+      - id: prettier
+        name: prettier (web)
+        entry: pnpm --dir web exec prettier --check
+        language: system
+        files: ^web/.*\.(ts|js|json|css|html|md)$
+        exclude: ^web/pnpm-lock\.yaml$
+        pass_filenames: false
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b # v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+        exclude: ^(contracts/fixtures/|web/apps/pwa/public/)
+      - id: trailing-whitespace
+        exclude: ^contracts/fixtures/
+      - id: check-json
+        exclude: ^web/.*tsconfig.*\.json$
+      - id: check-toml
+      - id: check-added-large-files
+        args: [--maxkb=600]

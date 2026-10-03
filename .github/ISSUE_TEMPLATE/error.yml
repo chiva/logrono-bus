@@ -1,0 +1,34 @@
+name: Algo no funciona
+description: Un error en la web, el modo pantalla, el servidor o la librería
+labels: [error]
+body:
+  - type: textarea
+    id: que-pasa
+    attributes:
+      label: ¿Qué pasa?
+      description: Qué esperabas y qué ocurre. Una captura o foto ayuda mucho.
+    validations:
+      required: true
+  - type: input
+    id: enlace
+    attributes:
+      label: Enlace del panel
+      placeholder: https://chiva.github.io/logrono-bus/?v=1&p=…
+  - type: dropdown
+    id: donde
+    attributes:
+      label: ¿Dónde?
+      options:
+        - Móvil
+        - Ordenador
+        - Echo Show
+        - Meta Portal
+        - Tablet / otra pantalla
+        - Servidor Docker
+        - Librería Python
+  - type: textarea
+    id: pantalla
+    attributes:
+      label: Datos de esta pantalla
+      description: Copia lo que aparece en «Acerca de → Datos de esta pantalla».
+      render: text

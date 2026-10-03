@@ -1,0 +1,78 @@
+# Virtual uv workspace root: it holds shared tooling configuration and the development dependency
+# groups, but is not itself a package. Each member builds and versions on its own:
+#   packages/logrono-bus  -> the `logrono-bus` library published to PyPI (used by Home Assistant)
+#   services/api          -> the optional FastAPI service shipped as a container image
+# One uv.lock pins the whole workspace, so the service is always tested against the library
+# revision sitting next to it.
+
+[tool.uv.workspace]
+members = ["packages/logrono-bus", "services/api"]
+
+[tool.uv]
+# `uv sync` at the root installs every member plus the `dev` group, so a fresh clone needs one
+# command (`uv sync`, wrapped by `just setup`).
+default-groups = ["dev"]
+
+[dependency-groups]
+test = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "pytest-cov==7.1.0",
+    # starlette.testclient imports httpx2 first (the httpx successor it is built against).
+    "httpx2==2.13.1",
+    "time-machine==3.5.1",
+]
+lint = ["ruff==0.16.10", "yamllint==1.38.0"]
+typing = ["mypy==2.4.0"]
+docs = ["mkdocs-material==9.7.7"]
+tasks = ["rust-just==1.58.0", "pre-commit==4.6.2"]
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "typing" },
+    { include-group = "docs" },
+    { include-group = "tasks" },
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["packages/logrono-bus/src", "services/api/src"]
+extend-exclude = ["web", "site"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "PTH", "RUF", "ASYNC", "SIM"]
+# RUF001-003 flag "ambiguous" characters; en dashes, arrows and accents are deliberate Spanish text.
+ignore = ["E501", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["logrono_bus", "logrono_bus_api"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["packages/logrono-bus/src", "services/api/src"]
+mypy_path = ["packages/logrono-bus/src", "services/api/src"]
+explicit_package_bases = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages/logrono-bus/tests", "services/api/tests"]
+pythonpath = ["packages/logrono-bus/tests"]  # contract_fixtures, fake_upstream: shared by both suites
+addopts = ["--tb=short", "--import-mode=importlib", "-m", "not live"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "live: calls the real upstream API (opt-in: `just test-live` or `pytest -m live`)",
+]
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source = ["logrono_bus", "logrono_bus_api"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "\\.\\.\\."]

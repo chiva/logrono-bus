@@ -1,0 +1,53 @@
+name: Upstream contract
+
+# The Ayuntamiento's API is undocumented and can change without notice (a new bus concession is
+# due in 2027). Every morning, check the real thing still matches what this project expects, and
+# open (or update) an issue when it does not, before users notice. A handful of requests a day.
+
+on:
+  schedule:
+    # 06:17 UTC: buses are running in Logroño (08:17 in summer, 07:17 in winter).
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - id: live
+        # Explicit bash runs with pipefail: without it the step takes tee's exit code and a
+        # failing contract would pass unnoticed.
+        shell: bash
+        run: uv run pytest -m live -v 2>&1 | tee live.log
+        continue-on-error: true
+      - name: Open or update the upstream-drift issue
+        if: ${{ steps.live.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITLE: "El servicio de autobuses del Ayuntamiento ha cambiado"
+        run: |
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          body="La prueba diaria contra el servicio real ha fallado ($run_url).
+
+          \`\`\`
+          $(tail -n 60 live.log)
+          \`\`\`"
+          existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --label upstream-drift --state open \
+            --json number --jq '.[0].number')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --label upstream-drift --body "$body"
+          fi
+          exit 1

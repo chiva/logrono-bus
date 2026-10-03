@@ -1,0 +1,11 @@
+{
+  "name": "@logrono-bus/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Modelo, normalización y fuentes de datos de logrono-bus, sin DOM",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "sideEffects": false
+}

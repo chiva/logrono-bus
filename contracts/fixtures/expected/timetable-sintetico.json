@@ -1,0 +1,40 @@
+{
+  "line_id": "2",
+  "service_date": "2026-10-04",
+  "generated_at": "2026-10-03T22:45:12+00:00",
+  "directions": [
+    {
+      "pattern_id": "2:asc",
+      "direction": "asc",
+      "origin": "Manresa",
+      "headsign": "Artesanos",
+      "departures": [
+        "06:30",
+        "06:42",
+        "06:57",
+        "07:09",
+        "07:21",
+        "07:36",
+        "07:48",
+        "08:00",
+        "23:30",
+        "23:50",
+        "00:10"
+      ],
+      "periods": [
+        {
+          "first": "06:30",
+          "last": "08:00",
+          "interval_min": 12,
+          "interval_max_min": 15
+        },
+        {
+          "first": "08:00",
+          "last": "24:10",
+          "interval_min": 20,
+          "interval_max_min": 20
+        }
+      ]
+    }
+  ]
+}

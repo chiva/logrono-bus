@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Guía de uso
+    url: https://chiva.github.io/logrono-bus/guia/
+    about: Muchas dudas ya están resueltas en la guía y sus preguntas frecuentes.
+  - name: Integración de Home Assistant
+    url: https://github.com/chiva/ha-logrono-bus/issues
+    about: Problemas con los sensores de Home Assistant van en su propio repositorio.

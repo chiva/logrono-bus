@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "logrono-bus"
+version = "0.1.0"
+description = "Cliente asíncrono para las estimaciones de paso de los autobuses urbanos de Logroño"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Santiago Reig" }]
+requires-python = ">=3.13"
+keywords = ["logroño", "autobús", "transporte", "home-assistant", "asyncio"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Natural Language :: Spanish",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+# A library, not an application: a floor rather than a pin, so Home Assistant (which pins its own
+# aiohttp) can always resolve it. The floor is the oldest release the test suite has run against.
+dependencies = ["aiohttp>=3.11"]
+
+[project.urls]
+Homepage = "https://github.com/chiva/logrono-bus"
+Documentation = "https://chiva.github.io/logrono-bus/guia/"
+Issues = "https://github.com/chiva/logrono-bus/issues"
+Changelog = "https://github.com/chiva/logrono-bus/blob/main/packages/logrono-bus/CHANGELOG.md"
+
+[project.scripts]
+logrono-bus = "logrono_bus.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/logrono_bus"]

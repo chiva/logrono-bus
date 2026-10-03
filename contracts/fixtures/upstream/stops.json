@@ -1,0 +1,927 @@
+{
+ "result": {
+  "stops": [
+   {
+    "id": 61,
+    "name": "Olimpia",
+    "lat": 42.463321,
+    "lng": -2.447845,
+    "status": 1,
+    "lines": [
+     31,
+     32,
+     6,
+     2,
+     4,
+     7,
+     3,
+     10
+    ]
+   },
+   {
+    "id": 72,
+    "name": "Plaza del Cerrado",
+    "lat": 42.462297,
+    "lng": -2.408652,
+    "status": 1,
+    "lines": [
+     10,
+     31,
+     2
+    ]
+   },
+   {
+    "id": 83,
+    "name": "Valdegastea",
+    "lat": 42.462196,
+    "lng": -2.47881,
+    "status": 1,
+    "lines": [
+     2
+    ]
+   },
+   {
+    "id": 160,
+    "name": "Pepe Blanco",
+    "lat": 42.460517,
+    "lng": -2.460385,
+    "status": 1,
+    "lines": [
+     5,
+     10
+    ]
+   },
+   {
+    "id": 122,
+    "name": "Camino de Santiago",
+    "lat": 42.461212,
+    "lng": -2.471591,
+    "status": 1,
+    "lines": [
+     32,
+     2,
+     10,
+     7
+    ]
+   },
+   {
+    "id": 848,
+    "name": "La Fombera",
+    "lat": 42.460387,
+    "lng": -2.417342,
+    "status": 1,
+    "lines": [
+     31,
+     2
+    ]
+   },
+   {
+    "id": 22,
+    "name": "I.E.S. Duques de Nájera",
+    "lat": 42.462215,
+    "lng": -2.461514,
+    "status": 1,
+    "lines": [
+     10,
+     5
+    ]
+   },
+   {
+    "id": 84,
+    "name": "Los Lirios",
+    "lat": 42.461055,
+    "lng": -2.421216,
+    "status": 1,
+    "lines": [
+     2,
+     31
+    ]
+   },
+   {
+    "id": 133,
+    "name": "Hospital San Pedro",
+    "lat": 42.453848,
+    "lng": -2.426086,
+    "status": 1,
+    "lines": [
+     32,
+     10,
+     3
+    ]
+   },
+   {
+    "id": 103,
+    "name": "Banco España",
+    "lat": 42.463489,
+    "lng": -2.444549,
+    "status": 1,
+    "lines": [
+     10,
+     9,
+     5,
+     7,
+     2
+    ]
+   },
+   {
+    "id": 56,
+    "name": "Manresa",
+    "lat": 42.460545,
+    "lng": -2.480186,
+    "status": 1,
+    "lines": [
+     2
+    ]
+   },
+   {
+    "id": 156,
+    "name": "Rectorado",
+    "lat": 42.461976,
+    "lng": -2.428834,
+    "status": 1,
+    "lines": [
+     10,
+     4
+    ]
+   },
+   {
+    "id": 21,
+    "name": "Daniel Trevijano",
+    "lat": 42.464564,
+    "lng": -2.451556,
+    "status": 1,
+    "lines": [
+     6,
+     7,
+     33,
+     4,
+     10,
+     2,
+     31,
+     32,
+     3
+    ]
+   },
+   {
+    "id": 201,
+    "name": "Enrique Granados",
+    "lat": 42.458135,
+    "lng": -2.48276,
+    "status": 1,
+    "lines": [
+     32,
+     10
+    ]
+   },
+   {
+    "id": 127,
+    "name": "Alcalde Emilio Francés",
+    "lat": 42.464766,
+    "lng": -2.435681,
+    "status": 1,
+    "lines": [
+     2,
+     5,
+     7,
+     10
+    ]
+   },
+   {
+    "id": 67,
+    "name": "Los Fueros",
+    "lat": 42.461037,
+    "lng": -2.475329,
+    "status": 1,
+    "lines": [
+     2
+    ]
+   },
+   {
+    "id": 43,
+    "name": "Labradores",
+    "lat": 42.464889,
+    "lng": -2.453646,
+    "status": 1,
+    "lines": [
+     7,
+     3,
+     2,
+     6,
+     32
+    ]
+   },
+   {
+    "id": 163,
+    "name": "Marianistas",
+    "lat": 42.451667,
+    "lng": -2.418603,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 37,
+    "name": "Iglesia de Varea",
+    "lat": 42.463678,
+    "lng": -2.407496,
+    "status": 1,
+    "lines": [
+     31,
+     2,
+     10
+    ]
+   },
+   {
+    "id": 153,
+    "name": "Camino de Santiago",
+    "lat": 42.461205,
+    "lng": -2.471251,
+    "status": 1,
+    "lines": [
+     32,
+     10,
+     7,
+     2
+    ]
+   },
+   {
+    "id": 810,
+    "name": "Segador",
+    "lat": 42.454163,
+    "lng": -2.417096,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 123,
+    "name": "Portillejo",
+    "lat": 42.462152,
+    "lng": -2.467812,
+    "status": 1,
+    "lines": [
+     10,
+     7,
+     2,
+     32
+    ]
+   },
+   {
+    "id": 48,
+    "name": "Linares",
+    "lat": 42.453886,
+    "lng": -2.426536,
+    "status": 1,
+    "lines": [
+     32,
+     10,
+     3
+    ]
+   },
+   {
+    "id": 5,
+    "name": "Artesanos",
+    "lat": 42.461717,
+    "lng": -2.406467,
+    "status": 1,
+    "lines": [
+     10,
+     31,
+     2
+    ]
+   },
+   {
+    "id": 126,
+    "name": "Palacio de Justicia",
+    "lat": 42.464576,
+    "lng": -2.457942,
+    "status": 1,
+    "lines": [
+     32,
+     7,
+     2
+    ]
+   },
+   {
+    "id": 100,
+    "name": "Ayuntamiento",
+    "lat": 42.465222,
+    "lng": -2.438669,
+    "status": 1,
+    "lines": [
+     10,
+     2,
+     7,
+     5
+    ]
+   },
+   {
+    "id": 803,
+    "name": "Glorieta Dr. Zubía",
+    "lat": 42.466299,
+    "lng": -2.442141,
+    "status": 1,
+    "lines": [
+     9
+    ]
+   },
+   {
+    "id": 199,
+    "name": "Baltasar Gracián",
+    "lat": 42.456286,
+    "lng": -2.431038,
+    "status": 1,
+    "lines": [
+     10,
+     3,
+     32
+    ]
+   },
+   {
+    "id": 80,
+    "name": "Toledo",
+    "lat": 42.460009,
+    "lng": -2.477004,
+    "status": 1,
+    "lines": [
+     2,
+     10,
+     32,
+     7
+    ]
+   },
+   {
+    "id": 130,
+    "name": "La Cadena",
+    "lat": 42.460323,
+    "lng": -2.413609,
+    "status": 1,
+    "lines": [
+     31,
+     2,
+     10
+    ]
+   },
+   {
+    "id": 31,
+    "name": "Palacio de Justicia",
+    "lat": 42.464582,
+    "lng": -2.457297,
+    "status": 1,
+    "lines": [
+     2,
+     32,
+     7
+    ]
+   },
+   {
+    "id": 143,
+    "name": "Plaza 1º de Mayo",
+    "lat": 42.460753,
+    "lng": -2.455019,
+    "status": 1,
+    "lines": [
+     10,
+     4,
+     31
+    ]
+   },
+   {
+    "id": 157,
+    "name": "Vitoria",
+    "lat": 42.463968,
+    "lng": -2.453118,
+    "status": 1,
+    "lines": [
+     31,
+     10,
+     4
+    ]
+   },
+   {
+    "id": 91,
+    "name": "Rectorado",
+    "lat": 42.462509,
+    "lng": -2.427406,
+    "status": 1,
+    "lines": [
+     31,
+     7,
+     2
+    ]
+   },
+   {
+    "id": 159,
+    "name": "Rectorado",
+    "lat": 42.462165,
+    "lng": -2.428711,
+    "status": 1,
+    "lines": [
+     4,
+     10
+    ]
+   },
+   {
+    "id": 164,
+    "name": "Marianistas",
+    "lat": 42.451884,
+    "lng": -2.418856,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 104,
+    "name": "Banco España",
+    "lat": 42.463577,
+    "lng": -2.444699,
+    "status": 1,
+    "lines": [
+     5,
+     33,
+     7,
+     2,
+     9
+    ]
+   },
+   {
+    "id": 197,
+    "name": "Serón",
+    "lat": 42.457238,
+    "lng": -2.414319,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 162,
+    "name": "Puente Madre",
+    "lat": 42.453056,
+    "lng": -2.424403,
+    "status": 1,
+    "lines": [
+     10,
+     3
+    ]
+   },
+   {
+    "id": 811,
+    "name": "Serón",
+    "lat": 42.456449,
+    "lng": -2.414947,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 69,
+    "name": "Portales",
+    "lat": 42.46626,
+    "lng": -2.442653,
+    "status": 1,
+    "lines": [
+     2,
+     10,
+     7,
+     33,
+     9,
+     5
+    ]
+   },
+   {
+    "id": 30,
+    "name": "Noveno Centenario",
+    "lat": 42.463277,
+    "lng": -2.429722,
+    "status": 1,
+    "lines": [
+     7,
+     10,
+     2
+    ]
+   },
+   {
+    "id": 203,
+    "name": "Toledo",
+    "lat": 42.459767,
+    "lng": -2.477359,
+    "status": 1,
+    "lines": [
+     7,
+     32,
+     10
+    ]
+   },
+   {
+    "id": 64,
+    "name": "Pepe Blanco",
+    "lat": 42.4603,
+    "lng": -2.458307,
+    "status": 1,
+    "lines": [
+     10,
+     31,
+     5
+    ]
+   },
+   {
+    "id": 125,
+    "name": "Conservatorio",
+    "lat": 42.463879,
+    "lng": -2.460904,
+    "status": 1,
+    "lines": [
+     2,
+     32,
+     7
+    ]
+   },
+   {
+    "id": 35,
+    "name": "Hospital San Pedro",
+    "lat": 42.453176,
+    "lng": -2.424986,
+    "status": 1,
+    "lines": [
+     3,
+     10
+    ]
+   },
+   {
+    "id": 70,
+    "name": "Portillejo",
+    "lat": 42.461977,
+    "lng": -2.468005,
+    "status": 1,
+    "lines": [
+     2,
+     10,
+     32,
+     7
+    ]
+   },
+   {
+    "id": 610,
+    "name": "Quevedo",
+    "lat": 42.455783,
+    "lng": -2.429389,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 101,
+    "name": "Ayuntamiento",
+    "lat": 42.46563,
+    "lng": -2.439249,
+    "status": 1,
+    "lines": [
+     7,
+     5,
+     10,
+     2
+    ]
+   },
+   {
+    "id": 29,
+    "name": "Gonzalo de Berceo",
+    "lat": 42.46523,
+    "lng": -2.455248,
+    "status": 1,
+    "lines": [
+     2,
+     32,
+     7
+    ]
+   },
+   {
+    "id": 2,
+    "name": "Ayuntamiento",
+    "lat": 42.466966,
+    "lng": -2.438195,
+    "status": 1,
+    "lines": [
+     1
+    ]
+   },
+   {
+    "id": 81,
+    "name": "Torre de Logroño",
+    "lat": 42.463535,
+    "lng": -2.447466,
+    "status": 1,
+    "lines": [
+     6,
+     32,
+     7,
+     4,
+     2,
+     33,
+     31,
+     3
+    ]
+   },
+   {
+    "id": 59,
+    "name": "Luisa Marín Lacalle",
+    "lat": 42.462895,
+    "lng": -2.439833,
+    "status": 1,
+    "lines": [
+     1
+    ]
+   },
+   {
+    "id": 198,
+    "name": "Segador",
+    "lat": 42.454117,
+    "lng": -2.416865,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 92,
+    "name": "Rectorado",
+    "lat": 42.462588,
+    "lng": -2.426907,
+    "status": 1,
+    "lines": [
+     2,
+     31,
+     7
+    ]
+   },
+   {
+    "id": 154,
+    "name": "Lardero",
+    "lat": 42.464091,
+    "lng": -2.450709,
+    "status": 1,
+    "lines": [
+     32,
+     4,
+     7,
+     6,
+     2,
+     10,
+     3,
+     31
+    ]
+   },
+   {
+    "id": 129,
+    "name": "Los Lirios",
+    "lat": 42.461282,
+    "lng": -2.421494,
+    "status": 1,
+    "lines": [
+     31,
+     2
+    ]
+   },
+   {
+    "id": 195,
+    "name": "Enrique Granados",
+    "lat": 42.458111,
+    "lng": -2.482579,
+    "status": 1,
+    "lines": [
+     10,
+     7,
+     32
+    ]
+   },
+   {
+    "id": 12,
+    "name": "Ciriaco Garrido",
+    "lat": 42.463229,
+    "lng": -2.439903,
+    "status": 1,
+    "lines": [
+     1
+    ]
+   },
+   {
+    "id": 124,
+    "name": "Paula Montalt",
+    "lat": 42.462991,
+    "lng": -2.46436,
+    "status": 1,
+    "lines": [
+     10,
+     7,
+     2,
+     5,
+     32
+    ]
+   },
+   {
+    "id": 1,
+    "name": "Tirso de Molina",
+    "lat": 42.459742,
+    "lng": -2.428013,
+    "status": 1,
+    "lines": [
+     4,
+     10
+    ]
+   },
+   {
+    "id": 65,
+    "name": "La Cadena",
+    "lat": 42.46034,
+    "lng": -2.413402,
+    "status": 1,
+    "lines": [
+     10,
+     2,
+     31
+    ]
+   },
+   {
+    "id": 34,
+    "name": "Hospital San Millán",
+    "lat": 42.463658,
+    "lng": -2.432054,
+    "status": 1,
+    "lines": [
+     7,
+     2,
+     5,
+     10
+    ]
+   },
+   {
+    "id": 76,
+    "name": "Estanque",
+    "lat": 42.462957,
+    "lng": -2.464062,
+    "status": 1,
+    "lines": [
+     7,
+     5,
+     32,
+     10,
+     2
+    ]
+   },
+   {
+    "id": 98,
+    "name": "Ayuntamiento",
+    "lat": 42.467236,
+    "lng": -2.437934,
+    "status": 1,
+    "lines": [
+     1
+    ]
+   },
+   {
+    "id": 161,
+    "name": "Puente Madre-Hospital",
+    "lat": 42.452492,
+    "lng": -2.423265,
+    "status": 1,
+    "lines": [
+     3,
+     10
+    ]
+   },
+   {
+    "id": 849,
+    "name": "La Fombera",
+    "lat": 42.460097,
+    "lng": -2.416992,
+    "status": 1,
+    "lines": [
+     2,
+     31
+    ]
+   },
+   {
+    "id": 88,
+    "name": "Vitoria",
+    "lat": 42.464032,
+    "lng": -2.4533,
+    "status": 1,
+    "lines": [
+     4,
+     31,
+     10
+    ]
+   },
+   {
+    "id": 609,
+    "name": "Quevedo",
+    "lat": 42.457139,
+    "lng": -2.428598,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 128,
+    "name": "Hospital San Millán",
+    "lat": 42.463939,
+    "lng": -2.432441,
+    "status": 1,
+    "lines": [
+     7,
+     2,
+     31,
+     10
+    ]
+   },
+   {
+    "id": 202,
+    "name": "Manuel de Falla",
+    "lat": 42.456917,
+    "lng": -2.478495,
+    "status": 1,
+    "lines": [
+     32,
+     10
+    ]
+   },
+   {
+    "id": 77,
+    "name": "Alcalde Emilio Francés",
+    "lat": 42.464422,
+    "lng": -2.435307,
+    "status": 1,
+    "lines": [
+     2,
+     7,
+     5,
+     10
+    ]
+   },
+   {
+    "id": 809,
+    "name": "Plaza de Abastos",
+    "lat": 42.465415,
+    "lng": -2.446927,
+    "status": 1,
+    "lines": [
+     10
+    ]
+   },
+   {
+    "id": 613,
+    "name": "Tirso de Molina",
+    "lat": 42.45547,
+    "lng": -2.42983,
+    "status": 1,
+    "lines": [
+     10,
+     32
+    ]
+   },
+   {
+    "id": 17,
+    "name": "Conservatorio",
+    "lat": 42.463584,
+    "lng": -2.461356,
+    "status": 1,
+    "lines": [
+     32,
+     7,
+     2
+    ]
+   },
+   {
+    "id": 28,
+    "name": "Glorieta Dr. Zubía",
+    "lat": 42.46603,
+    "lng": -2.441873,
+    "status": 1,
+    "lines": [
+     5,
+     2,
+     7,
+     10
+    ]
+   },
+   {
+    "id": 66,
+    "name": "Plaza 1º de Mayo",
+    "lat": 42.460843,
+    "lng": -2.455152,
+    "status": 1,
+    "lines": [
+     4,
+     31,
+     10
+    ]
+   }
+  ]
+ }
+}

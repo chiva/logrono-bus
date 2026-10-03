@@ -1,0 +1,70 @@
+{
+  "stop_id": "28",
+  "generated_at": "2026-10-03T17:54:30+02:00",
+  "arrivals": [
+    {
+      "stop_id": "28",
+      "line_id": "10",
+      "pattern_id": "10:asc",
+      "direction": "asc",
+      "headsign": "Artesanos",
+      "aimed": "2026-10-03T18:01:07+02:00",
+      "expected": "2026-10-03T18:00:02+02:00",
+      "minutes": 5,
+      "delay_s": -65,
+      "is_realtime": true,
+      "is_approximate": true,
+      "terminates": false,
+      "cancelled": false,
+      "vehicle_id": "60"
+    },
+    {
+      "stop_id": "28",
+      "line_id": "2",
+      "pattern_id": "2:asc",
+      "direction": "asc",
+      "headsign": "Artesanos",
+      "aimed": "2026-10-03T18:03:15+02:00",
+      "expected": "2026-10-03T18:06:04+02:00",
+      "minutes": 11,
+      "delay_s": 169,
+      "is_realtime": true,
+      "is_approximate": true,
+      "terminates": false,
+      "cancelled": false,
+      "vehicle_id": "61"
+    },
+    {
+      "stop_id": "28",
+      "line_id": "5",
+      "pattern_id": "5:desc",
+      "direction": "desc",
+      "headsign": "Barrio Ballesteros",
+      "aimed": "2026-10-03T18:09:08+02:00",
+      "expected": "2026-10-03T18:07:31+02:00",
+      "minutes": 13,
+      "delay_s": -97,
+      "is_realtime": true,
+      "is_approximate": true,
+      "terminates": false,
+      "cancelled": false,
+      "vehicle_id": "134"
+    },
+    {
+      "stop_id": "28",
+      "line_id": "10",
+      "pattern_id": "10:asc",
+      "direction": "asc",
+      "headsign": "Artesanos",
+      "aimed": "2026-10-03T18:16:07+02:00",
+      "expected": "2026-10-03T18:14:37+02:00",
+      "minutes": 20,
+      "delay_s": -90,
+      "is_realtime": true,
+      "is_approximate": true,
+      "terminates": false,
+      "cancelled": false,
+      "vehicle_id": "70"
+    }
+  ]
+}

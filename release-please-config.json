@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "separate-pull-requests": true,
+  "include-component-in-tag": true,
+  "packages": {
+    "packages/logrono-bus": {
+      "release-type": "python",
+      "component": "logrono-bus",
+      "package-name": "logrono-bus",
+      "extra-files": ["src/logrono_bus/_version.py"]
+    },
+    ".": {
+      "release-type": "simple",
+      "component": "app",
+      "exclude-paths": ["packages/logrono-bus"],
+      "extra-files": [
+        "services/api/src/logrono_bus_api/__init__.py",
+        { "type": "toml", "path": "services/api/pyproject.toml", "jsonpath": "$.project.version" },
+        { "type": "json", "path": "web/apps/pwa/package.json", "jsonpath": "$.version" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,135 @@
+/*
+ * Themes: design tokens as CSS custom properties. Components (including the shadow DOM of
+ * <logrono-bus-board> and <lb-card>) only read these variables, so a theme is just a block here.
+ *
+ * Two card styles exist, chosen with --lb-card-style:
+ *   - fill (default): the card is painted in the line colour.
+ *   - strip: a neutral card with a thick stripe and a badge in the line colour. Used where
+ *     maximum legibility matters (alto contraste, tinta).
+ */
+
+:root {
+  --lb-font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --lb-radius: 18px;
+  --lb-gap: 14px;
+  --lb-accent: #8c1c2c;
+  --lb-accent-fg: #ffffff;
+  --lb-focus: #2563eb;
+  --lb-warning-bg: #fff3cd;
+  --lb-warning-fg: #5c4400;
+
+  --lb-bg: #f3f4f6;
+  --lb-fg: #111827;
+  --lb-muted: #4b5563;
+  --lb-surface: #ffffff;
+  --lb-surface-2: #e5e7eb;
+  --lb-border: #d1d5db;
+  --lb-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(15 23 42 / 0.08);
+  color-scheme: light;
+}
+
+:root[data-theme='oscuro'] {
+  --lb-bg: #0e1116;
+  --lb-fg: #f3f4f6;
+  --lb-muted: #a3acb9;
+  --lb-surface: #181c23;
+  --lb-surface-2: #232934;
+  --lb-border: #2f3642;
+  --lb-accent: #e0525f;
+  --lb-focus: #7aa2ff;
+  --lb-shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 10px 30px rgb(0 0 0 / 0.35);
+  --lb-warning-bg: #4a3b00;
+  --lb-warning-fg: #ffe9a6;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] {
+    --lb-bg: #0e1116;
+    --lb-fg: #f3f4f6;
+    --lb-muted: #a3acb9;
+    --lb-surface: #181c23;
+    --lb-surface-2: #232934;
+    --lb-border: #2f3642;
+    --lb-accent: #e0525f;
+    --lb-focus: #7aa2ff;
+    --lb-shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 10px 30px rgb(0 0 0 / 0.35);
+    --lb-warning-bg: #4a3b00;
+    --lb-warning-fg: #ffe9a6;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='alto-contraste'] {
+  --lb-bg: #000000;
+  --lb-fg: #ffffff;
+  --lb-muted: #ffffff;
+  --lb-surface: #000000;
+  --lb-surface-2: #1a1a1a;
+  --lb-border: #ffffff;
+  --lb-accent: #ffff00;
+  --lb-accent-fg: #000000;
+  --lb-focus: #00ffff;
+  --lb-shadow: none;
+  --lb-warning-bg: #ffff00;
+  --lb-warning-fg: #000000;
+  --lb-card-style: strip;
+  --lb-card-border-width: 3px;
+  --lb-card-strip: 16px;
+  --lb-badge-outline: 2px solid #ffffff;
+  color-scheme: dark;
+}
+
+/* Logroño: cream paper and Rioja wine. */
+:root[data-theme='logrono'] {
+  --lb-bg: #f6efe6;
+  --lb-fg: #2a1416;
+  --lb-muted: #6b4f4f;
+  --lb-surface: #fffaf3;
+  --lb-surface-2: #efe3d3;
+  --lb-border: #e0cdb8;
+  --lb-accent: #8c1c2c;
+  --lb-accent-fg: #fffaf3;
+  --lb-radius: 24px;
+  --lb-shadow: 0 2px 4px rgb(90 30 30 / 0.08), 0 12px 32px rgb(90 30 30 / 0.12);
+  color-scheme: light;
+}
+
+/* Tinta: e-ink look. No shadows, no motion, black on white; the line colour only marks. */
+:root[data-theme='tinta'] {
+  --lb-bg: #ffffff;
+  --lb-fg: #000000;
+  --lb-muted: #000000;
+  --lb-surface: #ffffff;
+  --lb-surface-2: #f2f2f2;
+  --lb-border: #000000;
+  --lb-accent: #000000;
+  --lb-accent-fg: #ffffff;
+  --lb-focus: #000000;
+  --lb-radius: 6px;
+  --lb-shadow: none;
+  --lb-warning-bg: #000000;
+  --lb-warning-fg: #ffffff;
+  --lb-card-style: strip;
+  --lb-card-border-width: 2px;
+  --lb-card-strip: 12px;
+  --lb-badge-outline: 2px solid #000000;
+  --lb-motion: none;
+  color-scheme: light;
+}
+
+:root[data-theme='tinta'] *,
+:root[data-theme='tinta'] *::before,
+:root[data-theme='tinta'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

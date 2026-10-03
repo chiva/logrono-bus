@@ -1,0 +1,23 @@
+{
+ "result": {
+  "arrivals": [
+   {
+    "lineRef": "1",
+    "directionRef": "401",
+    "journeyCode": "",
+    "vehicleRef": "18",
+    "stopPointRef": "2",
+    "order": 9,
+    "aimedArrivalTime": "2026-10-03T17:54:00+02:00",
+    "expectedArrivalTime": "2026-10-03T17:55:31+02:00",
+    "aimedDepartureTime": "2026-10-03T17:54:00+02:00",
+    "expectedDepartureTime": "2026-10-03T17:55:31+02:00",
+    "arrivalStatus": "NO_REPORT",
+    "departureStatus": "NO_REPORT",
+    "cancellation": false,
+    "predictionInaccurate": true,
+    "delaySeconds": 91
+   }
+  ]
+ }
+}

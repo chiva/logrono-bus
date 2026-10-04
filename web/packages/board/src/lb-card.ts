@@ -121,6 +121,7 @@ export class LbCard extends LitElement {
       color: var(--line-text);
       box-shadow: var(--lb-shadow, none);
       overflow: hidden;
+      position: relative;
     }
     :host([variant='strip']) article {
       background: var(--lb-surface, #fff);
@@ -143,15 +144,17 @@ export class LbCard extends LitElement {
     }
     :host([intensity='intensa']) article {
       filter: saturate(1.35) contrast(1.06);
-      box-shadow:
-        var(--lb-shadow, none),
-        inset 0 0 0 3px rgba(0, 0, 0, 0.12);
+    }
+    /* Own layer: appending it to var(--lb-shadow) breaks when that is none or unset (HA card). */
+    :host([intensity='intensa']:not([variant='strip'])) article::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.12);
+      pointer-events: none;
     }
     /* Ring anchored to the card edge: Firefox floors outline widths but not outline-offset, which left an inset gap. */
-    :host([alert][effect='borde']) article,
-    :host([alert][effect='pulso']) article {
-      position: relative;
-    }
     :host([alert][effect='borde']) article::after,
     :host([alert][effect='pulso']) article::after {
       content: '';

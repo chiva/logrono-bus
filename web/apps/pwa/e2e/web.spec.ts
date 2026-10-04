@@ -47,6 +47,15 @@ test('los campos de aspecto del asistente no se solapan', async ({ page }) => {
   );
 });
 
+test('el mapa de paradas aplica los estilos de Leaflet', async ({ page }) => {
+  await page.goto('./#asistente');
+  await page.getByRole('button', { name: /Ver mapa/ }).click();
+  const tilePane = page.locator('lb-stop-map .leaflet-tile-pane');
+  await expect(tilePane).toBeAttached();
+  await expect(tilePane).toHaveCSS('position', 'absolute');
+  await expect(page.locator('lb-stop-map .leaflet-control-zoom-in')).toBeVisible();
+});
+
 test('el panel comparte su enlace con un código QR', async ({ page }) => {
   await page.goto('./?v=1&p=101-2d');
   await page.getByRole('button', { name: /Compartir/ }).click();

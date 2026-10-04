@@ -1,11 +1,19 @@
 /**
  * `<lb-stop-map>`: every stop on an OpenStreetMap map. Loaded on demand (Leaflet is the largest
- * dependency), and rendered in light DOM because Leaflet's stylesheet is global.
+ * dependency). It lives inside the stop picker's shadow root, where a global stylesheet never
+ * reaches, so Leaflet's CSS is adopted by the map's own shadow root.
  */
 import type { Stop } from '@logrono-bus/core';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { LitElement, type PropertyDeclarations, type PropertyValues } from 'lit';
+import leafletCss from 'leaflet/dist/leaflet.css?inline';
+import {
+  css,
+  html,
+  LitElement,
+  type PropertyDeclarations,
+  type PropertyValues,
+  unsafeCSS,
+} from 'lit';
 
 import { AYUNTAMIENTO } from './stop-picker.ts';
 
@@ -30,13 +38,26 @@ export class LbStopMap extends LitElement {
     this.stops = [];
   }
 
-  protected override createRenderRoot(): HTMLElement {
-    return this;
+  static override styles = [
+    unsafeCSS(leafletCss),
+    css`
+      :host {
+        display: block;
+      }
+      .canvas {
+        height: 100%;
+      }
+    `,
+  ];
+
+  override render() {
+    return html`<div class="canvas"></div>`;
   }
 
   override firstUpdated(): void {
-    this.style.display = 'block';
-    this.#map = L.map(this, { zoomControl: true }).setView(
+    const canvas = this.renderRoot.querySelector<HTMLElement>('.canvas');
+    if (!canvas) return;
+    this.#map = L.map(canvas, { zoomControl: true }).setView(
       [AYUNTAMIENTO.lat, AYUNTAMIENTO.lon],
       INITIAL_ZOOM,
     );

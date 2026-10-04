@@ -33,6 +33,20 @@ test('el asistente crea un panel con las líneas elegidas', async ({ page }) => 
   await expect(cards(page)).toHaveCount(3);
 });
 
+test('los campos de aspecto del asistente no se solapan', async ({ page }) => {
+  await page.goto('./#asistente');
+  await page.getByPlaceholder(/Nombre o número de parada/).fill('ayunta');
+  await page.getByRole('button', { name: /Ayuntamiento · nº 101/ }).click();
+  await page.getByRole('button', { name: 'Añadir al panel' }).click();
+  const title = await page.getByLabel('Título (opcional)').boundingBox();
+  const perCard = await page.getByLabel('Llegadas por tarjeta').boundingBox();
+  if (!title || !perCard) throw new Error('Los campos de aspecto no se han dibujado');
+  const sameRow = Math.abs(title.y - perCard.y) < 1;
+  expect(sameRow ? title.x + title.width : title.y + title.height).toBeLessThanOrEqual(
+    sameRow ? perCard.x : perCard.y,
+  );
+});
+
 test('el panel comparte su enlace con un código QR', async ({ page }) => {
   await page.goto('./?v=1&p=101-2d');
   await page.getByRole('button', { name: /Compartir/ }).click();

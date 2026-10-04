@@ -83,8 +83,10 @@ export const uiStyles = css`
     background: transparent;
     border-color: transparent;
   }
+  /* base.css's border-box does not cross shadow roots; without it width: 100% overflows the cell. */
   input,
   select {
+    box-sizing: border-box;
     font: inherit;
     min-height: 44px;
     padding: 0.5em 0.9em;

@@ -1,6 +1,7 @@
 /**
  * Screenshots for the guide (docs/guia/img). Run with `just screenshots`; skipped otherwise so the
- * images only change when someone means to change them.
+ * images only change when someone means to change them. Animations are stopped at a fixed frame
+ * (finite ones at their end, infinite ones at their start) so two runs give identical images.
  */
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -116,6 +117,6 @@ for (const shot of SHOTS) {
       await page.locator('lb-route lb-timetable li.next').waitFor();
     }
     await page.waitForTimeout(500);
-    await page.screenshot({ path: join(OUT, shot.file) });
+    await page.screenshot({ path: join(OUT, shot.file), animations: 'disabled' });
   });
 }

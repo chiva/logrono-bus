@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/chiva/logrono-bus/compare/app-v0.1.2...app-v0.1.3) (2026-10-04)
+
+
+### Bug Fixes
+
+* **pwa:** campos del asistente sin solaparse y mapa de paradas con los estilos de Leaflet ([#10](https://github.com/chiva/logrono-bus/issues/10)) ([38aac7f](https://github.com/chiva/logrono-bus/commit/38aac7f577be787dace562ba454841fc58324158))
+
 ## [0.1.2](https://github.com/chiva/logrono-bus/compare/app-v0.1.1...app-v0.1.2) (2026-10-04)
 
 

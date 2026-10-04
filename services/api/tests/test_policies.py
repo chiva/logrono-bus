@@ -164,6 +164,45 @@ def test_circuit_breaker_state_machine() -> None:
     assert breaker.state is CircuitState.CLOSED
 
 
+async def test_half_open_guard_lets_a_single_probe_through() -> None:
+    """After an outage, many screens refreshing at once must not all hit the upstream."""
+    clock = ManualClock()
+    guard = UpstreamGuard(
+        bucket=TokenBucket(rate_per_s=100, burst=10),
+        breaker=CircuitBreaker(failures=1, reset_s=30, clock=clock),
+    )
+    calls = 0
+    release = asyncio.Event()
+
+    async def still_down() -> int:
+        nonlocal calls
+        calls += 1
+        await release.wait()
+        raise UpstreamUnavailable("caído")
+
+    release.set()
+    with pytest.raises(UpstreamUnavailable):
+        await guard.call(still_down)
+    assert guard.breaker.state is CircuitState.OPEN
+
+    clock.now += 30
+    release.clear()
+    attempts = [asyncio.create_task(guard.call(still_down)) for _ in range(5)]
+    await asyncio.sleep(0.01)
+    release.set()
+    results = await asyncio.gather(*attempts, return_exceptions=True)
+    assert calls == 2, "only one probe reaches the upstream"
+    assert sum(isinstance(r, CircuitOpen) for r in results) == 4
+    assert guard.breaker.state is CircuitState.OPEN
+
+    async def back() -> int:
+        return 1
+
+    clock.now += 30
+    assert await guard.call(back) == 1
+    assert guard.breaker.state is CircuitState.CLOSED
+
+
 async def test_guard_counts_only_upstream_errors() -> None:
     guard = UpstreamGuard(
         bucket=TokenBucket(rate_per_s=100, burst=10),

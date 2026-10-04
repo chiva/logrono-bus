@@ -16,9 +16,12 @@ consulta.
 - **No hay cuentas, anuncios ni estadísticas de uso.**
 - Tus paradas viven en el **enlace** del panel. Si guardas paneles o ajustes «en este dispositivo»,
   se guardan solo en tu navegador.
-- La **ubicación**, si la usas, no sale de tu dispositivo: solo ordena las paradas por distancia.
+- La **ubicación**, si la usas, no se envía a nadie: ordena las paradas por distancia y te marca en
+  el mapa.
 - Para mostrar las llegadas, tu navegador pide los datos directamente al Ayuntamiento (o a tu
-  servidor). El mapa descarga imágenes de [OpenStreetMap](https://www.openstreetmap.org/copyright).
+  servidor). El mapa descarga imágenes de [OpenStreetMap](https://www.openstreetmap.org/copyright)
+  de la zona que muestra; si lo centras en tu ubicación, OpenStreetMap puede deducir en qué zona
+  estás, como cuando mueves el mapa a mano hasta allí.
 - La web se aloja en GitHub Pages, que como cualquier servidor web registra direcciones IP
   ([política de GitHub](https://docs.github.com/es/site-policy/privacy-policies/github-general-privacy-statement)).
 

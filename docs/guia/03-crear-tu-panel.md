@@ -14,9 +14,9 @@ Tienes tres formas de encontrarla:
 - **Escribe** el nombre o el número de la parada («ayuntamiento», «zubía», «101»). No importan las
   tildes ni las mayúsculas.
 - **📍 Cerca de mí** usa tu ubicación.
-- **🗺️ Ver mapa** muestra todas las paradas; toca la tuya. Al pasar por encima de una parada ves su
-  nombre, su número y sus líneas. Si has pulsado **📍 Cerca de mí**, el mapa se centra donde estás y
-  te marca con un punto azul.
+- **🗺️ Ver mapa** muestra todas las paradas; toca la tuya para elegirla. En el ordenador, al pasar el
+  ratón por encima de una parada ves su nombre, su número y sus líneas. Si has pulsado
+  **📍 Cerca de mí**, el mapa se centra donde estás y te marca con un punto azul.
 
 !!! note "Dos paradas con el mismo nombre"
     Casi siempre hay una parada a cada lado de la calle con el mismo nombre (por ejemplo, las dos

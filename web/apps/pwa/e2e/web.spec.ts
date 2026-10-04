@@ -74,6 +74,51 @@ test('los temas cambian el estilo de las tarjetas', async ({ page }) => {
   await expect(cards(page).first()).toHaveAttribute('variant', 'fill');
 });
 
+const pseudoStyle = (page: import('@playwright/test').Page, pseudo: '::before' | '::after') =>
+  cards(page)
+    .first()
+    .locator('article')
+    .evaluate((article, which) => {
+      const style = getComputedStyle(article, which);
+      return {
+        content: style.content,
+        boxShadow: style.boxShadow,
+        inset: [style.top, style.right, style.bottom, style.left],
+        borderStyle: style.borderTopStyle,
+        borderWidth: parseFloat(style.borderTopWidth),
+      };
+    }, pseudo);
+
+test('el color intenso refuerza el borde aunque no haya sombra, como en Home Assistant', async ({
+  page,
+}) => {
+  await page.goto('./?v=1&p=101-2d&color=intensa');
+  await page.addStyleTag({ content: ':root { --lb-shadow: initial !important; }' });
+  await expect(cards(page).first()).toHaveAttribute('intensity', 'intensa');
+  const ring = await pseudoStyle(page, '::before');
+  console.log('intensa ::before', ring);
+  expect(ring.boxShadow).toContain('inset');
+  expect(ring.inset).toEqual(['0px', '0px', '0px', '0px']);
+});
+
+test('el color intenso no añade refuerzo a las tarjetas con franja', async ({ page }) => {
+  await page.goto('./?v=1&p=101-2d&color=intensa&tema=tinta');
+  await expect(cards(page).first()).toHaveAttribute('variant', 'strip');
+  const ring = await pseudoStyle(page, '::before');
+  console.log('intensa strip ::before', ring);
+  expect(ring.content).toBe('none');
+});
+
+test('el aviso dibuja el anillo pegado al borde de la tarjeta', async ({ page }) => {
+  await page.goto('./?v=1&p=101-2d&aviso=2&efecto=borde');
+  await expect(cards(page).first()).toHaveAttribute('alert', '');
+  const ring = await pseudoStyle(page, '::after');
+  console.log('aviso ::after', ring);
+  expect(ring.inset).toEqual(['0px', '0px', '0px', '0px']);
+  expect(ring.borderStyle).toBe('solid');
+  expect(ring.borderWidth).toBeGreaterThan(0);
+});
+
 for (const [name, url] of [
   ['portada', './'],
   ['panel', './?v=1&p=101~100'],

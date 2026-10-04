@@ -511,6 +511,17 @@ describe('timetable', () => {
     expect(source.timetableCalls).toHaveLength(2);
   });
 
+  it('does not ask again for a timetable that failed today', async () => {
+    vi.setSystemTime(LATE);
+    const source = new FakeSource();
+    source.arrivalsFixture = 'upstream/arrivals-vacio-{stop}.json';
+    const board = await mountBoard('p=101-5a', source);
+    await vi.waitFor(() => expect(source.timetableCalls).toEqual(['5']));
+    await board.refresh();
+    await board.refresh();
+    expect(source.timetableCalls).toEqual(['5']);
+  });
+
   it('opens straight on the timetable when no bus is due, without asking for positions', async () => {
     vi.setSystemTime(Date.parse('2026-10-03T16:01:00Z')); // 18:01 in Logroño
     const source = new FakeSource();

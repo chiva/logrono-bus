@@ -78,6 +78,8 @@ export class LogronoBusBoard extends LitElement {
   declare timetables: ReadonlyMap<string, LineTimetable>;
 
   readonly #poller = new Poller((signal) => this.refresh(signal));
+  /** Local day each line's timetable was last asked for, whether or not the request worked. */
+  readonly #timetableAskedOn = new Map<string, string>();
   #tick: ReturnType<typeof setInterval> | undefined;
   #catalog: CatalogIndex | undefined;
   readonly #onVisibility = (): void => this.#poller.setPaused(document.hidden);
@@ -204,8 +206,8 @@ export class LogronoBusBoard extends LitElement {
 
   /**
    * Fetch today's timetable for lines with a card that has no bus due, so the card can say
-   * whether service has not started or is over. One request per line and day, at most; a
-   * failure only leaves the card with its plain "Sin llegadas próximas".
+   * whether service has not started or is over. One request per line and day, at most, even when
+   * it fails: a failure only leaves the card with its plain "Sin llegadas próximas" until tomorrow.
    */
   async #loadTimetables(source: DataSource, cards: readonly Card[]): Promise<void> {
     const today = localDate(Date.now());
@@ -213,9 +215,10 @@ export class LogronoBusBoard extends LitElement {
       cards
         .filter((card) => !card.arrivals.some((arrival) => !arrival.cancelled))
         .map((card) => card.line_id)
-        .filter((lineId) => this.timetables.get(lineId)?.service_date !== today),
+        .filter((lineId) => this.#timetableAskedOn.get(lineId) !== today),
     );
     if (missing.size === 0) return;
+    for (const lineId of missing) this.#timetableAskedOn.set(lineId, today);
     // `async` so even a source that throws before returning a promise only loses its line.
     const loaded = await Promise.allSettled(
       [...missing].map(async (lineId) => source.timetable(lineId)),

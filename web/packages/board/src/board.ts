@@ -165,6 +165,11 @@ export class LogronoBusBoard extends LitElement {
     const previous: BoardConfig | undefined = changed.get('config');
     const reselected = changed.has('config') && dataKey(previous) !== dataKey(this.config);
     const reconfigured = reselected || changed.has('source');
+    if (changed.has('source')) {
+      // Another source may succeed where this one failed, or answer differently.
+      this.#timetableAskedOn.clear();
+      this.timetables = new Map();
+    }
     if (reconfigured && this.hasUpdated && this.isConnected && this.config) {
       this.#catalog = undefined;
       this.#poller.stop();
@@ -223,6 +228,7 @@ export class LogronoBusBoard extends LitElement {
     const loaded = await Promise.allSettled(
       [...missing].map(async (lineId) => source.timetable(lineId)),
     );
+    if (source !== this.source) return; // answered by a source this board no longer uses
     const next = new Map(this.timetables);
     for (const result of loaded) {
       if (result.status === 'fulfilled') next.set(result.value.line_id, result.value);

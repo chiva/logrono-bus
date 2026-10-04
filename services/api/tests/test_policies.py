@@ -192,7 +192,9 @@ async def test_half_open_guard_lets_a_single_probe_through() -> None:
     release.set()
     results = await asyncio.gather(*attempts, return_exceptions=True)
     assert calls == 2, "only one probe reaches the upstream"
-    assert sum(isinstance(r, CircuitOpen) for r in results) == 4
+    turned_away = [r for r in results if isinstance(r, CircuitOpen)]
+    assert len(turned_away) == 4
+    assert all(r.retry_after >= 1 for r in turned_away), "never 'retry in 0 s'"
     assert guard.breaker.state is CircuitState.OPEN
 
     async def back() -> int:

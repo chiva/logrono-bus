@@ -12,6 +12,7 @@ import asyncio
 import time
 from collections.abc import Awaitable, Callable
 from enum import StrEnum
+from typing import Final
 
 from logrono_bus.errors import UpstreamError, UpstreamUnavailable
 
@@ -41,6 +42,9 @@ class TokenBucket:
                     self._tokens -= 1
                     return
                 await asyncio.sleep((1 - self._tokens) / self._rate)
+
+
+MIN_RETRY_AFTER_S: Final = 1.0
 
 
 class CircuitState(StrEnum):
@@ -88,7 +92,8 @@ class CircuitBreaker:
             return False
         assert self._opened_at is not None
         if state is CircuitState.OPEN or self._probing:
-            retry_after = max(0.0, self._reset_s - (self._clock() - self._opened_at))
+            # While the probe runs the reset window is over: still ask clients to wait a moment.
+            retry_after = max(MIN_RETRY_AFTER_S, self._reset_s - (self._clock() - self._opened_at))
             raise CircuitOpen(retry_after=retry_after)
         self._probing = True
         return True

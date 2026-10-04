@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/chiva/logrono-bus/compare/app-v0.1.0...app-v0.1.1) (2026-10-04)
+
+
+### Bug Fixes
+
+* **board:** alinear el aviso con el borde de la tarjeta en Firefox ([#5](https://github.com/chiva/logrono-bus/issues/5)) ([518eb40](https://github.com/chiva/logrono-bus/commit/518eb40f7fb012001f5be84e6bcdd18361541122))
+* **release:** subir info.version del contrato OpenAPI con cada release de la app ([#7](https://github.com/chiva/logrono-bus/issues/7)) ([2a72ccc](https://github.com/chiva/logrono-bus/commit/2a72ccc8bf0b8ea879cbcab2be1bba8189c49b7f))
+
 ## 0.1.0 (2026-10-04)
 
 

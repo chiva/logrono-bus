@@ -69,4 +69,5 @@ autenticación. `access-control-allow-origin: *`.
 User-Agent identificativo, una petición por parada (todas sus líneas), 30 s entre refrescos en la
 web, caché de 15 s y límite de 2 peticiones/s en el servidor, cortacircuitos ante fallos. Los
 horarios se piden como mucho una vez por línea y día, y solo para líneas sin autobús próximo o
-cuando se abre la vista de horario.
+cuando se abre la vista de horario. Si esa petición falla, el panel web no la repite hasta el día
+siguiente y la librería (servidor, Home Assistant) espera 15 minutos antes de volver a intentarlo.

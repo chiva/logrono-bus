@@ -20,7 +20,7 @@ from logrono_bus.errors import (
 )
 from logrono_bus.providers.base import TransitProvider
 from logrono_bus.providers.logrono.client import DEFAULT_USER_AGENT, LogronoBusClient
-from logrono_bus.providers.logrono.provider import LogronoBusProvider
+from logrono_bus.providers.logrono.provider import TIMETABLE_RETRY_AFTER, LogronoBusProvider
 
 LINES = "linesDiscovery/lines"
 STOPS = "linesDiscovery/stops"
@@ -251,6 +251,26 @@ async def test_timetable_is_fetched_once_per_local_day(
     clock.now += timedelta(minutes=1)  # 00:00:45 local, a new service day
     tomorrow = await provider.get_timetable("10")
     assert tomorrow.service_date == "2026-10-04"
+    assert len(upstream.calls(TIMETABLE_10)) == 2
+
+
+async def test_failed_timetable_is_not_asked_again_for_a_while(
+    upstream: FakeUpstream, session: aiohttp.ClientSession
+) -> None:
+    """Every stop of a Home Assistant install refreshes each minute; a broken endpoint must not."""
+    upstream.serve_catalog()
+    upstream.reply_only(TIMETABLE_10, Reply(status=503, payload={}))
+    clock = FakeClock()
+    provider = _provider(session, upstream, clock=clock)
+
+    for _ in range(3):
+        with pytest.raises(UpstreamUnavailable):
+            await provider.get_timetable("10")
+    assert len(upstream.calls(TIMETABLE_10)) == 1
+
+    upstream.reply_only(TIMETABLE_10, payload=load_fixture("upstream/timetable-10.json"))
+    clock.now += TIMETABLE_RETRY_AFTER
+    assert (await provider.get_timetable("10")).service_date == "2026-10-03"
     assert len(upstream.calls(TIMETABLE_10)) == 2
 
 

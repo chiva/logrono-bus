@@ -147,12 +147,22 @@ export class LbCard extends LitElement {
         var(--lb-shadow, none),
         inset 0 0 0 3px rgba(0, 0, 0, 0.12);
     }
+    /* Ring anchored to the card edge: Firefox floors outline widths but not outline-offset, which left an inset gap. */
     :host([alert][effect='borde']) article,
     :host([alert][effect='pulso']) article {
-      outline: 0.3em solid var(--lb-alert-colour);
-      outline-offset: -0.3em;
+      position: relative;
     }
-    :host([alert][effect='pulso']) article {
+    :host([alert][effect='borde']) article::after,
+    :host([alert][effect='pulso']) article::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      box-sizing: border-box;
+      border: 0.3em solid var(--lb-alert-colour);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+    :host([alert][effect='pulso']) article::after {
       animation: lb-pulse 1.6s ease-in-out infinite;
     }
     :host([alert][effect='pulso']) .next .value {
@@ -161,10 +171,10 @@ export class LbCard extends LitElement {
     @keyframes lb-pulse {
       0%,
       100% {
-        outline-color: var(--lb-alert-colour);
+        opacity: 1;
       }
       50% {
-        outline-color: transparent;
+        opacity: 0;
       }
     }
     @keyframes lb-beat {
@@ -181,7 +191,7 @@ export class LbCard extends LitElement {
       transform-origin: left bottom;
     }
     @media (prefers-reduced-motion: reduce) {
-      :host([alert]) article,
+      :host([alert]) article::after,
       :host([alert]) .next .value {
         animation: none;
       }

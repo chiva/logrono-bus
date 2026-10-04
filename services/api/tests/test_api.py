@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -13,6 +14,7 @@ from fastapi.testclient import TestClient
 
 from logrono_bus_api.main import API_PREFIX
 from logrono_bus_api.problems import PROBLEM_BASE_URI, PROBLEM_CONTENT_TYPE
+from logrono_bus_api.routers.arrivals import seconds_until_service_day_ends
 
 type ClientFactory = Callable[..., TestClient]
 
@@ -26,7 +28,8 @@ def _problem_type(response_json: dict[str, object]) -> str:
 def test_catalog_matches_golden_except_fetch_time(client: TestClient) -> None:
     response = client.get(f"{API_PREFIX}/catalog")
     assert response.status_code == 200
-    assert response.headers["cache-control"] == "public, max-age=3600"
+    max_age = int(response.headers["cache-control"].removeprefix("public, max-age="))
+    assert 0 <= max_age <= 3600
     body = response.json()
     expected = load_fixture("expected/catalog.json")
     body.pop("fetched_at")
@@ -334,6 +337,18 @@ def test_line_timetable(client: TestClient, upstream: FakeUpstream) -> None:
     # Once per day: the second client is served without asking the Ayuntamiento again.
     assert client.get(f"{API_PREFIX}/lines/10/timetable").status_code == 200
     assert len(upstream.calls("productionTimetable/byLine/10")) == 1
+
+
+@pytest.mark.parametrize(
+    ("now", "expected"),
+    [
+        ("2026-10-03T21:30:00+00:00", 1800),  # 23:30 in Logroño: half an hour left
+        ("2026-10-03T10:00:00+00:00", 12 * 3600),
+        ("2026-10-03T22:00:30+00:00", 0),  # already the next day
+    ],
+)
+def test_timetable_cache_ends_at_local_midnight(now: str, expected: int) -> None:
+    assert seconds_until_service_day_ends("2026-10-03", now=datetime.fromisoformat(now)) == expected
 
 
 def test_line_timetable_unknown_line(client: TestClient, upstream: FakeUpstream) -> None:

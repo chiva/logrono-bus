@@ -1,8 +1,9 @@
 /** `<lb-app>`: the shell. Routes on the URL and hosts the header, footer and theme switcher. */
 import { THEMES, type Theme } from '@logrono-bus/core';
 import { LitElement, type PropertyDeclarations, css, html, nothing } from 'lit';
+import { keyed } from 'lit/directives/keyed.js';
 
-import { ABOUT_HASH, NAVIGATE_EVENT, navigate, wizardHref } from './context.ts';
+import { ABOUT_HASH, NAVIGATE_EVENT, navigate, sourceKey, wizardHref } from './context.ts';
 import {
   THEME_NAMES,
   applyTheme,
@@ -142,7 +143,7 @@ export class LbApp extends LitElement {
     >`;
   }
 
-  #renderView() {
+  #renderView(): unknown {
     const current = this.current;
     switch (current.view) {
       case 'home':
@@ -151,10 +152,18 @@ export class LbApp extends LitElement {
         return html`<lb-about></lb-about>`;
       case 'wizard':
         return html`<lb-wizard .initial=${current.initial}></lb-wizard>`;
+      // Keyed by data source: the views pick theirs once, when connected, so a link with another
+      // `origen` or `api` gets a fresh view instead of reusing the previous source.
       case 'panel':
-        return html`<lb-panel .config=${current.config}></lb-panel>`;
+        return keyed(
+          sourceKey(current.config),
+          html`<lb-panel .config=${current.config}></lb-panel>`,
+        );
       case 'kiosk':
-        return html`<lb-kiosk .config=${current.config}></lb-kiosk>`;
+        return keyed(
+          sourceKey(current.config),
+          html`<lb-kiosk .config=${current.config}></lb-kiosk>`,
+        );
       case 'invalid':
         return html`<section class="surface" role="alert">
           <h1>Este enlace no funciona</h1>

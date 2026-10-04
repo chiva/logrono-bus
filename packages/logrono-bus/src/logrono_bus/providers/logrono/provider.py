@@ -27,6 +27,9 @@ _LOGGER = logging.getLogger(__name__)
 PROVIDER_ID: Final = "logrono"
 DEFAULT_CATALOG_TTL: Final = timedelta(hours=6)
 DEFAULT_HORIZON_MIN: Final = 60
+# After a failed timetable request, callers get the same error until this has passed: a broken
+# endpoint is asked a few times an hour, not on every refresh of every stop.
+TIMETABLE_RETRY_AFTER: Final = timedelta(minutes=15)
 
 
 def _utcnow() -> datetime:
@@ -55,6 +58,7 @@ class LogronoBusProvider:
         self._catalog_lock = asyncio.Lock()
         self._timetables: dict[str, LineTimetable] = {}
         self._timetable_lock = asyncio.Lock()
+        self._timetable_failures: dict[str, tuple[datetime, UpstreamError]] = {}
 
     @property
     def id(self) -> str:
@@ -94,7 +98,8 @@ class LogronoBusProvider:
         """Today's timetable of a line. Raises LineNotFound for an unknown line.
 
         The upstream publishes one timetable per day, so each line is fetched at most once per
-        local date and process; concurrent callers share that request.
+        local date and process; concurrent callers share that request. A failure is re-raised
+        without asking again for ``TIMETABLE_RETRY_AFTER``.
         """
         state = await self._load(force_refresh=False)
         line = state.catalog.line(line_id)
@@ -107,8 +112,16 @@ class LogronoBusProvider:
             cached = self._timetables.get(line.id)
             if cached is not None and cached.service_date == today:
                 return cached
-            raw = await self._client.timetable(line.id)
-            timetable = normalize_timetable(raw, line_id=line.id, catalog=state.catalog, now=at)
+            failure = self._timetable_failures.get(line.id)
+            if failure is not None and at - failure[0] < TIMETABLE_RETRY_AFTER:
+                raise failure[1]
+            try:
+                raw = await self._client.timetable(line.id)
+                timetable = normalize_timetable(raw, line_id=line.id, catalog=state.catalog, now=at)
+            except UpstreamError as err:
+                self._timetable_failures[line.id] = (at, err)
+                raise
+            self._timetable_failures.pop(line.id, None)
             self._timetables[line.id] = timetable
             return timetable
 

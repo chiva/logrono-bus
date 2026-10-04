@@ -78,6 +78,8 @@ export class LogronoBusBoard extends LitElement {
   declare timetables: ReadonlyMap<string, LineTimetable>;
 
   readonly #poller = new Poller((signal) => this.refresh(signal));
+  /** Local day each line's timetable was last asked for, whether or not the request worked. */
+  readonly #timetableAskedOn = new Map<string, string>();
   #tick: ReturnType<typeof setInterval> | undefined;
   #catalog: CatalogIndex | undefined;
   readonly #onVisibility = (): void => this.#poller.setPaused(document.hidden);
@@ -163,6 +165,11 @@ export class LogronoBusBoard extends LitElement {
     const previous: BoardConfig | undefined = changed.get('config');
     const reselected = changed.has('config') && dataKey(previous) !== dataKey(this.config);
     const reconfigured = reselected || changed.has('source');
+    if (changed.has('source')) {
+      // Another source may succeed where this one failed, or answer differently.
+      this.#timetableAskedOn.clear();
+      this.timetables = new Map();
+    }
     if (reconfigured && this.hasUpdated && this.isConnected && this.config) {
       this.#catalog = undefined;
       this.#poller.stop();
@@ -204,8 +211,8 @@ export class LogronoBusBoard extends LitElement {
 
   /**
    * Fetch today's timetable for lines with a card that has no bus due, so the card can say
-   * whether service has not started or is over. One request per line and day, at most; a
-   * failure only leaves the card with its plain "Sin llegadas próximas".
+   * whether service has not started or is over. One request per line and day, at most, even when
+   * it fails: a failure only leaves the card with its plain "Sin llegadas próximas" until tomorrow.
    */
   async #loadTimetables(source: DataSource, cards: readonly Card[]): Promise<void> {
     const today = localDate(Date.now());
@@ -213,13 +220,15 @@ export class LogronoBusBoard extends LitElement {
       cards
         .filter((card) => !card.arrivals.some((arrival) => !arrival.cancelled))
         .map((card) => card.line_id)
-        .filter((lineId) => this.timetables.get(lineId)?.service_date !== today),
+        .filter((lineId) => this.#timetableAskedOn.get(lineId) !== today),
     );
     if (missing.size === 0) return;
+    for (const lineId of missing) this.#timetableAskedOn.set(lineId, today);
     // `async` so even a source that throws before returning a promise only loses its line.
     const loaded = await Promise.allSettled(
       [...missing].map(async (lineId) => source.timetable(lineId)),
     );
+    if (source !== this.source) return; // answered by a source this board no longer uses
     const next = new Map(this.timetables);
     for (const result of loaded) {
       if (result.status === 'fulfilled') next.set(result.value.line_id, result.value);
@@ -230,9 +239,11 @@ export class LogronoBusBoard extends LitElement {
   /** Where each empty card's line stands in its day, keyed like the cards. */
   #services(): Map<string, ServiceStatus> {
     const services = new Map<string, ServiceStatus>();
+    const today = localDate(this.now);
     for (const card of this.cards) {
       const timetable = this.timetables.get(card.line_id);
-      if (!timetable) continue;
+      // Yesterday's timetable, kept because today's request failed, would describe the wrong day.
+      if (timetable?.service_date !== today) continue;
       services.set(
         cardKey(card),
         serviceStatus(timetableFor(timetable, cardPatternId(card)), this.now),

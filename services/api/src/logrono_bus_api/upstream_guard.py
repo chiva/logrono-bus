@@ -12,6 +12,7 @@ import asyncio
 import time
 from collections.abc import Awaitable, Callable
 from enum import StrEnum
+from typing import Final
 
 from logrono_bus.errors import UpstreamError, UpstreamUnavailable
 
@@ -43,6 +44,9 @@ class TokenBucket:
                 await asyncio.sleep((1 - self._tokens) / self._rate)
 
 
+MIN_RETRY_AFTER_S: Final = 1.0
+
+
 class CircuitState(StrEnum):
     CLOSED = "closed"
     OPEN = "open"
@@ -58,8 +62,9 @@ class CircuitOpen(UpstreamUnavailable):
 
 
 class CircuitBreaker:
-    """Opens after ``failures`` consecutive upstream errors; lets one probe through after
-    ``reset_s``; closes again on the first success."""
+    """Opens after ``failures`` consecutive upstream errors; lets exactly one probe through after
+    ``reset_s`` (concurrent callers are turned away until it ends); closes again on the first
+    success."""
 
     def __init__(
         self, *, failures: int, reset_s: float, clock: Callable[[], float] = time.monotonic
@@ -69,6 +74,7 @@ class CircuitBreaker:
         self._clock = clock
         self._consecutive_failures = 0
         self._opened_at: float | None = None
+        self._probing = False
 
     @property
     def state(self) -> CircuitState:
@@ -78,10 +84,22 @@ class CircuitBreaker:
             return CircuitState.HALF_OPEN
         return CircuitState.OPEN
 
-    def before_call(self) -> None:
-        if self.state is CircuitState.OPEN:
-            assert self._opened_at is not None
-            raise CircuitOpen(retry_after=self._reset_s - (self._clock() - self._opened_at))
+    def before_call(self) -> bool:
+        """Raise CircuitOpen, or admit the call; True when it is the half-open probe, which the
+        caller must end with ``probe_finished`` whatever happens."""
+        state = self.state
+        if state is CircuitState.CLOSED:
+            return False
+        assert self._opened_at is not None
+        if state is CircuitState.OPEN or self._probing:
+            # While the probe runs the reset window is over: still ask clients to wait a moment.
+            retry_after = max(MIN_RETRY_AFTER_S, self._reset_s - (self._clock() - self._opened_at))
+            raise CircuitOpen(retry_after=retry_after)
+        self._probing = True
+        return True
+
+    def probe_finished(self) -> None:
+        self._probing = False
 
     def record_success(self) -> None:
         self._consecutive_failures = 0
@@ -99,12 +117,18 @@ class UpstreamGuard:
         self.breaker = breaker
 
     async def call[T](self, operation: Callable[[], Awaitable[T]]) -> T:
-        self.breaker.before_call()
-        await self.bucket.acquire()
+        probe = self.breaker.before_call()
         try:
-            result = await operation()
-        except UpstreamError:
-            self.breaker.record_failure()
-            raise
+            await self.bucket.acquire()
+            # The breaker may have opened while this call waited for its token.
+            probe = probe or self.breaker.before_call()
+            try:
+                result = await operation()
+            except UpstreamError:
+                self.breaker.record_failure()
+                raise
+        finally:
+            if probe:
+                self.breaker.probe_finished()
         self.breaker.record_success()
         return result

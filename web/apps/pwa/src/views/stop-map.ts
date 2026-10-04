@@ -67,7 +67,7 @@ export class LbStopMap extends LitElement {
         fillColor: '#ffffff',
         fillOpacity: 1,
       })
-        .bindTooltip(`${stop.name} · nº ${stop.id}`)
+        .bindTooltip(tooltipFor(stop))
         .on('click', () =>
           this.dispatchEvent(
             new CustomEvent('stop-selected', { detail: { stopId: stop.id }, bubbles: true }),
@@ -76,6 +76,13 @@ export class LbStopMap extends LitElement {
         .addTo(layer);
     }
   }
+}
+
+/** Leaflet renders string tooltips as HTML; upstream names go in as text. */
+function tooltipFor(stop: Stop): HTMLElement {
+  const tooltip = document.createElement('span');
+  tooltip.textContent = `${stop.name} · nº ${stop.id}`;
+  return tooltip;
 }
 
 if (!customElements.get('lb-stop-map')) customElements.define('lb-stop-map', LbStopMap);

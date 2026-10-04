@@ -192,7 +192,11 @@ En la integración → **Configurar**:
   integración reintenta sola.
 - **Aviso en *Reparaciones* «El servicio de autobuses ha cambiado»**: el Ayuntamiento ha cambiado
   su servicio y hay que actualizar la integración. Mira si hay versión nueva en HACS.
-- **Aviso «Una parada ya no existe»**: tras un cambio de líneas, una parada que elegiste ha
-  desaparecido. Pulsa el aviso para elegir otra.
+- **Aviso «La parada … ya no existe»**: tras un cambio de líneas, una parada que elegiste ha
+  desaparecido. Elimínala en la integración y añade la nueva con *Añadir parada*; el aviso se va
+  solo.
+- **Aviso «Algunas líneas ya no pasan por la parada …»**: una línea (o un sentido) que seguías ya
+  no para ahí, y sus sensores se quedan sin datos. Usa *Reconfigurar* en esa parada y elige las
+  líneas actuales; el aviso se va solo.
 - Para pedir ayuda, descarga los **diagnósticos** (⋮ en la integración → *Descargar
   diagnósticos*) y adjúntalos en GitHub.

@@ -511,6 +511,55 @@ describe('timetable', () => {
     expect(source.timetableCalls).toHaveLength(2);
   });
 
+  it("forgets yesterday's timetable when today's cannot be loaded", async () => {
+    vi.setSystemTime(LATE);
+    const source = new FakeSource();
+    source.arrivalsFixture = 'upstream/arrivals-vacio-{stop}.json';
+    const board = await mountBoard('p=101-10d', source);
+    const text = async () => {
+      const [card] = cardsOf(board);
+      await card!.updateComplete;
+      return card!.shadowRoot!.querySelector('.empty')?.textContent?.trim();
+    };
+    await vi.waitFor(async () => expect(await text()).toMatch(/^Servicio terminado/));
+
+    vi.setSystemTime(LATE + 3 * 3_600_000); // 02:30 the next day
+    source.timetable = (lineId) => {
+      source.timetableCalls.push(lineId);
+      return Promise.reject(new UpstreamUnavailable('caído'));
+    };
+    await board.refresh();
+    await vi.waitFor(() => expect(source.timetableCalls).toEqual(['10', '10']));
+    await board.updateComplete;
+    expect(await text()).toBe('Sin llegadas próximas');
+  });
+
+  it('asks a new source again for a timetable the previous one could not give', async () => {
+    vi.setSystemTime(LATE);
+    const first = new FakeSource();
+    first.arrivalsFixture = 'upstream/arrivals-vacio-{stop}.json';
+    const board = await mountBoard('p=101-5a', first);
+    await vi.waitFor(() => expect(first.timetableCalls).toEqual(['5']));
+
+    const second = new FakeSource();
+    second.arrivalsFixture = 'upstream/arrivals-vacio-{stop}.json';
+    board.source = second;
+    await board.updateComplete;
+    await board.refresh();
+    await vi.waitFor(() => expect(second.timetableCalls).toEqual(['5']));
+  });
+
+  it('does not ask again for a timetable that failed today', async () => {
+    vi.setSystemTime(LATE);
+    const source = new FakeSource();
+    source.arrivalsFixture = 'upstream/arrivals-vacio-{stop}.json';
+    const board = await mountBoard('p=101-5a', source);
+    await vi.waitFor(() => expect(source.timetableCalls).toEqual(['5']));
+    await board.refresh();
+    await board.refresh();
+    expect(source.timetableCalls).toEqual(['5']);
+  });
+
   it('opens straight on the timetable when no bus is due, without asking for positions', async () => {
     vi.setSystemTime(Date.parse('2026-10-03T16:01:00Z')); // 18:01 in Logroño
     const source = new FakeSource();

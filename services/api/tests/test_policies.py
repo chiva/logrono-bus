@@ -203,6 +203,25 @@ async def test_half_open_guard_lets_a_single_probe_through() -> None:
     assert guard.breaker.state is CircuitState.CLOSED
 
 
+async def test_guard_rechecks_the_breaker_after_waiting_for_a_token() -> None:
+    """Callers queued behind the rate limit when the upstream fails must not reach it."""
+    guard = UpstreamGuard(
+        bucket=TokenBucket(rate_per_s=50, burst=1),
+        breaker=CircuitBreaker(failures=1, reset_s=30),
+    )
+    calls = 0
+
+    async def down() -> int:
+        nonlocal calls
+        calls += 1
+        await asyncio.sleep(0)  # the others queue for a token before this one fails
+        raise UpstreamUnavailable("caído")
+
+    results = await asyncio.gather(*(guard.call(down) for _ in range(4)), return_exceptions=True)
+    assert calls == 1
+    assert sum(isinstance(r, CircuitOpen) for r in results) == 3
+
+
 async def test_guard_counts_only_upstream_errors() -> None:
     guard = UpstreamGuard(
         bucket=TokenBucket(rate_per_s=100, burst=10),

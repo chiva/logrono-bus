@@ -115,10 +115,13 @@ class UpstreamGuard:
         probe = self.breaker.before_call()
         try:
             await self.bucket.acquire()
-            result = await operation()
-        except UpstreamError:
-            self.breaker.record_failure()
-            raise
+            # The breaker may have opened while this call waited for its token.
+            probe = probe or self.breaker.before_call()
+            try:
+                result = await operation()
+            except UpstreamError:
+                self.breaker.record_failure()
+                raise
         finally:
             if probe:
                 self.breaker.probe_finished()

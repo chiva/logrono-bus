@@ -56,6 +56,56 @@ test('el mapa de paradas aplica los estilos de Leaflet', async ({ page }) => {
   await expect(page.locator('lb-stop-map .leaflet-control-zoom-in')).toBeVisible();
 });
 
+test.describe('el mapa con tu ubicación', () => {
+  /** Standing on stop 101, Ayuntamiento (contracts/fixtures/upstream/stops.json). */
+  const AT_STOP_101 = { latitude: 42.46563, longitude: -2.439249, accuracy: 20 };
+  test.use({ geolocation: AT_STOP_101, permissions: ['geolocation'] });
+
+  const locateOnMap = async (page: import('@playwright/test').Page) => {
+    await page.goto('./#asistente');
+    await page.getByRole('button', { name: /Ver mapa/ }).click();
+    await page.getByRole('button', { name: /Cerca de mí/ }).click();
+    const map = page.locator('lb-stop-map');
+    await expect(map.locator('path.here')).toBeVisible();
+    const box = await map.boundingBox();
+    if (!box) throw new Error('El mapa no se ha dibujado');
+    return { map, centre: { x: box.x + box.width / 2, y: box.y + box.height / 2 } };
+  };
+
+  test('Cerca de mí marca dónde estás y centra el mapa ahí', async ({ page }) => {
+    const { map, centre } = await locateOnMap(page);
+    await expect(map.locator('path.here-accuracy')).toBeAttached();
+    // Leaflet animates the zoom: wait for the dot to settle in the middle.
+    await expect
+      .poll(async () => {
+        const dot = await map.locator('path.here').boundingBox();
+        if (!dot) return Number.POSITIVE_INFINITY;
+        return Math.hypot(dot.x + dot.width / 2 - centre.x, dot.y + dot.height / 2 - centre.y);
+      })
+      .toBeLessThan(2);
+  });
+
+  test('la etiqueta de una parada muestra sus líneas y no queda bajo el cursor', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Sin puntero no hay etiqueta al pasar por encima');
+    const { map, centre } = await locateOnMap(page);
+    await page.mouse.move(centre.x, centre.y);
+    const tooltip = map.locator('.leaflet-tooltip');
+    await expect(tooltip).toContainText('Ayuntamiento · nº 101');
+    await expect(tooltip.locator('.badge')).toHaveCount(4);
+    await expect(tooltip.locator('.badge').first()).not.toHaveCSS(
+      'background-color',
+      'rgba(0, 0, 0, 0)',
+    );
+    const box = await tooltip.boundingBox();
+    if (!box) throw new Error('La etiqueta no se ha dibujado');
+    const gap = Math.max(box.x - centre.x, centre.x - (box.x + box.width));
+    expect(gap).toBeGreaterThanOrEqual(16);
+  });
+});
+
 test('el panel comparte su enlace con un código QR', async ({ page }) => {
   await page.goto('./?v=1&p=101-2d');
   await page.getByRole('button', { name: /Compartir/ }).click();

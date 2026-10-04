@@ -24,7 +24,7 @@ tocarlo se abre directamente tu panel, sin la barra del navegador.
 
 En **Crear panel**, el botón **📍 Cerca de mí** busca las paradas a unos 600 metros. El navegador te
 preguntará si das permiso para usar tu ubicación: hace falta para esto, y **tu ubicación no sale de
-tu móvil** (solo se usa para ordenar las paradas por distancia).
+tu móvil** (solo se usa para ordenar las paradas por distancia y marcarte en el mapa).
 
 !!! tip "¿Te sale un error de ubicación?"
     Mira [Si algo falla → La ubicación no funciona](11-problemas.md#la-ubicacion-no-funciona).

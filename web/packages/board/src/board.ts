@@ -233,9 +233,11 @@ export class LogronoBusBoard extends LitElement {
   /** Where each empty card's line stands in its day, keyed like the cards. */
   #services(): Map<string, ServiceStatus> {
     const services = new Map<string, ServiceStatus>();
+    const today = localDate(this.now);
     for (const card of this.cards) {
       const timetable = this.timetables.get(card.line_id);
-      if (!timetable) continue;
+      // Yesterday's timetable, kept because today's request failed, would describe the wrong day.
+      if (timetable?.service_date !== today) continue;
       services.set(
         cardKey(card),
         serviceStatus(timetableFor(timetable, cardPatternId(card)), this.now),

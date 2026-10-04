@@ -511,6 +511,29 @@ describe('timetable', () => {
     expect(source.timetableCalls).toHaveLength(2);
   });
 
+  it("forgets yesterday's timetable when today's cannot be loaded", async () => {
+    vi.setSystemTime(LATE);
+    const source = new FakeSource();
+    source.arrivalsFixture = 'upstream/arrivals-vacio-{stop}.json';
+    const board = await mountBoard('p=101-10d', source);
+    const text = async () => {
+      const [card] = cardsOf(board);
+      await card!.updateComplete;
+      return card!.shadowRoot!.querySelector('.empty')?.textContent?.trim();
+    };
+    await vi.waitFor(async () => expect(await text()).toMatch(/^Servicio terminado/));
+
+    vi.setSystemTime(LATE + 3 * 3_600_000); // 02:30 the next day
+    source.timetable = (lineId) => {
+      source.timetableCalls.push(lineId);
+      return Promise.reject(new UpstreamUnavailable('caído'));
+    };
+    await board.refresh();
+    await vi.waitFor(() => expect(source.timetableCalls).toEqual(['10', '10']));
+    await board.updateComplete;
+    expect(await text()).toBe('Sin llegadas próximas');
+  });
+
   it('does not ask again for a timetable that failed today', async () => {
     vi.setSystemTime(LATE);
     const source = new FakeSource();

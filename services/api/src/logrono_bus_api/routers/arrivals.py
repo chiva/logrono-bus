@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, time, timedelta
 from enum import StrEnum
 from typing import Annotated, Final
 
@@ -105,9 +105,18 @@ async def line_timetable(line_id: str, service: ServiceDep, settings: SettingsDe
     """Salidas de hoy desde la cabecera de cada sentido y la frecuencia por franjas. Son las horas
     de salida del primer punto de la línea, no las de paso por cada parada."""
     timetable = await service.timetable(line_id)
-    return model_response(
-        timetable, headers={"Cache-Control": f"public, max-age={settings.timetable_max_age_s}"}
+    max_age = min(
+        settings.timetable_max_age_s,
+        seconds_until_service_day_ends(timetable.service_date, now=datetime.now(UTC)),
     )
+    return model_response(timetable, headers={"Cache-Control": f"public, max-age={max_age}"})
+
+
+def seconds_until_service_day_ends(service_date: str, *, now: datetime) -> int:
+    """A timetable is only valid until Logroño's next midnight; no cache may keep it past that."""
+    next_day = date.fromisoformat(service_date) + timedelta(days=1)
+    ends = datetime.combine(next_day, time(), tzinfo=TIMEZONE)
+    return max(0, int((ends - now).total_seconds()))
 
 
 def board_as_text(board: Board, *, now: datetime, style: TimeStyle = TimeStyle.MINUTES) -> str:

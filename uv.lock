@@ -841,7 +841,7 @@ requires-dist = [{ name = "aiohttp", specifier = ">=3.11" }]
 
 [[package]]
 name = "logrono-bus-api"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "services/api" }
 dependencies = [
     { name = "fastapi" },

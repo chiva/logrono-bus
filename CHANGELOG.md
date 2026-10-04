@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/chiva/logrono-bus/compare/app-v0.1.1...app-v0.1.2) (2026-10-04)
+
+
+### Bug Fixes
+
+* **board:** mostrar el refuerzo de color intenso sin depender de --lb-shadow ([#8](https://github.com/chiva/logrono-bus/issues/8)) ([a4566a7](https://github.com/chiva/logrono-bus/commit/a4566a718a18f99373ef056b8475b7551c620e31))
+
 ## [0.1.1](https://github.com/chiva/logrono-bus/compare/app-v0.1.0...app-v0.1.1) (2026-10-04)
 
 

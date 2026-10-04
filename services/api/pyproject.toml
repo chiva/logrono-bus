@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "logrono-bus-api"
-version = "0.1.1"
+version = "0.1.2"
 description = "Servicio HTTP opcional de logrono-bus: caché, API normalizada /api/v1 y la web"
 license = "MIT"
 requires-python = ">=3.13"

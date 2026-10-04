@@ -17,7 +17,8 @@
       "extra-files": [
         "services/api/src/logrono_bus_api/__init__.py",
         { "type": "toml", "path": "services/api/pyproject.toml", "jsonpath": "$.project.version" },
-        { "type": "json", "path": "web/apps/pwa/package.json", "jsonpath": "$.version" }
+        { "type": "json", "path": "web/apps/pwa/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "contracts/openapi.json", "jsonpath": "$.info.version" }
       ]
     }
   }

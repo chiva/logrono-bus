@@ -11,9 +11,8 @@ Read `docs/desarrollo/arquitectura.md` and the ADRs in `docs/adr/` before design
 - **Upstream etiquette:** no new polling loops or higher request rates against
   transporteurbano.logrono.es beyond the documented ones (arrivals every 30 s per board; bus
   positions every 15 s only while a route view is open, ADR 0008; timetables at most once per
-  line and local day, ADR 0009). Tests use
+  line and local day, a failed one retried by the library after 15 min, ADR 0009). Tests use
   `contracts/fixtures`; live calls only in `-m live`.
 - **Directions:** never guess a direction; unresolved stays `null` (ADR 0005).
 - **State:** a board is its URL (ADR 0003/0004). Do not add a database or accounts.
-- **Commits/PRs:** Conventional Commits. Only push or open PRs when the maintainer asks; follow
-  `~/git/personal/AGENTS.md` identity checks.
+- **Commits/PRs:** Conventional Commits. Only push or open PRs when the maintainer asks.

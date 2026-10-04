@@ -6,8 +6,13 @@ import { browserStore } from './preferences.ts';
 const sources = new Map<string, Promise<DataSource>>();
 
 /** One data source per (source, api) pair, shared by every view so the catalogue loads once. */
+/** Boards with the same key share one data source. */
+export function sourceKey(config: Pick<BoardConfig, 'source' | 'api'>): string {
+  return `${config.source}|${config.api ?? ''}`;
+}
+
 export function sourceFor(config: Pick<BoardConfig, 'source' | 'api'>): Promise<DataSource> {
-  const key = `${config.source}|${config.api ?? ''}`;
+  const key = sourceKey(config);
   let source = sources.get(key);
   if (!source) {
     source = selectSource(config, { store: browserStore(), pageProtocol: location.protocol });

@@ -61,7 +61,7 @@ jobs:
   pypi:
     name: Publish logrono-bus to PyPI
     needs: release-please
-    if: ${{ needs.release-please.outputs.lib_released }}
+    if: ${{ needs.release-please.outputs.lib_released == 'true' }}
     runs-on: ubuntu-latest
     # Trusted publishing: PyPI trusts this workflow + environment, no API token is stored.
     environment:
@@ -83,7 +83,7 @@ jobs:
   image:
     name: Publish container image
     needs: release-please
-    if: ${{ needs.release-please.outputs.app_released }}
+    if: ${{ needs.release-please.outputs.app_released == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -141,7 +141,7 @@ jobs:
   pages:
     name: Publish web app and guide
     needs: release-please
-    if: ${{ needs.release-please.outputs.app_released }}
+    if: ${{ needs.release-please.outputs.app_released == 'true' }}
     uses: ./.github/workflows/pages.yml
     with:
       ref: ${{ needs.release-please.outputs.app_tag }}

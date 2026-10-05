@@ -17,6 +17,7 @@ import {
 import { styleMap } from 'lit/directives/style-map.js';
 
 import { uiStyles } from '../ui.ts';
+import type { Here } from './stop-map.ts';
 
 export const NEARBY_RADIUS_M = 600;
 export const NEARBY_LIMIT = 12;
@@ -66,6 +67,7 @@ export class LbStopPicker extends LitElement {
     locating: { state: true },
     problem: { state: true },
     showMap: { state: true },
+    here: { state: true },
   };
 
   declare catalog: CatalogIndex | undefined;
@@ -75,6 +77,7 @@ export class LbStopPicker extends LitElement {
   declare locating: boolean;
   declare problem: string | undefined;
   declare showMap: boolean;
+  declare here: Here | undefined;
 
   constructor() {
     super();
@@ -85,6 +88,7 @@ export class LbStopPicker extends LitElement {
     this.locating = false;
     this.problem = undefined;
     this.showMap = false;
+    this.here = undefined;
   }
 
   static override styles = [
@@ -177,8 +181,10 @@ export class LbStopPicker extends LitElement {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         this.locating = false;
+        const { latitude, longitude, accuracy } = position.coords;
+        this.here = { lat: latitude, lon: longitude, accuracyM: accuracy };
         if (!this.catalog) return;
-        const nearby = this.catalog.nearby(position.coords.latitude, position.coords.longitude, {
+        const nearby = this.catalog.nearby(latitude, longitude, {
           radiusM: NEARBY_RADIUS_M,
           limit: NEARBY_LIMIT,
         });
@@ -263,7 +269,8 @@ export class LbStopPicker extends LitElement {
           this.showMap && this.catalog
             ? html`<lb-stop-map
                 class="map"
-                .stops=${this.catalog.stops}
+                .catalog=${this.catalog}
+                .here=${this.here}
                 @stop-selected=${(e: StopSelectedEvent) => {
                   e.stopPropagation();
                   this.#select(e.detail.stopId);

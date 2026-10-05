@@ -1,6 +1,22 @@
 /** Shared styles for the app's own components (buttons, chips, surfaces). */
 import { css } from 'lit';
 
+/** A line's number on its own colour; set `--line-colour` and `--line-text` on the element. */
+export const badgeStyles = css`
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.2em;
+    padding: 0.15em 0.5em;
+    border-radius: 10px;
+    font-weight: 800;
+    background: var(--line-colour);
+    color: var(--line-text);
+    outline: var(--lb-badge-outline, none);
+  }
+`;
+
 export const uiStyles = css`
   :host {
     font-family: var(--lb-font);
@@ -101,18 +117,7 @@ export const uiStyles = css`
     gap: 6px;
     font-weight: 600;
   }
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2.2em;
-    padding: 0.15em 0.5em;
-    border-radius: 10px;
-    font-weight: 800;
-    background: var(--line-colour);
-    color: var(--line-text);
-    outline: var(--lb-badge-outline, none);
-  }
+  ${badgeStyles}
   .visually-hidden {
     position: absolute !important;
     width: 1px;

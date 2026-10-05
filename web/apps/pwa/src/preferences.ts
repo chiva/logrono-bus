@@ -67,6 +67,9 @@ export const ORDER_NAMES: Readonly<Record<Order, string>> = {
 export const EFFECT_NAMES: Readonly<Record<Effect, string>> = {
   pulso: 'Parpadeo suave',
   borde: 'Borde fijo',
+  destello: 'Destello (invierte los colores)',
+  etiqueta: 'Etiqueta «¡Ya llega!»',
+  rayas: 'Rayas de aviso',
   ninguno: 'Sin efecto',
 };
 

@@ -10,6 +10,7 @@ export {
   cardVariant,
   kioskColumns,
   routable,
+  themeAllowsMotion,
 } from './lb-card-grid.ts';
 export type { GridLayout } from './lb-card-grid.ts';
 export {

@@ -72,6 +72,12 @@ export function cardVariant(element: Element): CardVariant {
     : 'fill';
 }
 
+/** Whether the active theme allows motion (`--lb-motion: none` in tinta). Page styles cannot reach
+ * into the cards' shadow DOM, so the cards are told instead. */
+export function themeAllowsMotion(element: Element): boolean {
+  return getComputedStyle(element).getPropertyValue('--lb-motion').trim() !== 'none';
+}
+
 export class LbCardGrid extends LitElement {
   static override properties: PropertyDeclarations = {
     cards: { attribute: false },
@@ -188,7 +194,7 @@ export class LbCardGrid extends LitElement {
   /** Whether the user or the theme asked for no motion (reduced motion, tinta theme). */
   #motionAllowed(): boolean {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    return !reduced && getComputedStyle(this).getPropertyValue('--lb-motion').trim() !== 'none';
+    return !reduced && themeAllowsMotion(this);
   }
 
   /**
@@ -223,6 +229,7 @@ export class LbCardGrid extends LitElement {
 
   override render() {
     const variant = cardVariant(this);
+    const still = !themeAllowsMotion(this);
     const columns =
       this.layout === 'kiosk'
         ? `--lb-columns: ${kioskColumns(this.cards.length, this.size.width, this.size.height)}`
@@ -239,6 +246,7 @@ export class LbCardGrid extends LitElement {
             variant=${variant}
             intensity=${this.colour}
             effect=${this.effect}
+            ?still=${still}
             alert-minutes=${this.alertMinutes}
             ?fit=${this.layout === 'kiosk'}
             ?openable=${this.openable && routable(card)}

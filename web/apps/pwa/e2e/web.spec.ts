@@ -302,6 +302,8 @@ const pseudoStyle = (page: import('@playwright/test').Page, pseudo: '::before' |
         inset: [style.top, style.right, style.bottom, style.left],
         borderStyle: style.borderTopStyle,
         borderWidth: parseFloat(style.borderTopWidth),
+        backgroundImage: style.backgroundImage,
+        animationName: style.animationName,
       };
     }, pseudo);
 
@@ -333,6 +335,37 @@ test('el aviso dibuja el anillo pegado al borde de la tarjeta', async ({ page })
   expect(ring.inset).toEqual(['0px', '0px', '0px', '0px']);
   expect(ring.borderStyle).toBe('solid');
   expect(ring.borderWidth).toBeGreaterThan(0);
+  expect(ring.boxShadow, 'anillo interior claro sobre el negro').toContain('inset');
+});
+
+test('el aviso con rayas enmarca la tarjeta con rayas en dos tonos', async ({ page }) => {
+  await page.goto('./?v=1&p=101-2d&aviso=2&efecto=rayas');
+  await expect(cards(page).first()).toHaveAttribute('alert', '');
+  const frame = await pseudoStyle(page, '::after');
+  console.log('rayas ::after', frame);
+  expect(frame.inset).toEqual(['0px', '0px', '0px', '0px']);
+  expect(frame.backgroundImage).toContain('repeating-linear-gradient');
+});
+
+test('el aviso con etiqueta muestra «¡Ya llega!» junto a los minutos', async ({ page }) => {
+  await page.goto('./?v=1&p=101-2d.10d&aviso=2&efecto=etiqueta');
+  await expect(cards(page).first()).toHaveAttribute('alert', '');
+  await expect(cards(page).first().locator('.next .soon')).toHaveText('¡Ya llega!');
+  await expect(cards(page).nth(1).locator('.soon')).toHaveCount(0);
+});
+
+test('el tema tinta detiene el parpadeo del aviso dentro de la tarjeta', async ({ page }) => {
+  await page.goto('./?v=1&p=101-2d&aviso=2&efecto=pulso');
+  await expect(cards(page).first()).toHaveAttribute('alert', '');
+  expect((await pseudoStyle(page, '::after')).animationName).toBe('lb-pulse');
+  await page.goto('./?v=1&p=101-2d&aviso=2&efecto=pulso&tema=tinta');
+  await expect(cards(page).first()).toHaveAttribute('still', '');
+  expect((await pseudoStyle(page, '::after')).animationName).toBe('none');
+  // The theme's own `animation: none !important` cannot reach the shadow DOM: `still` is what stops it.
+  await cards(page)
+    .first()
+    .evaluate((card) => card.removeAttribute('still'));
+  expect((await pseudoStyle(page, '::after')).animationName).toBe('lb-pulse');
 });
 
 for (const [name, url] of [

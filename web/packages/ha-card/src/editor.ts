@@ -61,6 +61,9 @@ export const EDITOR_SCHEMA = [
             options: [
               option('pulso', 'Parpadeo suave'),
               option('borde', 'Borde fijo'),
+              option('destello', 'Destello (invierte los colores)'),
+              option('etiqueta', 'Etiqueta «¡Ya llega!»'),
+              option('rayas', 'Rayas de aviso'),
               option('ninguno', 'Sin efecto'),
             ],
           },

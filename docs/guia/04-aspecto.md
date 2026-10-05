@@ -80,14 +80,33 @@ Cuando al próximo autobús de una tarjeta le falten **N minutos o menos**, la t
 para que la veas de un vistazo y salgas a tiempo.
 
 - **Avisar cuando falten**: de 1 a 15 minutos, o **No avisar**. Por defecto, **3 minutos**.
-- **Efecto**: **Parpadeo suave** (el borde parpadea y el número late un poco), **Borde fijo**
-  (un borde rojo quieto) o **Sin efecto**.
+- **Efecto**: cómo se resalta la tarjeta. Todos se ven sobre cualquier color de línea, también
+  sobre las rojas:
+    - **Parpadeo suave** (por defecto): un doble borde, negro y blanco, que parpadea, y el número
+      late un poco.
+    - **Borde fijo**: el mismo doble borde, quieto.
+    - **Destello**: la tarjeta entera alterna con sus colores invertidos. Es lo que más se ve
+      desde lejos.
+    - **Etiqueta «¡Ya llega!»**: un aviso escrito junto a los minutos, sin nada que se mueva.
+    - **Rayas de aviso**: un marco de rayas amarillas y negras, como una señal de obras.
+    - **Sin efecto**.
 
 ![Aviso con borde fijo](img/echo-show-5-aviso.png){ width="480" }
 
+=== "Borde fijo"
+    ![Aviso con borde fijo en una línea roja](img/aviso-borde.png){ width="360" }
+=== "Destello"
+    ![Aviso con destello: la tarjeta con los colores invertidos](img/aviso-destello.png){ width="360" }
+=== "Etiqueta"
+    ![Aviso con la etiqueta «¡Ya llega!»](img/aviso-etiqueta.png){ width="360" }
+=== "Rayas"
+    ![Aviso con rayas amarillas y negras](img/aviso-rayas.png){ width="360" }
+
 !!! tip "Si el parpadeo molesta"
-    Si tu dispositivo tiene activado **«reducir movimiento»** (accesibilidad), el parpadeo se
-    convierte automáticamente en borde fijo. El tema **Tinta** tampoco anima nada.
+    Si tu dispositivo tiene activado **«reducir movimiento»** (accesibilidad), nada parpadea: el
+    parpadeo suave se queda en borde fijo y el destello, con los colores invertidos. El tema
+    **Tinta** tampoco anima nada. Si prefieres un aviso sin movimiento, elige **Etiqueta** o
+    **Rayas**.
 
 ??? info "Parámetros del enlace"
     | Ajuste | Parámetro | Valores |
@@ -100,7 +119,7 @@ para que la veas de un vistazo y salgas a tiempo.
     | Color | `color` | `suave`, `normal`, `intensa` |
     | Letra | `letra` | `sistema`, `legible`, `redondeada`, `mono` |
     | Aviso | `aviso` | minutos `0`–`15` (`0` = no avisar) |
-    | Efecto | `efecto` | `pulso`, `borde`, `ninguno` |
+    | Efecto | `efecto` | `pulso`, `borde`, `destello`, `etiqueta`, `rayas`, `ninguno` |
     | Orden | `orden` | `seleccion`, `linea`, `llegada` |
     | Paradas previas en el recorrido | `previas` | `1`–`12` (por defecto `4`) |
     | Origen de datos | `origen` | `auto`, `directa`, `servidor` |

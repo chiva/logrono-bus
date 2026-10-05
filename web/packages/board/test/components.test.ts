@@ -239,6 +239,49 @@ describe('display settings', () => {
     expect(cardsOf(none)[0]!.hasAttribute('alert')).toBe(false);
   });
 
+  it.each(['destello', 'etiqueta', 'rayas'])('alert with efecto=%s', async (effect) => {
+    vi.useFakeTimers({ now: RECORDED_AT, toFake: ['Date'] });
+    const board = await mountBoard(`p=101-2d.10d&aviso=2&efecto=${effect}`, new FakeSource());
+    const [due, later] = cardsOf(board);
+    await Promise.all([due!.updateComplete, later!.updateComplete]);
+    expect(due!.getAttribute('effect')).toBe(effect);
+    expect(due!.hasAttribute('alert')).toBe(true);
+    expect(later!.hasAttribute('alert')).toBe(false);
+  });
+
+  it('show the "¡Ya llega!" pill only with efecto=etiqueta, and only while alerting', async () => {
+    vi.useFakeTimers({ now: RECORDED_AT, toFake: ['Date'] });
+    const pill = (card: LbCard) => card.shadowRoot!.querySelector('.next .soon');
+    const board = await mountBoard('p=101-2d.10d&aviso=2&efecto=etiqueta', new FakeSource());
+    const [due, later] = cardsOf(board);
+    await Promise.all([due!.updateComplete, later!.updateComplete]);
+    expect(pill(due!)?.textContent).toBe('¡Ya llega!');
+    expect(pill(due!)?.getAttribute('aria-hidden')).toBe('true');
+    expect(pill(later!)).toBeNull();
+    for (const query of ['p=101-2d&aviso=2&efecto=borde', 'p=101-2d&aviso=0&efecto=etiqueta']) {
+      document.body.replaceChildren();
+      const other = await mountBoard(query, new FakeSource());
+      await cardsOf(other)[0]!.updateComplete;
+      expect(pill(cardsOf(other)[0]!), query).toBeNull();
+    }
+  });
+
+  it('keep cards still when the theme asks for no motion (tinta)', async () => {
+    vi.useFakeTimers({ now: RECORDED_AT, toFake: ['Date'] });
+    const board = await mountBoard('p=101-2d&aviso=2&efecto=destello', new FakeSource());
+    const [card] = cardsOf(board);
+    await card!.updateComplete;
+    expect(card!.hasAttribute('still')).toBe(false);
+    // Set on the grid itself: the test DOM does not inherit custom properties into shadow trees.
+    const grid = board.shadowRoot!.querySelector('lb-card-grid')!;
+    grid.style.setProperty('--lb-motion', 'none');
+    grid.requestUpdate();
+    await grid.updateComplete;
+    await card!.updateComplete;
+    expect(card!.hasAttribute('still')).toBe(true);
+    expect(card!.hasAttribute('alert')).toBe(true);
+  });
+
   it('scale the text and set the font without refetching', async () => {
     const source = new FakeSource();
     const board = await mountBoard('p=101-2d', source);

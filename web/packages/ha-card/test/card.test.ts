@@ -1,3 +1,4 @@
+import { EFFECTS } from '@logrono-bus/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CardConfigError, normalizeConfig } from '../src/config.ts';
@@ -183,6 +184,21 @@ describe('configuration', () => {
       tam: 100,
       previas: 4,
     });
+  });
+
+  it('offers every effect in the editor and keeps it in the configuration', () => {
+    type Field = { readonly name: string; readonly selector?: unknown };
+    const fields = EDITOR_SCHEMA.flatMap((field): readonly Field[] =>
+      'schema' in field ? field.schema : [field],
+    );
+    const efecto = fields.find((field) => field.name === 'efecto');
+    const options = (efecto?.selector as { select: { options: { value: string }[] } }).select
+      .options;
+    expect(options.map((option) => option.value)).toEqual([...EFFECTS]);
+    for (const effect of EFFECTS) {
+      expect(normalizeConfig({ entities: ['sensor.a'], efecto: effect }).efecto).toBe(effect);
+    }
+    expect(normalizeConfig({ entities: ['sensor.a'], efecto: 'neon' }).efecto).toBe('pulso');
   });
 
   it('labels every editor field in Spanish', () => {

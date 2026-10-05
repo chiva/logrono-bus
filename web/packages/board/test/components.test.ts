@@ -623,6 +623,10 @@ describe('route view', () => {
     );
     expect(stops).toHaveLength(9);
     expect(termini).toEqual([0]);
+    // Said as well as drawn, for screen readers.
+    expect(route.shadowRoot!.querySelector('.track')?.getAttribute('aria-label')).toMatch(
+      /^La línea empieza en Artesanos\. /,
+    );
     expect(route.shadowRoot!.querySelector('.more.before')).toBeNull();
     expect(route.shadowRoot!.querySelector('.more.after')).not.toBeNull();
   });
@@ -642,6 +646,9 @@ describe('route view', () => {
     expect(last.classList.contains('target')).toBe(true);
     expect(last.classList.contains('terminus')).toBe(true);
     expect(stops.slice(0, -1).some((stop) => stop.classList.contains('terminus'))).toBe(false);
+    expect(route.shadowRoot!.querySelector('.track')?.getAttribute('aria-label')).toMatch(
+      /^La línea acaba en tu parada\. /,
+    );
     expect(route.shadowRoot!.querySelector('.more.after')).toBeNull();
   });
 

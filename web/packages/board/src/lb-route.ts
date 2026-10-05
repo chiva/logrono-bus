@@ -670,17 +670,27 @@ export class LbRoute extends LitElement {
   }
 
   #describe(route: RouteView): string {
+    const last = route.stops.length - 1;
+    // The termini drawn on the track, said too, so they are not only a picture.
+    const termini = route.stops.flatMap((stop, index) => {
+      if (!stop.terminus) return [];
+      if (stop.position === 1) return [`La línea empieza en ${stop.name}`];
+      return [index === last ? 'La línea acaba en tu parada' : `La línea acaba en ${stop.name}`];
+    });
     const buses = [...route.buses, ...route.earlierBuses];
-    if (buses.length === 0) return 'Ningún autobús de esta línea en camino ahora mismo.';
-    return buses
-      .map((bus) => {
+    if (buses.length === 0) {
+      return [...termini, 'Ningún autobús de esta línea en camino ahora mismo.'].join('. ');
+    }
+    return [
+      ...termini,
+      ...buses.map((bus) => {
         const where =
           bus.stopsAway === 0 ? 'llegando a tu parada' : `a ${bus.stopsAway + 1} paradas`;
         return bus.minutes === null
           ? `Un autobús ${where}`
           : `Un autobús ${where}, ${bus.minutes} minutos`;
-      })
-      .join('. ');
+      }),
+    ].join('. ');
   }
 
   override render() {

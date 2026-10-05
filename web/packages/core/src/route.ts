@@ -33,6 +33,8 @@ export interface RouteStop {
   readonly name: string;
   /** 1-based position along the whole pattern. */
   readonly position: number;
+  /** Where the line starts or ends (drawn as a terminus, like on a metro map). */
+  readonly terminus: boolean;
 }
 
 export interface RouteBus {
@@ -88,6 +90,7 @@ export function buildRoute(
     id,
     name: catalog.findStop(id)?.name ?? id,
     position: first + index,
+    terminus: first + index === 1 || first + index === pattern.stop_ids.length,
   }));
 
   const placed: { vehicleId: string; at: number; stopsAway: number }[] = [];

@@ -26,6 +26,7 @@ import {
   type LbRoute,
   type LogronoBusBoard,
   describeError,
+  hiddenStopsLabel,
   minutesLabel,
   nextBusLine,
   ROUTE_IDLE_CLOSE_MS,
@@ -599,6 +600,48 @@ describe('route view', () => {
       vi.advanceTimersByTime(1);
       expect(closed).toHaveBeenCalledOnce();
     });
+  });
+
+  it('marks the start of the line like a metro terminus when it is in view', async () => {
+    // Ayuntamiento is the 9th stop of line 2 towards Manresa: 8 before it reach the first stop.
+    const route = document.createElement('lb-route');
+    route.source = new FakeSource();
+    route.card = (await mountBoard('p=101-2d', new FakeSource())).cards[0];
+    route.previousStops = 8;
+    document.body.append(route);
+    await vi.waitFor(() => expect(route.route).not.toBeNull());
+    await route.updateComplete;
+    const stops = [...route.shadowRoot!.querySelectorAll('.stop')];
+    const termini = stops.flatMap((stop, index) =>
+      stop.classList.contains('terminus') ? [index] : [],
+    );
+    console.info(
+      'stops',
+      stops.map((stop) => stop.querySelector('.name')?.textContent),
+      'termini',
+      termini,
+    );
+    expect(stops).toHaveLength(9);
+    expect(termini).toEqual([0]);
+    expect(route.shadowRoot!.querySelector('.more.before')).toBeNull();
+    expect(route.shadowRoot!.querySelector('.more.after')).not.toBeNull();
+  });
+
+  it('keeps the footer notes apart and counts one hidden stop in the singular', async () => {
+    // Line 2 at Ayuntamiento, 6 stops before it: 2 hidden, and no bus on the way in the recording.
+    const route = document.createElement('lb-route');
+    route.source = new FakeSource();
+    route.card = (await mountBoard('p=101-2d', new FakeSource())).cards[0];
+    route.previousStops = 6;
+    document.body.append(route);
+    await vi.waitFor(() => expect(route.route).not.toBeNull());
+    await route.updateComplete;
+    const note = route.shadowRoot!.querySelector('footer span')?.textContent?.trim();
+    console.info('footer note:', note);
+    expect(note).toBe('↓ 2 paradas antes, desde Artesanos · Ningún autobús en camino ahora mismo.');
+    expect(hiddenStopsLabel({ ...route.route!, hiddenStops: 1 })).toBe(
+      '1 parada antes, desde Artesanos',
+    );
   });
 
   it('moves a stop name out of the way when a bus sits over that stop', async () => {

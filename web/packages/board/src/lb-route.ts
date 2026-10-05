@@ -73,6 +73,12 @@ export function stopsUnderBuses(
   return covered;
 }
 
+/** The stops of the line behind the first one shown: "2 paradas antes, desde Artesanos". */
+export function hiddenStopsLabel(route: RouteView): string {
+  const stops = route.hiddenStops === 1 ? '1 parada' : `${route.hiddenStops} paradas`;
+  return `${stops} antes, desde ${route.origin}`;
+}
+
 /** A bus's minutes as the cards word them: "llegando" at 0, nothing when unknown. */
 export function minutesLabel(bus: RouteBus): string {
   if (bus.minutes === null) return '';
@@ -321,10 +327,21 @@ export class LbRoute extends LitElement {
       height: var(--target);
       border-width: 0.36em;
     }
+    /* Where the line starts or ends, as on a metro map: as big as your stop, but filled. */
+    .stop.terminus .dot {
+      width: var(--target);
+      height: var(--target);
+      border-width: 0.36em;
+      background: var(--line-colour);
+      box-shadow: inset 0 0 0 0.16em var(--lb-surface, #fff);
+    }
     .stop .name {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    .stop.terminus .name {
+      font-weight: 700;
     }
     .stop.target .name {
       font-size: 1.2em;
@@ -402,7 +419,8 @@ export class LbRoute extends LitElement {
       right: 0;
       transform: translateY(-50%);
     }
-    :host([orientation='vertical']) .stop.target {
+    :host([orientation='vertical']) .stop.target,
+    :host([orientation='vertical']) .stop.terminus {
       left: calc(var(--x) - var(--target) / 2);
     }
     :host([orientation='vertical']) .bus {
@@ -600,6 +618,7 @@ export class LbRoute extends LitElement {
             class=${[
               'stop',
               index === last ? 'target' : '',
+              stop.terminus ? 'terminus' : '',
               (last - index) % 2 === 1 ? 'above' : '',
               covered.has(index) ? 'covered' : '',
             ].join(' ')}
@@ -709,12 +728,14 @@ export class LbRoute extends LitElement {
       </div>
       <footer ?hidden=${this.screen === 'horario'}>
         <span>
-          ${
+          ${[
             route && route.hiddenStops > 0
-              ? `${this.orientation === 'horizontal' ? '←' : '↓'} ${route.hiddenStops} paradas antes, desde ${route.origin}`
-              : nothing
-          }
-          ${noBuses ? 'Ningún autobús en camino ahora mismo.' : nothing}
+              ? `${this.orientation === 'horizontal' ? '←' : '↓'} ${hiddenStopsLabel(route)}`
+              : '',
+            noBuses ? 'Ningún autobús en camino ahora mismo.' : '',
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </span>
         <span>${this.vehicles ? `Posiciones ${formatAge(age)}` : ''}</span>
         ${

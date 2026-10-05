@@ -84,6 +84,14 @@ const SHOTS = [
     route: true,
   },
   {
+    // Ayuntamiento is the 9th stop of line 2 towards Manresa: with 8 before it, the start shows.
+    file: 'recorrido-cabecera-movil.png',
+    url: './?v=1&p=101-2d&previas=8',
+    viewport: { width: 390, height: 844 },
+    route: true,
+    line: /Línea 2 hacia Manresa/,
+  },
+  {
     file: 'horario-movil.png',
     url: './?v=1&p=101-10d',
     viewport: { width: 390, height: 844 },
@@ -108,8 +116,9 @@ for (const shot of SHOTS) {
     await page.waitForLoadState('networkidle');
     if ('settings' in shot) await page.getByRole('button', { name: /Aspecto/ }).click();
     if ('route' in shot) {
-      await page.getByRole('button', { name: /Línea 10 hacia Manuel de Falla/ }).click();
-      await page.locator('lb-route .bus').first().waitFor();
+      const line = 'line' in shot ? shot.line : /Línea 10 hacia Manuel de Falla/;
+      await page.getByRole('button', { name: line }).click();
+      await page.locator('lb-route .track').waitFor();
       await page.waitForTimeout(1500);
     }
     if ('timetable' in shot) {

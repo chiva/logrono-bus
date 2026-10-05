@@ -55,6 +55,8 @@ y se cierra sola al cabo de 15 minutos sin tocarla (o con **Volver**).
   [el aspecto](04-aspecto.md#recorrido). Si la pantalla no tiene sitio, se muestran menos.
 - Los **puntos suspensivos** (····) indican que la línea sigue: antes de la primera parada que ves
   y, si tu parada no es la última, después de ella.
+- Si se ve **el principio o el final de la línea**, esa parada lleva un círculo grande relleno y
+  su nombre en negrita, como en los planos de metro. Tu parada lleva el círculo grande hueco.
 - Un autobús que viene **más lejos** que las paradas que ves espera sobre los puntos del
   principio, con sus minutos; «+1» quiere decir que hay otro más detrás.
 
@@ -64,6 +66,8 @@ y se cierra sola al cabo de 15 minutos sin tocarla (o con **Volver**).
     ![Recorrido en un Echo Show 5](img/recorrido-echo-show-5.png){ width="480" }
 === "Portal en vertical"
     ![Recorrido en un Portal en vertical](img/recorrido-portal-vertical.png){ width="300" }
+=== "Con el principio de la línea"
+    ![Recorrido de la línea 2 desde su principio, Artesanos](img/recorrido-cabecera-movil.png){ width="300" }
 
 !!! note "Cómo se sabe cuál es «tu» autobús"
     El servicio del Ayuntamiento da la posición de cada autobús, pero no cuál es cuál en la lista

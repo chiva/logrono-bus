@@ -56,7 +56,8 @@ y se cierra sola al cabo de 15 minutos sin tocarla (o con **Volver**).
 - Los **puntos suspensivos** (····) indican que la línea sigue: antes de la primera parada que ves
   y, si tu parada no es la última, después de ella.
 - Si se ve **el principio o el final de la línea**, esa parada lleva un círculo grande relleno y
-  su nombre en negrita, como en los planos de metro. Tu parada lleva el círculo grande hueco.
+  su nombre en negrita, como en los planos de metro. Tu parada lleva el círculo grande hueco, o
+  relleno si la línea acaba en ella.
 - Un autobús que viene **más lejos** que las paradas que ves espera sobre los puntos del
   principio, con sus minutos; «+1» quiere decir que hay otro más detrás.
 

@@ -627,6 +627,24 @@ describe('route view', () => {
     expect(route.shadowRoot!.querySelector('.more.after')).not.toBeNull();
   });
 
+  it('marks your stop as the end of the line when the line ends there', async () => {
+    // Stop 5 is the last of line 2 towards Artesanos.
+    const route = document.createElement('lb-route');
+    route.source = new FakeSource();
+    route.card = (await mountBoard('p=5-2a', new FakeSource())).cards[0];
+    document.body.append(route);
+    await vi.waitFor(() => expect(route.route).not.toBeNull());
+    route.show('recorrido');
+    await route.updateComplete;
+    const stops = [...route.shadowRoot!.querySelectorAll('.stop')];
+    const last = stops.at(-1)!;
+    console.info('last stop classes:', last.className);
+    expect(last.classList.contains('target')).toBe(true);
+    expect(last.classList.contains('terminus')).toBe(true);
+    expect(stops.slice(0, -1).some((stop) => stop.classList.contains('terminus'))).toBe(false);
+    expect(route.shadowRoot!.querySelector('.more.after')).toBeNull();
+  });
+
   it('keeps the footer notes apart and counts one hidden stop in the singular', async () => {
     // Line 2 at Ayuntamiento, 6 stops before it: 2 hidden, and no bus on the way in the recording.
     const route = document.createElement('lb-route');

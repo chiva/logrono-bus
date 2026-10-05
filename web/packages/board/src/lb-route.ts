@@ -327,7 +327,10 @@ export class LbRoute extends LitElement {
       height: var(--target);
       border-width: 0.36em;
     }
-    /* Where the line starts or ends, as on a metro map: as big as your stop, but filled. */
+    /*
+     * Where the line starts or ends, as on a metro map: as big as your stop, but filled. Your stop
+     * as the last of the line takes it too: its place and big name already say it is yours.
+     */
     .stop.terminus .dot {
       width: var(--target);
       height: var(--target);

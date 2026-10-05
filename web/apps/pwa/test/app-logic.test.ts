@@ -85,6 +85,8 @@ describe('preferences', () => {
     expect(savedTheme(store)).toBe('tinta');
     store.set(DISPLAY_KEY, '{"theme":"rosa","textScale":999,"font":"comic","effect":"pulso"}');
     expect(loadDisplayPreferences(store)).toEqual({ textScale: 150, effect: 'pulso' });
+    store.set(DISPLAY_KEY, '{"effect":"rayas"}');
+    expect(loadDisplayPreferences(store)).toEqual({ effect: 'rayas' });
     store.set(DISPLAY_KEY, 'not json');
     expect(loadDisplayPreferences(store)).toEqual({});
     resetDisplayPreferences(store);

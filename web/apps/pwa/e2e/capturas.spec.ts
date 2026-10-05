@@ -12,6 +12,8 @@ import { useRecordedUpstream } from './upstream.ts';
 
 const OUT = join(import.meta.dirname, '../../../../docs/guia/img');
 const PANEL = 'v=1&p=101-2d.5a.10d~100-2a&n=2';
+/** Two minutes before B1 (red, like line 4) reaches stop 5 in the recording. */
+const RED_LINE_DUE = new Date('2026-10-03T23:25:00+02:00');
 
 test.skip(!process.env.SCREENSHOTS, 'solo con SCREENSHOTS=1 (just screenshots)');
 
@@ -60,6 +62,14 @@ const SHOTS = [
     url: `./?${PANEL}&modo=kiosko&titulo=Casa&aviso=5&efecto=borde&tam=110&letra=legible`,
     viewport: { width: 960, height: 480 },
   },
+  // The flash is captured on its inverted half: reduced motion holds it there.
+  ...['borde', 'destello', 'etiqueta', 'rayas'].map((efecto) => ({
+    file: `aviso-${efecto}.png`,
+    url: `./?v=1&p=5-31x&modo=kiosko&aviso=5&efecto=${efecto}`,
+    viewport: { width: 480, height: 320 },
+    at: RED_LINE_DUE,
+    still: efecto === 'destello',
+  })),
   {
     file: 'echo-show-5-suave.png',
     url: `./?${PANEL}&modo=kiosko&titulo=Casa&color=suave&tema=oscuro&letra=redondeada`,
@@ -110,7 +120,15 @@ const SHOTS = [
 for (const shot of SHOTS) {
   test(shot.file, async ({ page }) => {
     mkdirSync(OUT, { recursive: true });
-    await useRecordedUpstream(page, 'route' in shot ? { scene: 'noche' } : {});
+    await useRecordedUpstream(
+      page,
+      'route' in shot
+        ? { scene: 'noche' }
+        : 'at' in shot && shot.at instanceof Date
+          ? { at: shot.at }
+          : {},
+    );
+    if ('still' in shot && shot.still) await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize(shot.viewport);
     await page.goto(shot.url);
     await page.waitForLoadState('networkidle');

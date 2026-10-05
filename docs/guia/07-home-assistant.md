@@ -76,7 +76,7 @@ los autobuses en marcha. No hay que instalar nada más: se carga sola con la int
 | Orden de las tarjetas | Como las elegí · por número de línea · el que llega antes | Como las elegí |
 | Modo | **Pantalla** llena toda la vista: para Echo Show, tablets o un panel de pared | Normal |
 | Avisar cuando falten | Resalta la línea cuando el autobús está a N minutos (0 = no) | 3 |
-| Efecto del aviso | Parpadeo suave · borde fijo · sin efecto | Parpadeo suave |
+| Efecto del aviso | Parpadeo suave · borde fijo · destello · etiqueta «¡Ya llega!» · rayas · sin efecto ([cómo se ven](04-aspecto.md#avisos)) | Parpadeo suave |
 | Intensidad del color | Suave · normal · intensa | Normal |
 | Tipo de letra | La del sistema · muy legible · redondeada · tipo panel | La del sistema |
 | Tamaño del texto | 80–150 % | 100 % |

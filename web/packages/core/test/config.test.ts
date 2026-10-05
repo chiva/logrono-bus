@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULTS,
   DEFAULT_PREVIOUS_STOPS,
+  EFFECTS,
   InvalidSelection,
   MAX_PREVIOUS_STOPS,
   MIN_PREVIOUS_STOPS,
@@ -115,6 +116,15 @@ describe('board URL config', () => {
     expect(parseBoardConfig('p=101&previas=99')?.previousStops).toBe(MAX_PREVIOUS_STOPS);
     expect(parseBoardConfig('p=101&previas=0')?.previousStops).toBe(MIN_PREVIOUS_STOPS);
     expect(parseBoardConfig('p=101&previas=x')?.previousStops).toBe(DEFAULT_PREVIOUS_STOPS);
+  });
+
+  it.each(EFFECTS)('accepts efecto=%s in the URL and in stored preferences', (effect) => {
+    const config = parseBoardConfig(`p=101&efecto=${effect}`);
+    expect(config?.effect).toBe(effect);
+    const url = formatBoardConfig(config!);
+    expect(url.includes(`efecto=${effect}`)).toBe(effect !== DEFAULTS.effect);
+    expect(parseBoardConfig(url)?.effect).toBe(effect);
+    expect(sanitizePreferences({ effect })).toEqual({ effect });
   });
 
   it('refuses newer versions and invalid selections', () => {

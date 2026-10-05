@@ -27,6 +27,7 @@ import { styleMap } from 'lit/directives/style-map.js';
 import { serviceSentence, timeLabel } from './format.ts';
 
 const UNKNOWN_DIRECTION = 'sentido desconocido';
+const SOON_LABEL = '¡Ya llega!';
 
 export type CardVariant = 'fill' | 'strip';
 
@@ -38,6 +39,7 @@ export class LbCard extends LitElement {
     fit: { type: Boolean, reflect: true },
     intensity: { type: String, reflect: true },
     effect: { type: String, reflect: true },
+    still: { type: Boolean, reflect: true },
     alertMinutes: { type: Number, attribute: 'alert-minutes' },
     openable: { type: Boolean, reflect: true },
     service: { attribute: false },
@@ -52,6 +54,8 @@ export class LbCard extends LitElement {
   declare fit: boolean;
   declare intensity: Colour;
   declare effect: Effect;
+  /** No animation (the theme asks for none, e.g. tinta): alerts show their resting state. */
+  declare still: boolean;
   /** Highlight when the next bus is this close (minutes); 0 disables. */
   declare alertMinutes: number;
   /** Tapping opens the route view (`card-open` event). */
@@ -67,6 +71,7 @@ export class LbCard extends LitElement {
     this.fit = false;
     this.intensity = 'normal';
     this.effect = 'pulso';
+    this.still = false;
     this.alertMinutes = 0;
     this.openable = false;
     this.service = null;
@@ -86,15 +91,27 @@ export class LbCard extends LitElement {
     }
   }
 
-  /** Whether the next (not cancelled) bus is within the alert window. */
-  get alerting(): boolean {
+  /** The next (not cancelled) arrival, when it is within the alert window. */
+  #dueArrival(): Arrival | undefined {
     const next = this.card?.arrivals.find((arrival) => !arrival.cancelled);
-    return (
-      this.alertMinutes > 0 &&
+    return this.alertMinutes > 0 &&
       this.effect !== 'ninguno' &&
       next !== undefined &&
       minutesUntil(next.expected, this.now) <= this.alertMinutes
-    );
+      ? next
+      : undefined;
+  }
+
+  /** Whether the next (not cancelled) bus is within the alert window. */
+  get alerting(): boolean {
+    return this.#dueArrival() !== undefined;
+  }
+
+  /** The «¡Ya llega!» pill, beside the arrival that raised the alert (not a cancelled one). */
+  #soon(arrival: Arrival): TemplateResult | typeof nothing {
+    return this.effect === 'etiqueta' && arrival === this.#dueArrival()
+      ? html`<span class="soon" aria-hidden="true">${SOON_LABEL}</span>`
+      : nothing;
   }
 
   protected override willUpdate(): void {
@@ -107,7 +124,10 @@ export class LbCard extends LitElement {
       container-type: inline-size;
       min-width: 0;
       font-size: calc(1rem * var(--lb-text-scale, 1));
-      --lb-alert-colour: #e11d48;
+      /* Alerts contrast in lightness, not hue: any fixed hue matches some line (red 4, pink, yellow). */
+      --lb-alert-ring: #000;
+      --lb-alert-ring-inner: #fff;
+      --lb-alert-stripe: #facc15;
     }
     article {
       box-sizing: border-box;
@@ -122,6 +142,14 @@ export class LbCard extends LitElement {
       box-shadow: var(--lb-shadow, none);
       overflow: hidden;
       position: relative;
+      /* Declared here, where --line-colour is set: the flash and the "¡Ya llega!" pill swap them. */
+      --lb-inverse-bg: var(--line-text);
+      --lb-inverse-fg: var(--line-colour);
+    }
+    :host([variant='strip']) article,
+    :host([intensity='suave']) article {
+      --lb-inverse-bg: var(--lb-fg, #000);
+      --lb-inverse-fg: var(--lb-surface, #fff);
     }
     :host([variant='strip']) article {
       background: var(--lb-surface, #fff);
@@ -161,7 +189,8 @@ export class LbCard extends LitElement {
       position: absolute;
       inset: 0;
       box-sizing: border-box;
-      border: 0.3em solid var(--lb-alert-colour);
+      border: 0.3em solid var(--lb-alert-ring);
+      box-shadow: inset 0 0 0 0.15em var(--lb-alert-ring-inner);
       border-radius: inherit;
       pointer-events: none;
     }
@@ -170,6 +199,52 @@ export class LbCard extends LitElement {
     }
     :host([alert][effect='pulso']) .next .value {
       animation: lb-beat 1.6s ease-in-out infinite;
+    }
+    :host([alert][effect='destello']) article {
+      animation: lb-flash 1.6s steps(1, end) infinite;
+    }
+    /* Frame cut out of a striped layer with a mask: border-image would drop the rounded corners. */
+    :host([alert][effect='rayas']) article::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      box-sizing: border-box;
+      padding: 0.35em;
+      border-radius: inherit;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--lb-alert-stripe) 0 0.5em,
+        var(--lb-alert-ring) 0.5em 1em
+      );
+      -webkit-mask:
+        linear-gradient(#000, #000) content-box,
+        linear-gradient(#000, #000);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .soon {
+      align-self: center;
+      padding: 0.15em 0.55em;
+      border-radius: 999px;
+      font-size: 1.1em;
+      font-size: clamp(0.85em, calc(4.5cqi * var(--lb-text-scale, 1)), 1.4em);
+      font-weight: 800;
+      line-height: 1.2;
+      white-space: nowrap;
+      background: var(--lb-inverse-bg);
+      color: var(--lb-inverse-fg);
+    }
+    ul .soon {
+      margin-inline-start: 0.4em;
+      font-size: 0.8em;
+    }
+    @keyframes lb-flash {
+      50%,
+      100% {
+        background: var(--lb-inverse-bg);
+        color: var(--lb-inverse-fg);
+      }
     }
     @keyframes lb-pulse {
       0%,
@@ -193,10 +268,25 @@ export class LbCard extends LitElement {
       display: inline-block;
       transform-origin: left bottom;
     }
+    /* Still: the flash holds its inverted half, the pulse its solid ring. */
+    :host([alert][still]) article,
+    :host([alert][still]) article::after,
+    :host([alert][still]) .next .value {
+      animation: none;
+    }
+    :host([alert][still][effect='destello']) article {
+      background: var(--lb-inverse-bg);
+      color: var(--lb-inverse-fg);
+    }
     @media (prefers-reduced-motion: reduce) {
+      :host([alert]) article,
       :host([alert]) article::after,
       :host([alert]) .next .value {
         animation: none;
+      }
+      :host([alert][effect='destello']) article {
+        background: var(--lb-inverse-bg);
+        color: var(--lb-inverse-fg);
       }
     }
     :host([openable]) article {
@@ -252,6 +342,7 @@ export class LbCard extends LitElement {
     .next {
       align-self: center;
       display: flex;
+      flex-wrap: wrap;
       align-items: baseline;
       gap: 0.25em;
       font-variant-numeric: tabular-nums;
@@ -321,6 +412,9 @@ export class LbCard extends LitElement {
     :host([fit]) .next .unit {
       font-size: clamp(0.9em, calc(min(7cqi, 12cqh) * var(--lb-text-scale, 1)), 3.6em);
     }
+    :host([fit]) .soon {
+      font-size: clamp(0.8em, calc(min(4.5cqi, 9cqh) * var(--lb-text-scale, 1)), 2.4em);
+    }
     :host([fit]) ul {
       font-size: clamp(0.8em, calc(min(5cqi, 10cqh) * var(--lb-text-scale, 1)), 2.6em);
     }
@@ -389,11 +483,14 @@ export class LbCard extends LitElement {
             ? html`<div class="next">
                 ${this.#time(next, true)}
                 ${nextHeadsign ? html`<span class="headsign">→ ${nextHeadsign}</span>` : nothing}
+                ${this.#soon(next)}
               </div>`
             : html`<div class="empty">${serviceSentence(this.service)}</div>`
         }
         <ul aria-hidden="true">
-          ${following.map((arrival) => html`<li>${this.#time(arrival, false)}</li>`)}
+          ${following.map(
+            (arrival) => html`<li>${this.#time(arrival, false)}${this.#soon(arrival)}</li>`,
+          )}
         </ul>
       </article>
     `;

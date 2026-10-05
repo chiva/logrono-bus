@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+reviews:
+  pre_merge_checks:
+    # Tests are named for what they check and rarely carry docstrings, and the check cannot be
+    # scoped away from them: a test-only PR scores 0%. Code docs are kept up in review instead.
+    docstrings:
+      mode: "off"

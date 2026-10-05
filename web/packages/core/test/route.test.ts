@@ -34,6 +34,8 @@ describe('route view', () => {
     const route = buildRoute(catalog, '10:desc', '101', vehicles('10'), arrivals('101'))!;
     expect(route.stops.map((s) => s.position)).toEqual([10, 11, 12, 13, 14]);
     expect(route.stops.at(-1)?.name).toBe('Ayuntamiento');
+    // Neither end of the line is among the stops shown.
+    expect(route.stops.map((s) => s.terminus)).toEqual([false, false, false, false, false]);
     expect(route.hiddenStops).toBe(9);
     expect(route.stopsAfter).toBe(catalog.pattern('10:desc')!.stop_ids.length - 14);
     expect(route.stopsAfter).toBeGreaterThan(0);
@@ -69,6 +71,8 @@ describe('route view', () => {
     })!;
     expect(route.stops[0]?.position).toBe(1);
     expect(route.hiddenStops).toBe(0);
+    // The first stop of the line is drawn as a terminus; yours, further on, is not.
+    expect(route.stops.filter((s) => s.terminus).map((s) => s.position)).toEqual([1]);
     expect(route.buses.map((b) => [b.vehicleId, b.minutes])).toEqual([
       ['946', 2],
       ['2315', 17],
@@ -82,6 +86,8 @@ describe('route view', () => {
     const route = buildRoute(catalog, '10:desc', terminus, vehicles('10'), null)!;
     expect(route.stopsAfter).toBe(0);
     expect(route.stops.at(-1)?.id).toBe(terminus);
+    expect(route.stops.at(-1)?.terminus).toBe(true);
+    expect(route.stops.slice(0, -1).some((s) => s.terminus)).toBe(false);
   });
 
   it('works without arrivals (no minutes) and rejects stops off the pattern', () => {

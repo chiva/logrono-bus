@@ -28,6 +28,7 @@ export {
   LABEL_CLEARANCE_STOPS,
   LANDSCAPE_RATIO,
   LbRoute,
+  hiddenStopsLabel,
   minutesLabel,
   nextBusLine,
   ROUTE_IDLE_CLOSE_MS,

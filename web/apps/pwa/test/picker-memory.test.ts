@@ -94,6 +94,13 @@ describe('picker search memory', () => {
     expect(loadPickerSearch(store, LOCATED_AT + HERE_MAX_AGE_MS + 1)).toBeNull();
   });
 
+  it('erases an expired position instead of keeping it in storage', () => {
+    const store = new MemoryStore();
+    savePickerSearch(store, { kind: 'here', here: AT_STOP_101, locatedAt: LOCATED_AT });
+    loadPickerSearch(store, LOCATED_AT + HERE_MAX_AGE_MS + 1);
+    expect(store.get(PICKER_SEARCH_KEY)).toBeNull();
+  });
+
   it('distrusts a position from the future (a clock that went back)', () => {
     const store = new MemoryStore();
     savePickerSearch(store, { kind: 'here', here: AT_STOP_101, locatedAt: LOCATED_AT });
@@ -123,8 +130,10 @@ describe('picker search memory', () => {
       'a position off the globe',
       JSON.stringify({ kind: 'here', here: { ...AT_STOP_101, lon: 181 }, locatedAt: LOCATED_AT }),
     ],
-  ])('ignores %s', (reason, raw) => {
-    expect(loadPickerSearch(storeWith(PICKER_SEARCH_KEY, raw), LOCATED_AT), reason).toBeNull();
+  ])('ignores and erases %s', (reason, raw) => {
+    const store = storeWith(PICKER_SEARCH_KEY, raw);
+    expect(loadPickerSearch(store, LOCATED_AT), reason).toBeNull();
+    expect(store.get(PICKER_SEARCH_KEY), reason).toBeNull();
   });
 
   it('after choosing a stop keeps a typed search or a position, else remembers the stop', () => {

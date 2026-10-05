@@ -82,9 +82,17 @@ export function saveMapMemory(store: KeyValueStore, memory: MapMemory): void {
   store.set(MAP_MEMORY_KEY, JSON.stringify(memory));
 }
 
-/** The last search, or null when there is none, it is malformed or its position is too old. */
+/**
+ * The last search, or null when there is none, it is malformed or its position is too old; then
+ * it is also erased, so an expired position does not linger in the tab's storage.
+ */
 export function loadPickerSearch(store: KeyValueStore, now = Date.now()): PickerSearch | null {
-  const stored = readJson(store, PICKER_SEARCH_KEY);
+  const search = parsePickerSearch(readJson(store, PICKER_SEARCH_KEY), now);
+  if (!search) store.remove(PICKER_SEARCH_KEY);
+  return search;
+}
+
+function parsePickerSearch(stored: unknown, now: number): PickerSearch | null {
   if (!isRecord(stored)) return null;
   switch (stored['kind']) {
     case 'query': {

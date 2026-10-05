@@ -22,8 +22,8 @@ consulta.
   cerrar la pestaña.
 - Para mostrar las llegadas, tu navegador pide los datos directamente al Ayuntamiento (o a tu
   servidor). El mapa descarga imágenes de [OpenStreetMap](https://www.openstreetmap.org/copyright)
-  de la zona que muestra; si lo centras en tu ubicación, OpenStreetMap puede deducir en qué zona
-  estás, como cuando mueves el mapa a mano hasta allí.
+  de la zona que muestra. **📍 Cerca de mí** abre el mapa centrado en tu ubicación, así que
+  OpenStreetMap puede deducir en qué zona estás, como cuando mueves el mapa a mano hasta allí.
 - La web se aloja en GitHub Pages, que como cualquier servidor web registra direcciones IP
   ([política de GitHub](https://docs.github.com/es/site-policy/privacy-policies/github-general-privacy-statement)).
 

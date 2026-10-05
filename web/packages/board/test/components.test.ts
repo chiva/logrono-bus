@@ -588,6 +588,46 @@ describe('route view', () => {
       await vi.waitFor(() => expect(busesOn(route)).toEqual(['946', '2315']));
     });
 
+    it('shows the timetable even while positions fail, and the road while the timetable does', async () => {
+      // Positions fail: "Horario" still shows the timetable, and "Recorrido" the failure.
+      const offline = new FakeSource();
+      const route = await openRoute(offline);
+      offline.vehicles = () => Promise.reject(new UpstreamUnavailable('offline'));
+      setHidden(true);
+      setHidden(false);
+      await vi.waitFor(() => expect(route.problem).toBeDefined());
+      route.show('horario');
+      await vi.waitFor(() => expect(route.timetable).toBeDefined());
+      await route.updateComplete;
+      const root = route.shadowRoot!;
+      expect(root.querySelector('lb-timetable')).not.toBeNull();
+      expect(root.querySelector('.body [role=alert]')).toBeNull();
+      route.show('recorrido');
+      await route.updateComplete;
+      // Back on the road: the last positions, still recent, with the warning under them.
+      expect(root.querySelector('.track')).not.toBeNull();
+      expect(root.querySelector('footer [role=alert]')?.textContent).toContain('posiciones');
+      route.remove();
+
+      // The timetable fails: "Recorrido" keeps the road, with no warning, and "Horario" says why.
+      class NoTimetable extends FakeSource {
+        override timetable(): Promise<LineTimetable> {
+          return Promise.reject(new UpstreamUnavailable('offline'));
+        }
+      }
+      const other = await openRoute(new NoTimetable());
+      other.show('horario');
+      await vi.waitFor(() => expect(other.timetableProblem).toBeDefined());
+      await other.updateComplete;
+      const otherRoot = other.shadowRoot!;
+      expect(otherRoot.querySelector('.body [role=alert]')?.textContent).toContain('horario');
+      other.show('recorrido');
+      await other.updateComplete;
+      console.info('road after a failed timetable:', busesOn(other));
+      expect(otherRoot.querySelector('.track')).not.toBeNull();
+      expect(otherRoot.querySelector('[role=alert]')).toBeNull();
+    });
+
     it(`closes itself only after ${ROUTE_IDLE_CLOSE_MS / 60_000} minutes untouched`, async () => {
       const route = await openRoute(new FakeSource());
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });

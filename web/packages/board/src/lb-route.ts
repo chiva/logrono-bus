@@ -1,8 +1,9 @@
 /**
  * `<lb-route>`: tap a card, see the road. Your stop first, then the stops before it running down
  * (portrait) or to the left (landscape), and the buses of that line on their way, drawn where
- * they are and gliding forward as positions update. A dotted "…" stands for the rest of the line
- * before the first stop shown (with the nearest bus further back parked on it) and after yours.
+ * they are and gliding forward as positions update. A grey stretch of line stands for the rest of
+ * the line before the first stop shown (with the nearest bus further back parked on it) and after
+ * yours.
  *
  * It polls the line's positions every 15 s only while the route is on screen (not while the
  * timetable is, nor while the page is hidden), and closes itself after 15 minutes untouched so a
@@ -27,6 +28,7 @@ import {
   timetableFor,
 } from '@logrono-bus/core';
 import { LitElement, type PropertyDeclarations, css, html, nothing } from 'lit';
+import { repeat } from 'lit/directives/repeat.js';
 import { styleMap } from 'lit/directives/style-map.js';
 
 import { formatAge, timeLabel } from './format.ts';
@@ -41,7 +43,7 @@ export const ROUTE_IDLE_CLOSE_MS = 15 * 60_000;
 export const LANDSCAPE_RATIO = 1.1;
 /** Room each stop needs along the track, in ems of the track's text. */
 export const STOP_SPACING_EM = { vertical: 2.4, horizontal: 4.6 } as const;
-/** Track length taken by the "…" ends and the names hanging over them, in ems. */
+/** Track length taken by the grey ends and the names hanging over them, in ems. */
 export const TRACK_ENDS_EM = { vertical: 7, horizontal: 9 } as const;
 /** A bus closer than this (in stops) to a stop would cover its name on a horizontal track. */
 export const LABEL_CLEARANCE_STOPS = 0.8;
@@ -210,6 +212,7 @@ export class LbRoute extends LitElement {
     this.route = buildRoute(this.#catalog, patternId, this.card.stop_id, trusted, this.arrivals, {
       previousStops: Math.min(this.previousStops, this.room),
       now: new Date(this.now).toISOString(),
+      previous: this.route,
     });
   }
 
@@ -307,9 +310,12 @@ export class LbRoute extends LitElement {
       background: var(--line-colour);
       border-radius: 999px;
     }
+    /* The rest of the line, off the diagram: same rail, greyed out, under the end stops. */
     .more {
       position: absolute;
-      border: 0 dotted var(--line-colour);
+      background: var(--lb-muted, currentColor);
+      opacity: 0.4;
+      border-radius: 999px;
     }
     .stop,
     .bus {
@@ -412,15 +418,15 @@ export class LbRoute extends LitElement {
     }
     :host([orientation='vertical']) .more {
       left: calc(var(--x) - var(--rail) / 2);
-      border-left-width: var(--rail);
+      width: var(--rail);
     }
     :host([orientation='vertical']) .more.before {
-      top: calc(100% + 0.5em);
-      height: 2.4em;
+      top: 100%;
+      height: 2.9em;
     }
     :host([orientation='vertical']) .more.after {
-      bottom: calc(100% + var(--target) / 2 + 0.3em);
-      height: 1.6em;
+      bottom: 100%;
+      height: 2.4em;
     }
     :host([orientation='vertical']) .stop {
       left: calc(var(--x) - var(--dot) / 2);
@@ -434,8 +440,14 @@ export class LbRoute extends LitElement {
     :host([orientation='vertical']) .bus {
       left: 0;
       width: calc(var(--x) - 0.9em);
-      justify-content: flex-end;
       transform: translateY(-50%);
+    }
+    /*
+     * Right-aligned beside the road, but a pill wider than the room ("llegando" in big text) grows
+     * over the road instead of off the screen: an auto margin, unlike flex-end, never goes negative.
+     */
+    :host([orientation='vertical']) .bus .pill {
+      margin-left: auto;
     }
     :host([orientation='vertical']) .bus.earlier {
       top: calc(100% + 1.7em);
@@ -454,16 +466,16 @@ export class LbRoute extends LitElement {
     }
     :host([orientation='horizontal']) .more {
       top: 50%;
-      border-top-width: var(--rail);
+      height: var(--rail);
       transform: translateY(-50%);
     }
     :host([orientation='horizontal']) .more.before {
-      right: calc(100% + 0.5em);
-      width: 3.6em;
+      right: 100%;
+      width: 4.1em;
     }
     :host([orientation='horizontal']) .more.after {
-      left: calc(100% + var(--target) / 2 + 0.3em);
-      width: 2.6em;
+      left: 100%;
+      width: 3.6em;
     }
     :host([orientation='horizontal']) .stop {
       top: 50%;
@@ -503,7 +515,7 @@ export class LbRoute extends LitElement {
       top: 50%;
       transform: translate(-50%, -50%);
     }
-    /* Floats over the dotted "…" (on the side away from the first stop's name) so both show. */
+    /* Floats over the grey end (on the side away from the first stop's name) so both show. */
     :host([orientation='horizontal']) .bus.earlier {
       left: -2.3em;
       top: calc(50% - 1.35em);
@@ -636,10 +648,15 @@ export class LbRoute extends LitElement {
             <span class="dot"></span><span class="name">${stop.name}</span>
           </div>`,
       )}
-      ${route.buses.map(
+      ${repeat(
+        route.buses,
+        // Keyed by bus: when the leader passes your stop, the next one must not glide back into
+        // its place.
+        (bus) => bus.vehicleId,
         (bus, index) =>
           html`<div
             class=${index === 0 ? 'bus first' : 'bus'}
+            data-vehicle=${bus.vehicleId}
             style=${styleMap(this.#place(bus.at, last))}
           >
             <span class="pill">🚌 ${minutesLabel(bus)}</span>

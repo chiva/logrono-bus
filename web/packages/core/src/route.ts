@@ -11,7 +11,11 @@
  * The vehicle-monitoring fleet numbers do not match the arrivals endpoint's vehicle numbers, so
  * "this bus arrives in 4 min" is matched by order instead: the bus nearest your stop gets the
  * soonest real-time arrival, the next one the next arrival, and so on — including buses further
- * back than the stops shown, which the view parks on the "…" before the first stop.
+ * back than the stops shown, which the view parks on the line before the first stop.
+ *
+ * Buses never run backwards, but their estimate does: straight-line progress dips on a bending
+ * street, and the next stop is sometimes reported late. Given the route drawn before, a bus read
+ * up to `MAX_HELD_BACKSTEP_STOPS` behind where it was drawn stays where it was.
  */
 import { type CatalogIndex, patternPosition } from './catalog.ts';
 import { distanceM } from './geo.ts';
@@ -27,6 +31,11 @@ export const MAX_PREVIOUS_STOPS = 12;
  * standing at a stop with no next stop reported were within 30 m of it (line 9, 2026-10-05).
  */
 export const DWELL_RADIUS_M = 60;
+/**
+ * How far back (in stops) a bus may be read and still be held where it was last drawn. Further
+ * back than this is a correction of a bad reading, and is believed.
+ */
+export const MAX_HELD_BACKSTEP_STOPS = 1;
 
 export interface RouteStop {
   readonly id: string;
@@ -79,7 +88,11 @@ export function buildRoute(
   stopId: string,
   vehicles: LineVehicles,
   arrivals: StopArrivals | null,
-  { previousStops = DEFAULT_PREVIOUS_STOPS, now = vehicles.generated_at } = {},
+  {
+    previousStops = DEFAULT_PREVIOUS_STOPS,
+    now = vehicles.generated_at,
+    previous = null as RouteView | null,
+  } = {},
 ): RouteView | null {
   const pattern = catalog.pattern(patternId);
   const target = pattern ? patternPosition(pattern, stopId) : null;
@@ -120,12 +133,17 @@ export function buildRoute(
       stopsAway: target - next,
     });
   }
-  placed.sort((a, b) => b.at - a.at);
+  const steady = holdBackslides(
+    placed,
+    first,
+    previous?.patternId === pattern.id && previous.stopId === stopId ? previous : null,
+  );
+  steady.sort((a, b) => b.at - a.at);
 
   const soonest = (arrivals?.arrivals ?? [])
     .filter((a) => a.pattern_id === pattern.id && a.is_realtime && !a.cancelled)
     .map((a) => minutesUntil(a.expected, now));
-  const all = placed.map((bus, index) => ({ ...bus, minutes: soonest[index] ?? null }));
+  const all = steady.map((bus, index) => ({ ...bus, minutes: soonest[index] ?? null }));
 
   return {
     patternId: pattern.id,
@@ -140,6 +158,35 @@ export function buildRoute(
     stopsAfter: pattern.stop_ids.length - target,
     generatedAt: vehicles.generated_at,
   };
+}
+
+type PlacedBus = Pick<RouteBus, 'vehicleId' | 'at' | 'stopsAway'>;
+
+/**
+ * Each bus read slightly behind where `previous` drew it, kept there. Positions are compared along
+ * the whole pattern, so a change in how many stops are shown does not count as moving.
+ */
+function holdBackslides(
+  placed: readonly PlacedBus[],
+  first: number,
+  previous: RouteView | null,
+): PlacedBus[] {
+  if (!previous) return [...placed];
+  const previousFirst = previous.hiddenStops + 1;
+  const drawn = new Map(
+    [...previous.buses, ...previous.earlierBuses].map((bus) => [bus.vehicleId, bus]),
+  );
+  return placed.map((bus) => {
+    const before = drawn.get(bus.vehicleId);
+    if (!before) return bus;
+    const backstep = before.at + previousFirst - (bus.at + first);
+    if (backstep <= 0 || backstep > MAX_HELD_BACKSTEP_STOPS) return bus;
+    return {
+      vehicleId: bus.vehicleId,
+      at: before.at + previousFirst - first,
+      stopsAway: Math.min(bus.stopsAway, before.stopsAway),
+    };
+  });
 }
 
 /** 1-based position of the pattern stop a bus is standing by, nearest first, or null. */

@@ -622,6 +622,41 @@ describe('route view', () => {
       expect(route.shadowRoot!.querySelector('footer')?.textContent).toContain('Ningún autobús');
     });
 
+    it('keeps each bus in its own place when the one ahead of it leaves', async () => {
+      vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
+      // Bus 2315 moved onto the road shown (heading to stop 11), behind 946; 946's position is
+      // already 150 s old, so it drops out 40 s on, as if it had passed your stop.
+      class TwoOnTheRoad extends RecordedSource {
+        override async vehicles(lineId: string): Promise<LineVehicles> {
+          const recorded = await super.vehicles(lineId);
+          const stop11 = (await this.catalog()).pattern('10:desc')!.stop_ids[10]!;
+          return {
+            ...recorded,
+            vehicles: recorded.vehicles.map((v) =>
+              v.id === '2315' ? { ...v, next_stop_id: stop11 } : v,
+            ),
+          };
+        }
+      }
+      const route = await openRoute(new TwoOnTheRoad({ '946': 150_000 }));
+      const root = route.shadowRoot!;
+      const drawn = () =>
+        [...root.querySelectorAll<HTMLElement>('.bus')].map((el) => [el.dataset.vehicle, el]);
+      console.info(
+        'on the road:',
+        drawn().map(([id, el]) => [id, (el as HTMLElement).style.top]),
+      );
+      expect(drawn().map(([id]) => id)).toEqual(['946', '2315']);
+      const pillOf2315 = root.querySelector('.bus[data-vehicle="2315"]');
+      const top2315 = (pillOf2315 as HTMLElement).style.top;
+
+      await tick(route, VEHICLES_AT + 40_000);
+      // The same element, where it was: drawing it in 946's old element would glide it back.
+      expect(drawn()).toEqual([['2315', pillOf2315]]);
+      expect((pillOf2315 as HTMLElement).style.top).toBe(top2315);
+      expect(pillOf2315?.classList.contains('first')).toBe(true);
+    });
+
     it('counts the minutes down between refreshes, failed ones included', async () => {
       vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
       const source = new RecordedSource();

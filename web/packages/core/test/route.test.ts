@@ -4,6 +4,8 @@ import {
   DWELL_RADIUS_M,
   DirectionResolver,
   type LineVehicles,
+  MAX_HELD_BACKSTEP_STOPS,
+  type RouteView,
   buildRoute,
   normalizeArrivals,
   normalizeVehicles,
@@ -156,6 +158,80 @@ describe('route view', () => {
       console.info('65 m from stop 11', away.buses, away.earlierBuses);
       expect(away.buses).toEqual([]);
       expect(away.earlierBuses).toEqual([]);
+    });
+  });
+
+  describe('a bus read behind where it was drawn', () => {
+    // Bus 946 of the recording is between stops 11 and 12 of 10:desc (at 1–2 with stops 10–14).
+    const pattern = catalog.pattern('10:desc')!;
+    const METRES_PER_DEGREE_LAT = 111_195;
+    const standingAt = (position: number): LineVehicles => {
+      const recorded = vehicles('10');
+      const stop = catalog.stop(pattern.stop_ids[position - 1]!);
+      return {
+        ...recorded,
+        vehicles: recorded.vehicles.map((v) =>
+          v.id === '946'
+            ? {
+                ...v,
+                next_stop_id: null,
+                lat: stop.lat + 20 / METRES_PER_DEGREE_LAT,
+                lon: stop.lon,
+              }
+            : v,
+        ),
+      };
+    };
+    const routeOf = (
+      positions: LineVehicles,
+      previous: RouteView | null = null,
+      previousStops = 4,
+    ) =>
+      buildRoute(catalog, '10:desc', '101', positions, arrivals('101'), {
+        previousStops,
+        previous,
+      })!;
+    const placeOf946 = (route: RouteView) =>
+      [...route.buses, ...route.earlierBuses].find((b) => b.vehicleId === '946');
+
+    it('stays where it was drawn when read less than a stop back', () => {
+      const atStop12 = routeOf(standingAt(12));
+      const read = routeOf(vehicles('10'));
+      const held = routeOf(vehicles('10'), atStop12);
+      console.info('drawn at 12, read', placeOf946(read), 'kept', placeOf946(held));
+      expect(placeOf946(read)!.at).toBeLessThan(2);
+      expect(placeOf946(held)).toMatchObject({ at: 2, stopsAway: 1, minutes: 2 });
+      // The bus behind it is not touched.
+      expect(held.earlierBuses).toEqual(read.earlierBuses);
+    });
+
+    it('moves forward as usual', () => {
+      const between = routeOf(vehicles('10'));
+      const ahead = routeOf(standingAt(13), between);
+      expect(placeOf946(ahead)).toMatchObject({ at: 3, stopsAway: 0 });
+    });
+
+    it(`is believed when read more than ${MAX_HELD_BACKSTEP_STOPS} stop back`, () => {
+      const atStop13 = routeOf(standingAt(13));
+      const read = routeOf(vehicles('10'));
+      const corrected = routeOf(vehicles('10'), atStop13);
+      expect(3 - placeOf946(read)!.at).toBeGreaterThan(MAX_HELD_BACKSTEP_STOPS);
+      expect(placeOf946(corrected)).toEqual(placeOf946(read));
+    });
+
+    it('is compared along the whole line when the stops shown change', () => {
+      const atStop12 = routeOf(standingAt(12));
+      // With 8 stops before yours the view starts at stop 6: stop 12 is at 6.
+      const wider = routeOf(vehicles('10'), atStop12, 8);
+      expect(wider.stops[0]?.position).toBe(6);
+      expect(placeOf946(wider)?.at).toBe(6);
+    });
+
+    it('is not held by the route of another stop or direction', () => {
+      const atStop12 = routeOf(standingAt(12));
+      const read = routeOf(vehicles('10'));
+      expect(routeOf(vehicles('10'), { ...atStop12, stopId: '999' })).toEqual(read);
+      expect(routeOf(vehicles('10'), { ...atStop12, patternId: '10:asc' })).toEqual(read);
     });
   });
 

@@ -266,6 +266,26 @@ describe('display settings', () => {
     }
   });
 
+  it('put the "¡Ya llega!" pill beside the due bus when the first one is cancelled', async () => {
+    vi.useFakeTimers({ now: RECORDED_AT, toFake: ['Date'] });
+    const board = await mountBoard('p=101-2d&aviso=5&efecto=etiqueta', new FakeSource());
+    const [card] = cardsOf(board);
+    const [first] = card!.card!.arrivals;
+    const at = (minutes: number) => new Date(RECORDED_AT + minutes * 60_000).toISOString();
+    card!.card = {
+      ...card!.card!,
+      arrivals: [
+        { ...first!, expected: at(1), cancelled: true },
+        { ...first!, expected: at(3), cancelled: false },
+      ],
+    };
+    await card!.updateComplete;
+    const root = card!.shadowRoot!;
+    expect(card!.hasAttribute('alert')).toBe(true);
+    expect(root.querySelector('.next .soon')).toBeNull();
+    expect(root.querySelector('ul li .soon')?.textContent).toBe('¡Ya llega!');
+  });
+
   it('keep cards still when the theme asks for no motion (tinta)', async () => {
     vi.useFakeTimers({ now: RECORDED_AT, toFake: ['Date'] });
     const board = await mountBoard('p=101-2d&aviso=2&efecto=destello', new FakeSource());

@@ -91,15 +91,27 @@ export class LbCard extends LitElement {
     }
   }
 
-  /** Whether the next (not cancelled) bus is within the alert window. */
-  get alerting(): boolean {
+  /** The next (not cancelled) arrival, when it is within the alert window. */
+  #dueArrival(): Arrival | undefined {
     const next = this.card?.arrivals.find((arrival) => !arrival.cancelled);
-    return (
-      this.alertMinutes > 0 &&
+    return this.alertMinutes > 0 &&
       this.effect !== 'ninguno' &&
       next !== undefined &&
       minutesUntil(next.expected, this.now) <= this.alertMinutes
-    );
+      ? next
+      : undefined;
+  }
+
+  /** Whether the next (not cancelled) bus is within the alert window. */
+  get alerting(): boolean {
+    return this.#dueArrival() !== undefined;
+  }
+
+  /** The «¡Ya llega!» pill, beside the arrival that raised the alert (not a cancelled one). */
+  #soon(arrival: Arrival): TemplateResult | typeof nothing {
+    return this.effect === 'etiqueta' && arrival === this.#dueArrival()
+      ? html`<span class="soon" aria-hidden="true">${SOON_LABEL}</span>`
+      : nothing;
   }
 
   protected override willUpdate(): void {
@@ -222,6 +234,10 @@ export class LbCard extends LitElement {
       white-space: nowrap;
       background: var(--lb-inverse-bg);
       color: var(--lb-inverse-fg);
+    }
+    ul .soon {
+      margin-inline-start: 0.4em;
+      font-size: 0.8em;
     }
     @keyframes lb-flash {
       50%,
@@ -467,16 +483,14 @@ export class LbCard extends LitElement {
             ? html`<div class="next">
                 ${this.#time(next, true)}
                 ${nextHeadsign ? html`<span class="headsign">→ ${nextHeadsign}</span>` : nothing}
-                ${
-                  this.alerting && this.effect === 'etiqueta'
-                    ? html`<span class="soon" aria-hidden="true">${SOON_LABEL}</span>`
-                    : nothing
-                }
+                ${this.#soon(next)}
               </div>`
             : html`<div class="empty">${serviceSentence(this.service)}</div>`
         }
         <ul aria-hidden="true">
-          ${following.map((arrival) => html`<li>${this.#time(arrival, false)}</li>`)}
+          ${following.map(
+            (arrival) => html`<li>${this.#time(arrival, false)}${this.#soon(arrival)}</li>`,
+          )}
         </ul>
       </article>
     `;

@@ -10,6 +10,7 @@ import {
   type LineVehicles,
   STALE_POSITION_MS,
   type ServiceStatus,
+  type StopArrivals,
   normalizeArrivals,
   normalizeTimetable,
   normalizeVehicles,
@@ -22,6 +23,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   type LbCard,
+  type LbRoute,
   type LogronoBusBoard,
   describeError,
   minutesLabel,
@@ -379,11 +381,49 @@ describe('route view', () => {
       delete (document as { hidden?: boolean }).hidden;
     });
 
-    async function openRoute(source: FakeSource) {
+    /** When the line 10 positions were recorded (with arrivals-101-noche.json). */
+    const VEHICLES_AT = Date.parse('2026-10-03T20:30:36Z');
+
+    /** The line 10 recording, fetched at `stampedAt`, with some positions already that old (ms). */
+    class RecordedSource extends FakeSource {
+      stampedAt = VEHICLES_AT;
+      constructor(readonly agedMs: Readonly<Record<string, number>> = {}) {
+        super();
+      }
+
+      override async vehicles(lineId: string): Promise<LineVehicles> {
+        const recorded = await super.vehicles(lineId);
+        const shift = this.stampedAt - VEHICLES_AT;
+        const at = (ms: number) => new Date(ms).toISOString();
+        return {
+          ...recorded,
+          generated_at: at(this.stampedAt),
+          vehicles: recorded.vehicles.map((v) => ({
+            ...v,
+            recorded_at: at(Date.parse(v.recorded_at) + shift - (this.agedMs[v.id] ?? 0)),
+          })),
+        };
+      }
+    }
+
+    const busesOn = (route: LbRoute): string[] => [
+      ...route.route!.buses.map((b) => b.vehicleId),
+      ...route.route!.earlierBuses.map((b) => b.vehicleId),
+    ];
+
+    /** Move the clock to `ms` and let the route redraw, as its one-second tick would. */
+    async function tick(route: LbRoute, ms: number): Promise<void> {
+      vi.setSystemTime(ms);
+      route.now = Date.now();
+      await route.updateComplete;
+    }
+
+    async function openRoute(source: FakeSource, arrivals: StopArrivals | null = null) {
       const card = (await mountBoard('p=101-10d', new FakeSource())).cards[0];
       const route = document.createElement('lb-route');
       route.source = source;
       route.card = card;
+      route.arrivals = arrivals;
       document.body.append(route);
       await vi.waitFor(() => expect(route.route).not.toBeNull());
       await route.updateComplete;
@@ -428,44 +468,51 @@ describe('route view', () => {
     });
 
     it('drops each kept bus once its own position is too old, not when the request was', async () => {
-      // Fetched when the line 10 recording was made, with bus 946 already 150 s old by then.
-      const fetchedAt = Date.parse('2026-10-03T20:30:36Z');
-      class AgedSource extends FakeSource {
-        override async vehicles(lineId: string): Promise<LineVehicles> {
-          const fresh = await super.vehicles(lineId);
-          return {
-            ...fresh,
-            generated_at: new Date(fetchedAt).toISOString(),
-            vehicles: fresh.vehicles.map((v) =>
-              v.id === '946'
-                ? { ...v, recorded_at: new Date(fetchedAt - 150_000).toISOString() }
-                : v,
-            ),
-          };
-        }
-      }
-      vi.useFakeTimers({ now: fetchedAt, toFake: ['Date'] });
-      const source = new AgedSource();
+      vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
+      const source = new RecordedSource({ '946': 150_000 });
       const route = await openRoute(source);
-      const busesShown = () => [
-        ...route.route!.buses.map((b) => b.vehicleId),
-        ...route.route!.earlierBuses.map((b) => b.vehicleId),
-      ];
-      expect(busesShown()).toEqual(['946', '2315']);
+      expect(busesOn(route)).toEqual(['946', '2315']);
       source.failWith = new UpstreamUnavailable('offline');
       setHidden(true);
       setHidden(false);
       await vi.waitFor(() => expect(route.problem).toBeDefined());
 
       // A minute later the request is 60 s old but bus 946's position is 210 s old.
-      vi.setSystemTime(fetchedAt + 60_000);
-      route.now = Date.now();
-      await route.updateComplete;
-      console.info('kept after the failure, a minute on:', busesShown());
-      expect(busesShown()).toEqual(['2315']);
+      await tick(route, VEHICLES_AT + 60_000);
+      console.info('kept after the failure, a minute on:', busesOn(route));
+      expect(busesOn(route)).toEqual(['2315']);
       const root = route.shadowRoot!;
       expect(root.querySelector('footer [role=alert]')?.textContent).toContain('posiciones');
       expect(root.querySelector('footer')?.textContent).not.toContain('Ningún autobús');
+    });
+
+    it('counts the minutes down between refreshes, failed ones included', async () => {
+      vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
+      const source = new RecordedSource();
+      const route = await openRoute(source, arrivalsFor('101', 'upstream/arrivals-101-noche.json'));
+      const minutesOf946 = () => route.route!.buses.find((b) => b.vehicleId === '946')?.minutes;
+      expect(minutesOf946()).toBe(2);
+      source.failWith = new UpstreamUnavailable('offline');
+      setHidden(true);
+      setHidden(false);
+      await vi.waitFor(() => expect(route.problem).toBeDefined());
+      await tick(route, VEHICLES_AT + 60_000);
+      expect(minutesOf946()).toBe(1);
+    });
+
+    it('does not pass old positions off as current after the page was hidden', async () => {
+      vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
+      const source = new RecordedSource();
+      const route = await openRoute(source);
+      setHidden(true);
+      // Hidden past the trust window: nothing drawn, and no claim that no bus is coming.
+      await tick(route, VEHICLES_AT + STALE_POSITION_MS + 1_000);
+      const root = route.shadowRoot!;
+      expect(busesOn(route)).toEqual([]);
+      expect(root.querySelector('footer')?.textContent).not.toContain('Ningún autobús');
+      source.stampedAt = VEHICLES_AT + STALE_POSITION_MS + 1_000;
+      setHidden(false);
+      await vi.waitFor(() => expect(busesOn(route)).toEqual(['946', '2315']));
     });
 
     it(`closes itself only after ${ROUTE_IDLE_CLOSE_MS / 60_000} minutes untouched`, async () => {

@@ -90,12 +90,16 @@ export function nextBusLine(card: Card, nowMs: number): string {
   return `${card.stop_name} · próximo ${timeLabel(next, nowMs).spoken}${scheduled}`;
 }
 
-/** The positions recorded recently enough to show at `nowMs`. */
-export function trustedAt(vehicles: LineVehicles, nowMs: number): LineVehicles {
+/**
+ * The positions still recent enough to show, `elapsedMs` after they were fetched. A position's age
+ * is how old it already was when fetched plus the time since, so neither clock has to match.
+ */
+export function trustedAfter(vehicles: LineVehicles, elapsedMs: number): LineVehicles {
+  const fetchedAt = Date.parse(vehicles.generated_at);
   return {
     ...vehicles,
     vehicles: vehicles.vehicles.filter(
-      (vehicle) => Date.parse(vehicle.recorded_at) >= nowMs - STALE_POSITION_MS,
+      (vehicle) => fetchedAt - Date.parse(vehicle.recorded_at) + elapsedMs <= STALE_POSITION_MS,
     ),
   };
 }
@@ -133,6 +137,8 @@ export class LbRoute extends LitElement {
   declare screen: RouteScreen;
   declare timetable: LineTimetable | undefined;
   #catalog: CatalogIndex | undefined;
+  /** When the positions shown arrived, by this device's clock. */
+  #fetchedAt = 0;
 
   readonly #poller = new Poller((signal) => this.#load(signal), {
     intervalMs: ROUTE_REFRESH_MS,
@@ -176,8 +182,8 @@ export class LbRoute extends LitElement {
   }
 
   /**
-   * The route is rebuilt from the latest data whenever positions, arrivals or room change. After a
-   * failed refresh, each bus drops out once its own position is too old to trust.
+   * The route is rebuilt from the latest data every second: minutes count down, and a bus drops
+   * out once its own position is too old to trust (after failed refreshes, or a hidden page).
    */
   protected override willUpdate(): void {
     const patternId = this.patternId;
@@ -186,9 +192,12 @@ export class LbRoute extends LitElement {
       this.#catalog,
       patternId,
       this.card.stop_id,
-      this.problem ? trustedAt(this.vehicles, this.now) : this.vehicles,
+      trustedAfter(this.vehicles, this.now - this.#fetchedAt),
       this.arrivals,
-      { previousStops: Math.min(this.previousStops, this.room) },
+      {
+        previousStops: Math.min(this.previousStops, this.room),
+        now: new Date(this.now).toISOString(),
+      },
     );
   }
 
@@ -557,6 +566,7 @@ export class LbRoute extends LitElement {
         source.vehicles(card.line_id, signal),
       ]);
       this.#catalog = catalog;
+      this.#fetchedAt = Date.now();
       this.vehicles = vehicles;
       this.problem = undefined;
     } catch (error) {
@@ -655,7 +665,13 @@ export class LbRoute extends LitElement {
     if (!card) return nothing;
     const route = this.route;
     const age = this.vehicles ? this.now - Date.parse(this.vehicles.generated_at) : 0;
-    const noBuses = route && route.buses.length === 0 && route.earlierBuses.length === 0;
+    // Empty because every position aged out is not "no bus coming": that waits for fresh data.
+    const noBuses =
+      route &&
+      route.buses.length === 0 &&
+      route.earlierBuses.length === 0 &&
+      !this.problem &&
+      this.now - this.#fetchedAt <= STALE_POSITION_MS;
     // A failed refresh leaves the last positions up, flagged, while they can still be trusted.
     const lastRoute = route && age <= STALE_POSITION_MS ? route : null;
     return html`
@@ -699,7 +715,7 @@ export class LbRoute extends LitElement {
               ? `${this.orientation === 'horizontal' ? '←' : '↓'} ${route.hiddenStops} paradas antes, desde ${route.origin}`
               : nothing
           }
-          ${noBuses && !this.problem ? 'Ningún autobús en camino ahora mismo.' : nothing}
+          ${noBuses ? 'Ningún autobús en camino ahora mismo.' : nothing}
         </span>
         <span>${this.vehicles ? `Posiciones ${formatAge(age)}` : ''}</span>
         ${

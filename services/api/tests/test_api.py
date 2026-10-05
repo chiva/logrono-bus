@@ -322,7 +322,9 @@ def test_line_vehicles(client: TestClient, upstream: FakeUpstream) -> None:
     assert client.get(f"{API_PREFIX}/lines/8/vehicles").status_code == 404
 
 
+@pytest.mark.usefixtures("frozen_time")
 def test_line_timetable(client: TestClient, upstream: FakeUpstream) -> None:
+    # 18:00 in Logroño: six hours of the day left, so the hour-long cap applies, not midnight.
     upstream.reply(
         "productionTimetable/byLine/10", payload=load_fixture("upstream/timetable-10.json")
     )

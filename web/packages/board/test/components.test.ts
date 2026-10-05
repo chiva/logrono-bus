@@ -486,6 +486,31 @@ describe('route view', () => {
       expect(root.querySelector('footer')?.textContent).not.toContain('Ningún autobús');
     });
 
+    it('keeps the last positions after a failure even if the server clock is minutes off', async () => {
+      vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
+      for (const offMs of [-10 * 60_000, 10 * 60_000]) {
+        const source = new RecordedSource();
+        source.stampedAt = VEHICLES_AT + offMs;
+        const route = await openRoute(source);
+        source.failWith = new UpstreamUnavailable('offline');
+        setHidden(true);
+        setHidden(false);
+        await vi.waitFor(() => expect(route.problem).toBeDefined());
+        await tick(route, VEHICLES_AT + 60_000);
+        const root = route.shadowRoot!;
+        console.info(`server clock ${offMs / 60_000} min off:`, busesOn(route));
+        expect(busesOn(route)).toEqual(['946', '2315']);
+        expect(root.querySelector('footer')?.textContent).toContain('Posiciones hace 1 min');
+        expect(root.querySelector('.body [role=alert]')).toBeNull();
+
+        // Still expired by the time this device has actually waited.
+        await tick(route, VEHICLES_AT + STALE_POSITION_MS + 1_000);
+        expect(root.querySelector('.track')).toBeNull();
+        route.remove();
+        vi.setSystemTime(VEHICLES_AT);
+      }
+    });
+
     it('counts the minutes down between refreshes, failed ones included', async () => {
       vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
       const source = new RecordedSource();

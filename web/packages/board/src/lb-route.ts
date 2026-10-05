@@ -664,14 +664,15 @@ export class LbRoute extends LitElement {
     const card = this.card;
     if (!card) return nothing;
     const route = this.route;
-    const age = this.vehicles ? this.now - Date.parse(this.vehicles.generated_at) : 0;
+    // By this device's clock alone, so a server or device clock off by minutes does not matter.
+    const age = this.vehicles ? this.now - this.#fetchedAt : 0;
     // Empty because every position aged out is not "no bus coming": that waits for fresh data.
     const noBuses =
       route &&
       route.buses.length === 0 &&
       route.earlierBuses.length === 0 &&
       !this.problem &&
-      this.now - this.#fetchedAt <= STALE_POSITION_MS;
+      age <= STALE_POSITION_MS;
     // A failed refresh leaves the last positions up, flagged, while they can still be trusted.
     const lastRoute = route && age <= STALE_POSITION_MS ? route : null;
     return html`

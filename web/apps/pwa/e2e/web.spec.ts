@@ -9,6 +9,33 @@ test.beforeEach(async ({ page }) => {
 
 const cards = (page: import('@playwright/test').Page) => page.locator('lb-card');
 
+type Locator = import('@playwright/test').Locator;
+
+/** Pixels between the middle of the map and the nearest of `markers`; polled while Leaflet animates. */
+async function offCentre(map: Locator, markers: Locator): Promise<number> {
+  const box = await map.boundingBox();
+  if (!box) return Number.POSITIVE_INFINITY;
+  const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  let nearest = Number.POSITIVE_INFINITY;
+  for (const marker of await markers.all()) {
+    const mark = await marker.boundingBox();
+    if (!mark) continue;
+    const distance = Math.hypot(
+      mark.x + mark.width / 2 - centre.x,
+      mark.y + mark.height / 2 - centre.y,
+    );
+    nearest = Math.min(nearest, distance);
+  }
+  return nearest;
+}
+
+/** Choose a stop from the picker's list, keep its lines and go back to add another one. */
+async function addStopAndComeBack(page: import('@playwright/test').Page, stop: RegExp) {
+  await page.getByRole('button', { name: stop }).click();
+  await page.getByRole('button', { name: 'Añadir al panel' }).click();
+  await page.getByRole('button', { name: /Añadir otra parada/ }).click();
+}
+
 test('la portada explica qué es y lleva al ejemplo del Ayuntamiento', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByRole('heading', { name: '¿Cuánto le falta a tu autobús?' })).toBeVisible();
@@ -85,6 +112,30 @@ test.describe('el mapa con tu ubicación', () => {
       .toBeLessThan(2);
   });
 
+  test('Cerca de mí abre el mapa centrado donde estás', async ({ page }) => {
+    await page.goto('./#asistente');
+    await page.getByRole('button', { name: /Cerca de mí/ }).click();
+    const map = page.locator('lb-stop-map');
+    await expect(map.locator('path.here')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Ocultar mapa/ })).toBeVisible();
+    await expect.poll(() => offCentre(map, map.locator('path.here'))).toBeLessThan(2);
+  });
+
+  test('al añadir otra parada siguen tus paradas cercanas y el mapa donde estás', async ({
+    page,
+  }) => {
+    await page.goto('./#asistente');
+    await page.getByRole('button', { name: /Cerca de mí/ }).click();
+    await expect(page.getByRole('heading', { name: 'Paradas cerca de ti' })).toBeVisible();
+    await addStopAndComeBack(page, /Ayuntamiento · nº 101/);
+
+    await expect(page.getByRole('heading', { name: 'Paradas cerca de ti' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Ayuntamiento · nº 100/ })).toBeVisible();
+    const map = page.locator('lb-stop-map');
+    await expect(map.locator('path.here')).toBeVisible();
+    await expect.poll(() => offCentre(map, map.locator('path.stop'))).toBeLessThan(2);
+  });
+
   test('la etiqueta de una parada muestra sus líneas y no queda bajo el cursor', async ({
     page,
     isMobile,
@@ -104,6 +155,98 @@ test.describe('el mapa con tu ubicación', () => {
     const gap = Math.max(box.x - centre.x, centre.x - (box.x + box.width));
     expect(gap).toBeGreaterThanOrEqual(16);
   });
+});
+
+test.describe('fuera de Logroño', () => {
+  test.use({
+    geolocation: { latitude: 40.4168, longitude: -3.7038, accuracy: 20 },
+    permissions: ['geolocation'],
+  });
+
+  test('Cerca de mí avisa de que no hay paradas y abre el mapa donde estás', async ({ page }) => {
+    await page.goto('./#asistente');
+    await page.getByRole('button', { name: /Cerca de mí/ }).click();
+    await expect(page.getByRole('alert')).toContainText('¿Estás en Logroño?');
+    const map = page.locator('lb-stop-map');
+    await expect(map.locator('path.here')).toBeVisible();
+    await expect.poll(() => offCentre(map, map.locator('path.here'))).toBeLessThan(2);
+
+    await page.reload();
+    await expect(page.getByRole('alert')).toContainText('¿Estás en Logroño?');
+    await expect(map.locator('path.here')).toBeVisible();
+
+    await page.getByPlaceholder(/Nombre o número de parada/).fill('ayunta');
+    await expect(page.getByRole('button', { name: /Ayuntamiento · nº 101/ })).toBeVisible();
+    await expect(page.getByRole('alert')).toHaveCount(0);
+  });
+});
+
+test('el buscador recuerda la búsqueda y el mapa solo en la pestaña', async ({ page, context }) => {
+  await page.goto('./#asistente');
+  await page.getByRole('button', { name: /Ver mapa/ }).click();
+  await page.getByPlaceholder(/Nombre o número de parada/).fill('ayunta');
+  await addStopAndComeBack(page, /Ayuntamiento · nº 101/);
+
+  await expect(page.getByPlaceholder(/Nombre o número de parada/)).toHaveValue('ayunta');
+  await expect(page.getByRole('heading', { name: 'Resultados para «ayunta»' })).toBeVisible();
+  const map = page.locator('lb-stop-map');
+  await expect(map.locator('.leaflet-tile-pane')).toBeAttached();
+  await expect.poll(() => offCentre(map, map.locator('path.stop'))).toBeLessThan(2);
+
+  const otherTab = await context.newPage();
+  await useRecordedUpstream(otherTab);
+  await otherTab.goto('./#asistente');
+  await expect(otherTab.getByPlaceholder(/Nombre o número de parada/)).toHaveValue('');
+  await expect(
+    otherTab.getByRole('heading', { name: 'Paradas junto al Ayuntamiento' }),
+  ).toBeVisible();
+  await expect(otherTab.getByRole('button', { name: /Ver mapa/ })).toBeVisible();
+  await expect(otherTab.locator('lb-stop-map')).toHaveCount(0);
+});
+
+test('el mapa vuelve a abrirse en la zona donde lo dejaste', async ({ page }) => {
+  const storedView = () =>
+    page.evaluate(
+      () =>
+        (JSON.parse(sessionStorage.getItem('logrono-bus:mapa:v1') ?? '{}') as { view?: object })
+          .view,
+    );
+  await page.goto('./#asistente');
+  await page.getByRole('button', { name: /Ver mapa/ }).click();
+  const map = page.locator('lb-stop-map');
+  await expect(map.locator('.leaflet-tile-pane')).toBeAttached();
+  const box = await map.boundingBox();
+  if (!box) throw new Error('El mapa no se ha dibujado');
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 - 150, box.y + box.height / 2 - 100, { steps: 10 });
+  await page.mouse.up();
+  await expect.poll(storedView).toMatchObject({ zoom: 15 });
+  const dragged = (await storedView()) as { lat: number; lon: number; zoom: number };
+  expect(dragged.lat).not.toBeCloseTo(42.4655, 3);
+
+  await page.reload();
+  await expect(map.locator('.leaflet-tile-pane')).toBeAttached();
+  await map.locator('.leaflet-control-zoom-in').click();
+  // Zooming in keeps the centre: it can only match if the map reopened where it was dragged.
+  await expect.poll(storedView).toMatchObject({ zoom: 16 });
+  const reopened = (await storedView()) as { lat: number; lon: number };
+  expect(reopened.lat).toBeCloseTo(dragged.lat, 5);
+  expect(reopened.lon).toBeCloseTo(dragged.lon, 5);
+});
+
+test('tras elegir una parada sin buscar, el buscador muestra las de su alrededor', async ({
+  page,
+}) => {
+  await page.goto('./#asistente');
+  await expect(page.getByRole('heading', { name: 'Paradas junto al Ayuntamiento' })).toBeVisible();
+  await addStopAndComeBack(page, /Ayuntamiento · nº 100/);
+
+  await expect(
+    page.getByRole('heading', { name: 'Paradas junto a Ayuntamiento · nº 100' }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: /Ayuntamiento · nº 101/ })).toBeVisible();
+  await expect(page.locator('lb-stop-map')).toHaveCount(0);
 });
 
 test('el panel comparte su enlace con un código QR', async ({ page }) => {

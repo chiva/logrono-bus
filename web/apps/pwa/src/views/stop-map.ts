@@ -3,8 +3,9 @@
  * dependency). It lives inside the stop picker's shadow root, where a global stylesheet never
  * reaches, so Leaflet's CSS is adopted by the map's own shadow root.
  *
- * Given the person's position it marks it and centres the map there. The position never leaves
- * the browser: it only places the marker.
+ * It opens on the area it is given and reports every move, so the picker can open it there again.
+ * Given the person's position it marks it and, unless told where to open, centres the map there.
+ * The position never leaves the browser: it only places the marker.
  */
 import type { CatalogIndex, Stop } from '@logrono-bus/core';
 import L from 'leaflet';
@@ -18,6 +19,7 @@ import {
   unsafeCSS,
 } from 'lit';
 
+import { CLOSE_UP_ZOOM, MAP_MAX_ZOOM, type MapView } from '../picker-memory.ts';
 import { badgeStyles } from '../ui.ts';
 import { AYUNTAMIENTO } from './stop-picker.ts';
 
@@ -25,11 +27,8 @@ const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">colaboradores de OpenStreetMap</a>';
 const INITIAL_ZOOM = 15;
-const MAX_ZOOM = 19;
 const STOP_RADIUS_PX = 7;
 const STOP_COLOUR = '#8c1c2c';
-/** Zoom the map comes to when centring on the person, unless it is already closer. */
-const HERE_ZOOM = 17;
 const HERE_RADIUS_PX = 8;
 const HERE_COLOUR = '#1a73e8';
 
@@ -40,22 +39,29 @@ export interface Here {
   readonly accuracyM: number;
 }
 
+export type MapViewChangeEvent = CustomEvent<MapView>;
+
 export class LbStopMap extends LitElement {
   static override properties: PropertyDeclarations = {
     catalog: { attribute: false },
     here: { attribute: false },
+    view: { attribute: false },
   };
 
   declare catalog: CatalogIndex | undefined;
   declare here: Here | undefined;
+  /** Where the map opens; later changes are ignored, the person moves it from there. */
+  declare view: MapView | null;
   #map: L.Map | undefined;
   #stopsLayer: L.LayerGroup | undefined;
   #hereLayer: L.LayerGroup | undefined;
+  #drawn = false;
 
   constructor() {
     super();
     this.catalog = undefined;
     this.here = undefined;
+    this.view = null;
   }
 
   static override styles = [
@@ -116,11 +122,18 @@ export class LbStopMap extends LitElement {
   override firstUpdated(): void {
     const canvas = this.renderRoot.querySelector<HTMLElement>('.canvas');
     if (!canvas) return;
-    this.#map = L.map(canvas, { zoomControl: true }).setView(
-      [AYUNTAMIENTO.lat, AYUNTAMIENTO.lon],
-      INITIAL_ZOOM,
-    );
-    L.tileLayer(TILE_URL, { maxZoom: MAX_ZOOM, attribution: ATTRIBUTION }).addTo(this.#map);
+    const view = this.view ?? { ...AYUNTAMIENTO, zoom: INITIAL_ZOOM };
+    const map = L.map(canvas, { zoomControl: true }).setView([view.lat, view.lon], view.zoom);
+    map.on('moveend', () => {
+      const centre = map.getCenter();
+      this.dispatchEvent(
+        new CustomEvent('map-view-change', {
+          detail: { lat: centre.lat, lon: centre.lng, zoom: map.getZoom() },
+        }),
+      );
+    });
+    this.#map = map;
+    L.tileLayer(TILE_URL, { maxZoom: MAP_MAX_ZOOM, attribution: ATTRIBUTION }).addTo(map);
     this.#stopsLayer = L.layerGroup().addTo(this.#map);
     this.#hereLayer = L.layerGroup().addTo(this.#map);
   }
@@ -131,8 +144,9 @@ export class LbStopMap extends LitElement {
     if (changed.has('catalog')) this.#drawStops();
     if (changed.has('here')) {
       this.#drawHere();
-      this.#centreOnHere();
+      if (this.#drawn || !this.view) this.#centreOnHere();
     }
+    this.#drawn = true;
   }
 
   override disconnectedCallback(): void {
@@ -198,7 +212,7 @@ export class LbStopMap extends LitElement {
     const map = this.#map;
     const here = this.here;
     if (!map || !here) return;
-    map.setView([here.lat, here.lon], Math.max(map.getZoom(), HERE_ZOOM));
+    map.setView([here.lat, here.lon], Math.max(map.getZoom(), CLOSE_UP_ZOOM));
   }
 }
 

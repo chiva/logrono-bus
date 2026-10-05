@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/chiva/logrono-bus/compare/app-v0.4.1...app-v0.5.0) (2026-10-05)
+
+
+### Features
+
+* **board:** avisos que se ven sobre cualquier color de línea ([#22](https://github.com/chiva/logrono-bus/issues/22)) ([cb96b14](https://github.com/chiva/logrono-bus/commit/cb96b1467ef43948c9952402ac5587fc48d1d775))
+
 ## [0.4.1](https://github.com/chiva/logrono-bus/compare/app-v0.4.0...app-v0.4.1) (2026-10-05)
 
 

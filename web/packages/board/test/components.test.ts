@@ -511,6 +511,16 @@ describe('route view', () => {
       }
     });
 
+    it('ages out a position stamped after the fetch like any other', async () => {
+      vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
+      // Bus 946's position carries a time 10 minutes ahead of the fetch (clocks apart).
+      const route = await openRoute(new RecordedSource({ '946': -10 * 60_000 }));
+      expect(busesOn(route)).toEqual(['946', '2315']);
+      setHidden(true);
+      await tick(route, VEHICLES_AT + STALE_POSITION_MS + 1_000);
+      expect(busesOn(route)).toEqual([]);
+    });
+
     it('counts the minutes down between refreshes, failed ones included', async () => {
       vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
       const source = new RecordedSource();

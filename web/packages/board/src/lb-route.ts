@@ -99,7 +99,9 @@ export function trustedAfter(vehicles: LineVehicles, elapsedMs: number): LineVeh
   return {
     ...vehicles,
     vehicles: vehicles.vehicles.filter(
-      (vehicle) => fetchedAt - Date.parse(vehicle.recorded_at) + elapsedMs <= STALE_POSITION_MS,
+      // A position stamped after the fetch (clocks apart) counts as brand new, not as younger.
+      (vehicle) =>
+        Math.max(0, fetchedAt - Date.parse(vehicle.recorded_at)) + elapsedMs <= STALE_POSITION_MS,
     ),
   };
 }

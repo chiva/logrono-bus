@@ -427,6 +427,47 @@ describe('route view', () => {
       expect(root.querySelector('footer [role=alert]')).toBeNull();
     });
 
+    it('drops each kept bus once its own position is too old, not when the request was', async () => {
+      // Fetched when the line 10 recording was made, with bus 946 already 150 s old by then.
+      const fetchedAt = Date.parse('2026-10-03T20:30:36Z');
+      class AgedSource extends FakeSource {
+        override async vehicles(lineId: string): Promise<LineVehicles> {
+          const fresh = await super.vehicles(lineId);
+          return {
+            ...fresh,
+            generated_at: new Date(fetchedAt).toISOString(),
+            vehicles: fresh.vehicles.map((v) =>
+              v.id === '946'
+                ? { ...v, recorded_at: new Date(fetchedAt - 150_000).toISOString() }
+                : v,
+            ),
+          };
+        }
+      }
+      vi.useFakeTimers({ now: fetchedAt, toFake: ['Date'] });
+      const source = new AgedSource();
+      const route = await openRoute(source);
+      const busesShown = () => [
+        ...route.route!.buses.map((b) => b.vehicleId),
+        ...route.route!.earlierBuses.map((b) => b.vehicleId),
+      ];
+      expect(busesShown()).toEqual(['946', '2315']);
+      source.failWith = new UpstreamUnavailable('offline');
+      setHidden(true);
+      setHidden(false);
+      await vi.waitFor(() => expect(route.problem).toBeDefined());
+
+      // A minute later the request is 60 s old but bus 946's position is 210 s old.
+      vi.setSystemTime(fetchedAt + 60_000);
+      route.now = Date.now();
+      await route.updateComplete;
+      console.info('kept after the failure, a minute on:', busesShown());
+      expect(busesShown()).toEqual(['2315']);
+      const root = route.shadowRoot!;
+      expect(root.querySelector('footer [role=alert]')?.textContent).toContain('posiciones');
+      expect(root.querySelector('footer')?.textContent).not.toContain('Ningún autobús');
+    });
+
     it(`closes itself only after ${ROUTE_IDLE_CLOSE_MS / 60_000} minutes untouched`, async () => {
       const route = await openRoute(new FakeSource());
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });

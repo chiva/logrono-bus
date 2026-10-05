@@ -90,6 +90,16 @@ export function nextBusLine(card: Card, nowMs: number): string {
   return `${card.stop_name} · próximo ${timeLabel(next, nowMs).spoken}${scheduled}`;
 }
 
+/** The positions recorded recently enough to show at `nowMs`. */
+export function trustedAt(vehicles: LineVehicles, nowMs: number): LineVehicles {
+  return {
+    ...vehicles,
+    vehicles: vehicles.vehicles.filter(
+      (vehicle) => Date.parse(vehicle.recorded_at) >= nowMs - STALE_POSITION_MS,
+    ),
+  };
+}
+
 export class LbRoute extends LitElement {
   static override properties: PropertyDeclarations = {
     card: { attribute: false },
@@ -165,7 +175,10 @@ export class LbRoute extends LitElement {
     this.timetable = undefined;
   }
 
-  /** The route is rebuilt from the latest data whenever positions, arrivals or room change. */
+  /**
+   * The route is rebuilt from the latest data whenever positions, arrivals or room change. After a
+   * failed refresh, each bus drops out once its own position is too old to trust.
+   */
   protected override willUpdate(): void {
     const patternId = this.patternId;
     if (!this.#catalog || !this.vehicles || !this.card || !patternId) return;
@@ -173,7 +186,7 @@ export class LbRoute extends LitElement {
       this.#catalog,
       patternId,
       this.card.stop_id,
-      this.vehicles,
+      this.problem ? trustedAt(this.vehicles, this.now) : this.vehicles,
       this.arrivals,
       { previousStops: Math.min(this.previousStops, this.room) },
     );
@@ -686,7 +699,7 @@ export class LbRoute extends LitElement {
               ? `${this.orientation === 'horizontal' ? '←' : '↓'} ${route.hiddenStops} paradas antes, desde ${route.origin}`
               : nothing
           }
-          ${noBuses ? 'Ningún autobús en camino ahora mismo.' : nothing}
+          ${noBuses && !this.problem ? 'Ningún autobús en camino ahora mismo.' : nothing}
         </span>
         <span>${this.vehicles ? `Posiciones ${formatAge(age)}` : ''}</span>
         ${

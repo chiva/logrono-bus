@@ -1,6 +1,6 @@
 {
   "name": "@logrono-bus/pwa",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Web de logrono-bus: asistente, panel y modo pantalla (kiosko)",

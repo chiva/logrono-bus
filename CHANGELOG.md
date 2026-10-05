@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/chiva/logrono-bus/compare/app-v0.1.3...app-v0.2.0) (2026-10-05)
+
+
+### Features
+
+* **pwa:** tu ubicación en el mapa de paradas y las líneas en su etiqueta ([#13](https://github.com/chiva/logrono-bus/issues/13)) ([041b1e5](https://github.com/chiva/logrono-bus/commit/041b1e56d29c72e6712da71955bc529a3110338a))
+
 ## [0.1.3](https://github.com/chiva/logrono-bus/compare/app-v0.1.2...app-v0.1.3) (2026-10-04)
 
 

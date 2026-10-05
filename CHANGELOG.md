@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/chiva/logrono-bus/compare/app-v0.5.0...app-v0.5.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* **board:** el recorrido no corta «llegando», los autobuses no retroceden y la línea sigue en gris ([#24](https://github.com/chiva/logrono-bus/issues/24)) ([94155f2](https://github.com/chiva/logrono-bus/commit/94155f24b438aecb28480f9df9966043d87911d1))
+
 ## [0.5.0](https://github.com/chiva/logrono-bus/compare/app-v0.4.1...app-v0.5.0) (2026-10-05)
 
 

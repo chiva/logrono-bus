@@ -126,6 +126,7 @@ export class LbRoute extends LitElement {
     room: { state: true },
     screen: { type: String, reflect: true },
     timetable: { state: true },
+    timetableProblem: { state: true },
   };
 
   declare card: Card | undefined;
@@ -136,6 +137,7 @@ export class LbRoute extends LitElement {
   declare previousStops: number;
   declare route: RouteView | null;
   declare vehicles: LineVehicles | undefined;
+  /** Why the latest positions could not be fetched; shown on the road only. */
   declare problem: string | undefined;
   declare now: number;
   declare orientation: RouteOrientation;
@@ -144,6 +146,8 @@ export class LbRoute extends LitElement {
   /** What the body shows: the road with the buses, or today's timetable. */
   declare screen: RouteScreen;
   declare timetable: LineTimetable | undefined;
+  /** Why the timetable could not be fetched; shown on the timetable only. */
+  declare timetableProblem: string | undefined;
   #catalog: CatalogIndex | undefined;
   /** When the positions shown arrived, by this device's clock. */
   #fetchedAt = 0;
@@ -184,6 +188,7 @@ export class LbRoute extends LitElement {
     this.route = null;
     this.vehicles = undefined;
     this.problem = undefined;
+    this.timetableProblem = undefined;
     this.now = Date.now();
     this.orientation = 'vertical';
     this.room = MAX_PREVIOUS_STOPS;
@@ -558,8 +563,9 @@ export class LbRoute extends LitElement {
     if (!card || !source) return;
     try {
       this.timetable = await source.timetable(card.line_id);
+      this.timetableProblem = undefined;
     } catch {
-      this.problem = 'No se puede obtener ahora el horario de la línea.';
+      this.timetableProblem = 'No se puede obtener ahora el horario de la línea.';
     }
   }
 
@@ -728,12 +734,15 @@ export class LbRoute extends LitElement {
         @click=${() => this.#touch()}
       >
         ${
-          this.screen === 'recorrido' && this.problem && lastRoute
-            ? this.#renderTrack(lastRoute)
-            : this.problem
-              ? html`<p class="note" role="alert">${this.problem}</p>`
-              : this.screen === 'horario'
-                ? this.#renderTimetable(card)
+          // Each screen shows its own data or its own failure, never the other one's.
+          this.screen === 'horario'
+            ? this.timetableProblem
+              ? html`<p class="note" role="alert">${this.timetableProblem}</p>`
+              : this.#renderTimetable(card)
+            : this.problem && lastRoute
+              ? this.#renderTrack(lastRoute)
+              : this.problem
+                ? html`<p class="note" role="alert">${this.problem}</p>`
                 : route
                   ? this.#renderTrack(route)
                   : html`<p class="note" role="status">Buscando los autobuses…</p>`

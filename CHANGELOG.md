@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/chiva/logrono-bus/compare/app-v0.3.0...app-v0.4.0) (2026-10-05)
+
+
+### Features
+
+* **pwa:** el recorrido marca el principio y el final de la línea ([#18](https://github.com/chiva/logrono-bus/issues/18)) ([0656cc6](https://github.com/chiva/logrono-bus/commit/0656cc6136691dc1dcf2bcae4b6576b83d9a9d2a))
+
 ## [0.3.0](https://github.com/chiva/logrono-bus/compare/app-v0.2.0...app-v0.3.0) (2026-10-05)
 
 

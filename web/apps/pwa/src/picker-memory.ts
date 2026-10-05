@@ -68,7 +68,7 @@ export function validHere(value: unknown): Here | null {
   if (!isRecord(value)) return null;
   const { lat, lon, accuracyM } = value;
   if (!isCoordinate(lat, 90) || !isCoordinate(lon, 180)) return null;
-  if (typeof accuracyM !== 'number' || !(accuracyM >= 0)) return null;
+  if (typeof accuracyM !== 'number' || !Number.isFinite(accuracyM) || accuracyM < 0) return null;
   return { lat, lon, accuracyM };
 }
 

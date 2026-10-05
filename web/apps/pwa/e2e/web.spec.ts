@@ -170,6 +170,10 @@ test.describe('fuera de Logroño', () => {
     const map = page.locator('lb-stop-map');
     await expect(map.locator('path.here')).toBeVisible();
     await expect.poll(() => offCentre(map, map.locator('path.here'))).toBeLessThan(2);
+
+    await page.reload();
+    await expect(page.getByRole('alert')).toContainText('¿Estás en Logroño?');
+    await expect(map.locator('path.here')).toBeVisible();
   });
 });
 

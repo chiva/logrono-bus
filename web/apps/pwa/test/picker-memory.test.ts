@@ -166,6 +166,7 @@ describe('valid positions', () => {
     ['latitude past the pole', { ...AT_STOP_101, lat: 90.5 }],
     ['negative accuracy', { ...AT_STOP_101, accuracyM: -1 }],
     ['NaN accuracy', { ...AT_STOP_101, accuracyM: Number.NaN }],
+    ['infinite accuracy', { ...AT_STOP_101, accuracyM: Number.POSITIVE_INFINITY }],
     ['nothing at all', null],
   ])('rejects %s', (reason, here) => {
     expect(validHere(here), reason).toBeNull();

@@ -221,16 +221,18 @@ export class LbStopPicker extends LitElement {
       .map((stop) => ({ stop }));
   }
 
-  /** Stops around the person; false when none is close enough to be worth listing. */
-  #showNearby(here: Here): boolean {
-    if (!this.catalog) return false;
+  /** Stops around the person, or a notice when none is close enough to be worth listing. */
+  #showNearby(here: Here): void {
+    if (!this.catalog) return;
     const nearby = this.catalog.nearby(here.lat, here.lon, {
       radiusM: NEARBY_RADIUS_M,
       limit: NEARBY_LIMIT,
     });
     this.heading = 'Paradas cerca de ti';
     this.results = nearby.map((n) => ({ stop: n.stop, distanceM: n.distance_m }));
-    return nearby.length > 0;
+    if (nearby.length === 0) {
+      this.problem = `No hay paradas a menos de ${NEARBY_RADIUS_M} m. ¿Estás en Logroño?`;
+    }
   }
 
   #remember(search: PickerSearch | null): void {
@@ -272,15 +274,15 @@ export class LbStopPicker extends LitElement {
     );
   }
 
-  /** Lists the stops around the person and shows them on the map, wherever the person is. */
+  /**
+   * Lists the stops around the person and shows them on the map, wherever the person is. Without
+   * the catalogue yet, both wait for it: the remembered search is shown when it arrives.
+   */
   #located(here: Here): void {
     this.here = here;
     this.query = '';
     this.#remember({ kind: 'here', here, locatedAt: Date.now() });
-    if (!this.catalog) return;
-    if (!this.#showNearby(here)) {
-      this.problem = `No hay paradas a menos de ${NEARBY_RADIUS_M} m. ¿Estás en Logroño?`;
-    }
+    this.#showNearby(here);
     if (!this.showMap) {
       this.#rememberMap({ open: true, view: closeUpOn(here.lat, here.lon, this.#mapView) });
       void this.#showMap();

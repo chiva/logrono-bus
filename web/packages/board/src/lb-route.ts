@@ -5,8 +5,10 @@
  * before the first stop shown (with the nearest bus further back parked on it) and after yours.
  *
  * It polls the line's positions every 15 s only while the route is on screen (not while the
- * timetable is), and closes itself after a minute untouched so a wall screen always returns to
- * the board. "Horario" swaps the diagram for today's timetable of that direction.
+ * timetable is, nor while the page is hidden), and closes itself after 15 minutes untouched so a
+ * wall screen always returns to the board. A failed refresh keeps the last positions on screen,
+ * with a warning, until they are too old to trust. "Horario" swaps the diagram for today's
+ * timetable of that direction.
  */
 import {
   type Card,
@@ -19,6 +21,7 @@ import {
   MIN_PREVIOUS_STOPS,
   type RouteBus,
   type RouteView,
+  STALE_POSITION_MS,
   type StopArrivals,
   buildRoute,
   timetableFor,
@@ -32,7 +35,8 @@ import './lb-timetable.ts';
 import { Poller } from './poller.ts';
 
 export const ROUTE_REFRESH_MS = 15_000;
-export const ROUTE_IDLE_CLOSE_MS = 60_000;
+/** Long enough to watch a bus come from several stops away. */
+export const ROUTE_IDLE_CLOSE_MS = 15 * 60_000;
 /** Wider than tall by this factor → horizontal layout. */
 export const LANDSCAPE_RATIO = 1.1;
 /** Room each stop needs along the track, in ems of the track's text. */
@@ -86,6 +90,22 @@ export function nextBusLine(card: Card, nowMs: number): string {
   return `${card.stop_name} · próximo ${timeLabel(next, nowMs).spoken}${scheduled}`;
 }
 
+/**
+ * The positions still recent enough to show, `elapsedMs` after they were fetched. A position's age
+ * is how old it already was when fetched plus the time since, so neither clock has to match.
+ */
+export function trustedAfter(vehicles: LineVehicles, elapsedMs: number): LineVehicles {
+  const fetchedAt = Date.parse(vehicles.generated_at);
+  return {
+    ...vehicles,
+    vehicles: vehicles.vehicles.filter(
+      // A position stamped after the fetch (clocks apart) counts as brand new, not as younger.
+      (vehicle) =>
+        Math.max(0, fetchedAt - Date.parse(vehicle.recorded_at)) + elapsedMs <= STALE_POSITION_MS,
+    ),
+  };
+}
+
 export class LbRoute extends LitElement {
   static override properties: PropertyDeclarations = {
     card: { attribute: false },
@@ -119,6 +139,10 @@ export class LbRoute extends LitElement {
   declare screen: RouteScreen;
   declare timetable: LineTimetable | undefined;
   #catalog: CatalogIndex | undefined;
+  /** When the positions shown arrived, by this device's clock. */
+  #fetchedAt = 0;
+  /** Whether a bus of this direction was left out only because its position aged out. */
+  #agedOut = false;
 
   readonly #poller = new Poller((signal) => this.#load(signal), {
     intervalMs: ROUTE_REFRESH_MS,
@@ -143,6 +167,7 @@ export class LbRoute extends LitElement {
   readonly #onKey = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') this.close();
   };
+  readonly #onVisibility = (): void => this.#syncPause();
 
   constructor() {
     super();
@@ -160,18 +185,21 @@ export class LbRoute extends LitElement {
     this.timetable = undefined;
   }
 
-  /** The route is rebuilt from the latest data whenever positions, arrivals or room change. */
+  /**
+   * The route is rebuilt from the latest data every second: minutes count down, and a bus drops
+   * out once its own position is too old to trust (after failed refreshes, or a hidden page).
+   */
   protected override willUpdate(): void {
     const patternId = this.patternId;
     if (!this.#catalog || !this.vehicles || !this.card || !patternId) return;
-    this.route = buildRoute(
-      this.#catalog,
-      patternId,
-      this.card.stop_id,
-      this.vehicles,
-      this.arrivals,
-      { previousStops: Math.min(this.previousStops, this.room) },
-    );
+    const trusted = trustedAfter(this.vehicles, this.now - this.#fetchedAt);
+    const onPattern = (vehicles: LineVehicles) =>
+      vehicles.vehicles.filter((vehicle) => vehicle.pattern_id === patternId).length;
+    this.#agedOut = onPattern(trusted) < onPattern(this.vehicles);
+    this.route = buildRoute(this.#catalog, patternId, this.card.stop_id, trusted, this.arrivals, {
+      previousStops: Math.min(this.previousStops, this.room),
+      now: new Date(this.now).toISOString(),
+    });
   }
 
   static override styles = css`
@@ -336,6 +364,13 @@ export class LbRoute extends LitElement {
       gap: 0.75em 1.5em;
       justify-content: space-between;
     }
+    .problem {
+      padding: 0.15em 0.6em;
+      border-radius: 999px;
+      background: var(--lb-warning-bg, #fff3cd);
+      color: var(--lb-warning-fg, #5c4400);
+      font-weight: 600;
+    }
 
     /* Vertical: your stop on top, the road running down; buses to the left of the road. */
     :host([orientation='vertical']) .body {
@@ -465,10 +500,12 @@ export class LbRoute extends LitElement {
     if (this.card && !this.card.arrivals.some((arrival) => !arrival.cancelled)) {
       this.show('horario');
     }
+    this.#syncPause();
     this.#poller.start();
     this.#resize?.observe(this);
     this.#clock = setInterval(() => (this.now = Date.now()), 1_000);
     document.addEventListener('keydown', this.#onKey);
+    document.addEventListener('visibilitychange', this.#onVisibility);
     this.#touch();
   }
 
@@ -479,14 +516,19 @@ export class LbRoute extends LitElement {
     clearInterval(this.#clock);
     clearTimeout(this.#idle);
     document.removeEventListener('keydown', this.#onKey);
+    document.removeEventListener('visibilitychange', this.#onVisibility);
   }
 
   /** Switch between the road and the timetable; positions are only polled for the road. */
   show(screen: RouteScreen): void {
     this.screen = screen;
-    this.#poller.setPaused(screen === 'horario');
+    this.#syncPause();
     if (screen === 'horario' && !this.timetable) void this.#loadTimetable();
     this.#touch();
+  }
+
+  #syncPause(): void {
+    this.#poller.setPaused(this.screen === 'horario' || document.hidden);
   }
 
   async #loadTimetable(): Promise<void> {
@@ -525,6 +567,7 @@ export class LbRoute extends LitElement {
         source.vehicles(card.line_id, signal),
       ]);
       this.#catalog = catalog;
+      this.#fetchedAt = Date.now();
       this.vehicles = vehicles;
       this.problem = undefined;
     } catch (error) {
@@ -622,8 +665,14 @@ export class LbRoute extends LitElement {
     const card = this.card;
     if (!card) return nothing;
     const route = this.route;
-    const age = this.vehicles ? this.now - Date.parse(this.vehicles.generated_at) : 0;
-    const noBuses = route && route.buses.length === 0 && route.earlierBuses.length === 0;
+    // By this device's clock alone, so a server or device clock off by minutes does not matter.
+    const age = this.vehicles ? this.now - this.#fetchedAt : 0;
+    const empty = route && route.buses.length === 0 && route.earlierBuses.length === 0;
+    // Empty because positions aged out is not "no bus coming": that waits for fresh data.
+    const noBuses = empty && !this.#agedOut && !this.problem && age <= STALE_POSITION_MS;
+    // A failed refresh leaves the last positions up, flagged, while they can still be trusted;
+    // a road emptied by positions aging out says nothing, so the failure is explained instead.
+    const lastRoute = route && age <= STALE_POSITION_MS && !(empty && this.#agedOut) ? route : null;
     return html`
       <header
         style=${styleMap({ '--line-colour': card.colour, '--line-text': card.text_colour })}
@@ -647,13 +696,15 @@ export class LbRoute extends LitElement {
         @click=${() => this.#touch()}
       >
         ${
-          this.problem
-            ? html`<p class="note" role="alert">${this.problem}</p>`
-            : this.screen === 'horario'
-              ? this.#renderTimetable(card)
-              : route
-                ? this.#renderTrack(route)
-                : html`<p class="note" role="status">Buscando los autobuses…</p>`
+          this.screen === 'recorrido' && this.problem && lastRoute
+            ? this.#renderTrack(lastRoute)
+            : this.problem
+              ? html`<p class="note" role="alert">${this.problem}</p>`
+              : this.screen === 'horario'
+                ? this.#renderTimetable(card)
+                : route
+                  ? this.#renderTrack(route)
+                  : html`<p class="note" role="status">Buscando los autobuses…</p>`
         }
       </div>
       <footer ?hidden=${this.screen === 'horario'}>
@@ -666,6 +717,11 @@ export class LbRoute extends LitElement {
           ${noBuses ? 'Ningún autobús en camino ahora mismo.' : nothing}
         </span>
         <span>${this.vehicles ? `Posiciones ${formatAge(age)}` : ''}</span>
+        ${
+          this.problem && lastRoute
+            ? html`<span class="problem" role="alert">${this.problem}</span>`
+            : nothing
+        }
       </footer>
     `;
   }

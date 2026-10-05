@@ -49,7 +49,7 @@ línea:
 **Toca una tarjeta** (con el dedo o con el ratón) y verás el recorrido de esa línea hasta tu
 parada: tu parada arriba (o a la derecha, en pantallas apaisadas), las anteriores debajo, y **cada
 autobús donde está ahora mismo**, con los minutos que le faltan. Se actualiza sola cada 15 segundos
-y se cierra sola al cabo de un minuto (o con **Volver**).
+y se cierra sola al cabo de 15 minutos sin tocarla (o con **Volver**).
 
 - Se ven **4 paradas antes de la tuya**; puedes poner entre 1 y 12 en
   [el aspecto](04-aspecto.md#recorrido). Si la pantalla no tiene sitio, se muestran menos.

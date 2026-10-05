@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  DWELL_RADIUS_M,
   DirectionResolver,
   type LineVehicles,
   buildRoute,
@@ -93,7 +94,66 @@ describe('route view', () => {
     expect(buildRoute(catalog, '2:sideways', '100', vehicles('2'), null)).toBeNull();
   });
 
-  it('skips buses with no direction or no next stop', () => {
+  describe('a bus reported with no next stop', () => {
+    // The upstream leaves the next stop empty while a bus stands at a stop (line 9, 2026-10-05:
+    // within 30 m of La Cava and of Sojuela). Bus 946 of the recording, moved next to a stop.
+    const pattern = catalog.pattern('10:desc')!;
+    const METRES_PER_DEGREE_LAT = 111_195;
+    const standingBy = (position: number, metresNorth = 20): LineVehicles => {
+      const recorded = vehicles('10');
+      const stop = catalog.stop(pattern.stop_ids[position - 1]!);
+      return {
+        ...recorded,
+        vehicles: recorded.vehicles
+          .filter((v) => v.id === '946')
+          .map((v) => ({
+            ...v,
+            next_stop_id: null,
+            lat: stop.lat + metresNorth / METRES_PER_DEGREE_LAT,
+            lon: stop.lon,
+          })),
+      };
+    };
+    const routeWith = (positions: LineVehicles) =>
+      buildRoute(catalog, '10:desc', '101', positions, arrivals('101'))!;
+
+    it('is drawn standing at the stop it is next to, keeping its minutes', () => {
+      const route = routeWith(standingBy(11));
+      console.info('standing by stop 11', route.buses);
+      // Stop 11 is the second shown (10–14); 12, 13 and yours (14) are still ahead.
+      expect(route.buses.map((b) => [b.vehicleId, b.at, b.stopsAway, b.minutes])).toEqual([
+        ['946', 1, 2, 2],
+      ]);
+    });
+
+    it('is drawn at your stop when it stands at yours', () => {
+      const route = routeWith(standingBy(14));
+      expect(route.buses.map((b) => [b.at, b.stopsAway])).toEqual([[4, 0]]);
+    });
+
+    it('keeps its turn on the "…" when it stands further back than the stops shown', () => {
+      const route = routeWith(standingBy(3));
+      expect(route.buses).toEqual([]);
+      expect(route.earlierBuses.map((b) => [b.vehicleId, b.at, b.stopsAway])).toEqual([
+        ['946', -7, 10],
+      ]);
+    });
+
+    it('is left out when it stands at a stop past yours', () => {
+      expect(routeWith(standingBy(15)).buses).toEqual([]);
+      expect(routeWith(standingBy(15)).earlierBuses).toEqual([]);
+    });
+
+    it(`is left out when no stop of its line is within ${DWELL_RADIUS_M} m`, () => {
+      expect(routeWith(standingBy(11, DWELL_RADIUS_M - 5)).buses).toHaveLength(1);
+      const away = routeWith(standingBy(11, DWELL_RADIUS_M + 5));
+      console.info('65 m from stop 11', away.buses, away.earlierBuses);
+      expect(away.buses).toEqual([]);
+      expect(away.earlierBuses).toEqual([]);
+    });
+  });
+
+  it('skips buses with no direction, or no next stop and no stop beside them', () => {
     const synthetic = vehicles('2', 'upstream/vehicles-sintetico-2.json');
     const route = buildRoute(catalog, '2:desc', '101', synthetic, null)!;
     // Bus 42 is heading to 101 itself: last segment, nothing left to pass.

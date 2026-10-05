@@ -4,7 +4,9 @@
  *
  * Positions come from the vehicle-monitoring endpoint, which reports the stop each bus is heading
  * to plus its coordinates. A bus sits between that stop and the one before it; how far along is
- * estimated from straight-line distances, which is plenty for a diagram.
+ * estimated from straight-line distances, which is plenty for a diagram. While a bus stands at a
+ * stop the endpoint often leaves the next stop empty; such a bus is drawn at the stop of its
+ * pattern it is standing by, if any is within `DWELL_RADIUS_M`.
  *
  * The vehicle-monitoring fleet numbers do not match the arrivals endpoint's vehicle numbers, so
  * "this bus arrives in 4 min" is matched by order instead: the bus nearest your stop gets the
@@ -20,6 +22,11 @@ import { minutesUntil } from './models.ts';
 export const DEFAULT_PREVIOUS_STOPS = 4;
 export const MIN_PREVIOUS_STOPS = 1;
 export const MAX_PREVIOUS_STOPS = 12;
+/**
+ * How close a bus with no next stop must be to a stop to count as standing at it. Buses seen
+ * standing at a stop with no next stop reported were within 30 m of it (line 9, 2026-10-05).
+ */
+export const DWELL_RADIUS_M = 60;
 
 export interface RouteStop {
   readonly id: string;
@@ -85,7 +92,18 @@ export function buildRoute(
 
   const placed: { vehicleId: string; at: number; stopsAway: number }[] = [];
   for (const vehicle of vehicles.vehicles) {
-    if (vehicle.pattern_id !== pattern.id || vehicle.next_stop_id === null) continue;
+    if (vehicle.pattern_id !== pattern.id) continue;
+    if (vehicle.next_stop_id === null) {
+      const standing = standingAt(catalog, pattern, vehicle);
+      // Standing nowhere known, or at a stop past yours.
+      if (standing === null || standing > target) continue;
+      placed.push({
+        vehicleId: vehicle.id,
+        at: standing - first,
+        stopsAway: Math.max(0, target - standing - 1),
+      });
+      continue;
+    }
     const next = patternPosition(pattern, vehicle.next_stop_id);
     // Not on this pattern, or already past your stop.
     if (next === null || next > target) continue;
@@ -119,6 +137,26 @@ export function buildRoute(
     stopsAfter: pattern.stop_ids.length - target,
     generatedAt: vehicles.generated_at,
   };
+}
+
+/** 1-based position of the pattern stop a bus is standing by, nearest first, or null. */
+function standingAt(
+  catalog: CatalogIndex,
+  pattern: Pattern,
+  vehicle: { lat: number; lon: number },
+): number | null {
+  let position: number | null = null;
+  let nearest = Number.POSITIVE_INFINITY;
+  for (const [index, id] of pattern.stop_ids.entries()) {
+    const stop = catalog.findStop(id);
+    if (!stop) continue;
+    const distance = distanceM(stop.lat, stop.lon, vehicle.lat, vehicle.lon);
+    if (distance <= DWELL_RADIUS_M && distance < nearest) {
+      position = index + 1;
+      nearest = distance;
+    }
+  }
+  return position;
 }
 
 /** How far a bus has gone from the stop before `next` towards `next` (0–1), by distance. */

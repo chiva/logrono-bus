@@ -1,6 +1,6 @@
 # 0008. Vista de recorrido con posiciones en tiempo real
 
-**Estado:** aceptada (2026-10-03)
+**Estado:** aceptada (2026-10-03), revisada el 2026-10-05
 
 ## Contexto
 
@@ -17,11 +17,18 @@ Al tocar una tarjeta se quiere ver por dónde va el autobús. El Ayuntamiento pu
   caben). El resto de la línea se dibuja como «…» antes y, si la tuya no es la última, después.
   Los autobuses más lejanos conservan su turno en la asignación de minutos y el más cercano de
   ellos se dibuja sobre los «…» iniciales.
-- Se consultan las posiciones **solo mientras la vista está abierta**, cada 15 s (la web oficial
-  lo hace cada 10 s), y la vista se cierra sola tras un minuto sin tocarla.
+- Se consultan las posiciones **solo mientras la vista está abierta y la página visible**, cada
+  15 s (la web oficial lo hace cada 10 s), y la vista se cierra sola tras 15 minutos sin tocarla.
+- Mientras un autobús está parado en una parada, el Ayuntamiento suele mandar la siguiente parada
+  vacía (12 de 160 posiciones de la línea 9 el 2026-10-05, siempre a menos de 30 m de una
+  parada). Ese autobús se dibuja en la parada de su recorrido que tenga a 60 m o menos; si no
+  hay ninguna, no se dibuja.
+- Si falla una consulta, se mantienen las últimas posiciones con un aviso mientras tengan menos
+  de 3 minutos (la misma antigüedad a partir de la cual se descartan).
 
 ## Consecuencias
 
 Es la única consulta periódica nueva al Ayuntamiento; está acotada a una línea y a una vista
-abierta. En Home Assistant, la tarjeta pide las posiciones desde el navegador, porque no son
+abierta y visible. Con el cierre a los 15 minutos (antes, un minuto: se cerraba antes de que
+llegase el autobús que estabas mirando) una vista olvidada hace como mucho 60 consultas. En Home Assistant, la tarjeta pide las posiciones desde el navegador, porque no son
 sensores.

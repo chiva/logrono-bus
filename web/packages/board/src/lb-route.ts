@@ -5,8 +5,10 @@
  * before the first stop shown (with the nearest bus further back parked on it) and after yours.
  *
  * It polls the line's positions every 15 s only while the route is on screen (not while the
- * timetable is), and closes itself after a minute untouched so a wall screen always returns to
- * the board. "Horario" swaps the diagram for today's timetable of that direction.
+ * timetable is, nor while the page is hidden), and closes itself after 15 minutes untouched so a
+ * wall screen always returns to the board. A failed refresh keeps the last positions on screen,
+ * with a warning, until they are too old to trust. "Horario" swaps the diagram for today's
+ * timetable of that direction.
  */
 import {
   type Card,
@@ -19,6 +21,7 @@ import {
   MIN_PREVIOUS_STOPS,
   type RouteBus,
   type RouteView,
+  STALE_POSITION_MS,
   type StopArrivals,
   buildRoute,
   timetableFor,
@@ -32,7 +35,8 @@ import './lb-timetable.ts';
 import { Poller } from './poller.ts';
 
 export const ROUTE_REFRESH_MS = 15_000;
-export const ROUTE_IDLE_CLOSE_MS = 60_000;
+/** Long enough to watch a bus come from several stops away. */
+export const ROUTE_IDLE_CLOSE_MS = 15 * 60_000;
 /** Wider than tall by this factor → horizontal layout. */
 export const LANDSCAPE_RATIO = 1.1;
 /** Room each stop needs along the track, in ems of the track's text. */
@@ -143,6 +147,7 @@ export class LbRoute extends LitElement {
   readonly #onKey = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') this.close();
   };
+  readonly #onVisibility = (): void => this.#syncPause();
 
   constructor() {
     super();
@@ -336,6 +341,13 @@ export class LbRoute extends LitElement {
       gap: 0.75em 1.5em;
       justify-content: space-between;
     }
+    .problem {
+      padding: 0.15em 0.6em;
+      border-radius: 999px;
+      background: var(--lb-warning-bg, #fff3cd);
+      color: var(--lb-warning-fg, #5c4400);
+      font-weight: 600;
+    }
 
     /* Vertical: your stop on top, the road running down; buses to the left of the road. */
     :host([orientation='vertical']) .body {
@@ -465,10 +477,12 @@ export class LbRoute extends LitElement {
     if (this.card && !this.card.arrivals.some((arrival) => !arrival.cancelled)) {
       this.show('horario');
     }
+    this.#syncPause();
     this.#poller.start();
     this.#resize?.observe(this);
     this.#clock = setInterval(() => (this.now = Date.now()), 1_000);
     document.addEventListener('keydown', this.#onKey);
+    document.addEventListener('visibilitychange', this.#onVisibility);
     this.#touch();
   }
 
@@ -479,14 +493,19 @@ export class LbRoute extends LitElement {
     clearInterval(this.#clock);
     clearTimeout(this.#idle);
     document.removeEventListener('keydown', this.#onKey);
+    document.removeEventListener('visibilitychange', this.#onVisibility);
   }
 
   /** Switch between the road and the timetable; positions are only polled for the road. */
   show(screen: RouteScreen): void {
     this.screen = screen;
-    this.#poller.setPaused(screen === 'horario');
+    this.#syncPause();
     if (screen === 'horario' && !this.timetable) void this.#loadTimetable();
     this.#touch();
+  }
+
+  #syncPause(): void {
+    this.#poller.setPaused(this.screen === 'horario' || document.hidden);
   }
 
   async #loadTimetable(): Promise<void> {
@@ -624,6 +643,8 @@ export class LbRoute extends LitElement {
     const route = this.route;
     const age = this.vehicles ? this.now - Date.parse(this.vehicles.generated_at) : 0;
     const noBuses = route && route.buses.length === 0 && route.earlierBuses.length === 0;
+    // A failed refresh leaves the last positions up, flagged, while they can still be trusted.
+    const lastRoute = route && age <= STALE_POSITION_MS ? route : null;
     return html`
       <header
         style=${styleMap({ '--line-colour': card.colour, '--line-text': card.text_colour })}
@@ -647,13 +668,15 @@ export class LbRoute extends LitElement {
         @click=${() => this.#touch()}
       >
         ${
-          this.problem
-            ? html`<p class="note" role="alert">${this.problem}</p>`
-            : this.screen === 'horario'
-              ? this.#renderTimetable(card)
-              : route
-                ? this.#renderTrack(route)
-                : html`<p class="note" role="status">Buscando los autobuses…</p>`
+          this.screen === 'recorrido' && this.problem && lastRoute
+            ? this.#renderTrack(lastRoute)
+            : this.problem
+              ? html`<p class="note" role="alert">${this.problem}</p>`
+              : this.screen === 'horario'
+                ? this.#renderTimetable(card)
+                : route
+                  ? this.#renderTrack(route)
+                  : html`<p class="note" role="status">Buscando los autobuses…</p>`
         }
       </div>
       <footer ?hidden=${this.screen === 'horario'}>
@@ -666,6 +689,11 @@ export class LbRoute extends LitElement {
           ${noBuses ? 'Ningún autobús en camino ahora mismo.' : nothing}
         </span>
         <span>${this.vehicles ? `Posiciones ${formatAge(age)}` : ''}</span>
+        ${
+          this.problem && lastRoute
+            ? html`<span class="problem" role="alert">${this.problem}</span>`
+            : nothing
+        }
       </footer>
     `;
   }

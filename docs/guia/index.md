@@ -60,8 +60,9 @@ y se cierra sola al cabo de 15 minutos sin tocarla (o con **Volver**).
   relleno si la línea acaba en ella.
 - Un autobús que viene **más lejos** que las paradas que ves espera sobre el tramo gris del
   principio, con sus minutos; «+1» quiere decir que hay otro más detrás.
-- Los autobuses solo avanzan: si la posición que llega lo pone un poco más atrás (pasa en calles
-  con curvas), se queda donde estaba hasta que vuelva a avanzar.
+- Si la posición que llega pone un autobús **un poco más atrás** (hasta una parada, pasa en calles
+  con curvas), se queda donde estaba hasta que vuelva a avanzar. Si lo pone más atrás todavía, se
+  entiende que la posición anterior era errónea y se corrige.
 
 === "Móvil"
     ![Recorrido en el móvil](img/recorrido-movil.png){ width="300" }

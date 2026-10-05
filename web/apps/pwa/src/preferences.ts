@@ -40,6 +40,11 @@ export function browserStore(): KeyValueStore {
   return new SafeStorage(() => globalThis.localStorage);
 }
 
+/** Like `browserStore()`, but forgotten when the tab is closed. */
+export function tabStore(): KeyValueStore {
+  return new SafeStorage(() => globalThis.sessionStorage);
+}
+
 export const COLOUR_NAMES: Readonly<Record<Colour, string>> = {
   suave: 'Suave',
   normal: 'Normal',

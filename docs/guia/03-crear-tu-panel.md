@@ -13,10 +13,15 @@ Tienes tres formas de encontrarla:
 
 - **Escribe** el nombre o el número de la parada («ayuntamiento», «zubía», «101»). No importan las
   tildes ni las mayúsculas.
-- **📍 Cerca de mí** usa tu ubicación.
+- **📍 Cerca de mí** usa tu ubicación: lista las paradas cercanas y abre el mapa centrado donde
+  estás, con un punto azul.
 - **🗺️ Ver mapa** muestra todas las paradas; toca la tuya para elegirla. En el ordenador, al pasar el
-  ratón por encima de una parada ves su nombre, su número y sus líneas. Si has pulsado
-  **📍 Cerca de mí**, el mapa se centra donde estás y te marca con un punto azul.
+  ratón por encima de una parada ves su nombre, su número y sus líneas.
+
+Cuando vuelvas para **añadir otra parada**, el buscador sigue como lo dejaste: la misma búsqueda (o
+las paradas cerca de ti, o las de alrededor de la última que elegiste) y el mapa abierto o cerrado,
+en la misma zona. Todo eso se recuerda solo mientras no cierres la pestaña, y tu ubicación, como
+mucho 15 minutos.
 
 !!! note "Dos paradas con el mismo nombre"
     Casi siempre hay una parada a cada lado de la calle con el mismo nombre (por ejemplo, las dos

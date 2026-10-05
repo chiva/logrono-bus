@@ -4,6 +4,9 @@
  * Two stops often share a name (both sides of the street are "Ayuntamiento"), so every result
  * also says where its buses go ("hacia Manresa, Dinamarca…"): that is how people actually tell
  * them apart.
+ *
+ * Coming back to it (to add another stop) finds it as it was left: the same search or nearby
+ * stops, and the map shown or hidden on the same area (picker-memory.ts).
  */
 import { type CatalogIndex, type NearbyStop, type Stop, isTerminus } from '@logrono-bus/core';
 import {
@@ -16,12 +19,27 @@ import {
 } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 
+import {
+  type MapMemory,
+  type MapView,
+  type PickerSearch,
+  closeUpOn,
+  loadMapMemory,
+  loadPickerSearch,
+  saveMapMemory,
+  savePickerSearch,
+  searchAfterPicking,
+  validHere,
+} from '../picker-memory.ts';
+import { tabStore } from '../preferences.ts';
 import { uiStyles } from '../ui.ts';
-import type { Here } from './stop-map.ts';
+import type { Here, MapViewChangeEvent } from './stop-map.ts';
 
 export const NEARBY_RADIUS_M = 600;
 export const NEARBY_LIMIT = 12;
 export const SEARCH_LIMIT = 15;
+export const AROUND_STOP_RADIUS_M = 250;
+export const AROUND_STOP_LIMIT = 6;
 const GEOLOCATION_TIMEOUT_MS = 15_000;
 /** Plaza del Ayuntamiento, Logroño: where the examples start. */
 export const AYUNTAMIENTO = { lat: 42.4655, lon: -2.439 } as const;
@@ -78,6 +96,9 @@ export class LbStopPicker extends LitElement {
   declare problem: string | undefined;
   declare showMap: boolean;
   declare here: Here | undefined;
+  readonly #tab = tabStore();
+  #search: PickerSearch | null = null;
+  #mapView: MapView | null = null;
 
   constructor() {
     super();
@@ -146,29 +167,86 @@ export class LbStopPicker extends LitElement {
     `,
   ];
 
+  override connectedCallback(): void {
+    super.connectedCallback();
+    const map = loadMapMemory(this.#tab);
+    this.#mapView = map.view;
+    if (map.open) void this.#showMap();
+    this.#search = loadPickerSearch(this.#tab);
+    if (this.#search?.kind === 'query') this.query = this.#search.query;
+    if (this.#search?.kind === 'here') this.here = this.#search.here;
+  }
+
   protected override willUpdate(changed: PropertyValues<this>): void {
-    if (changed.has('catalog') && !this.query.trim()) this.#showExamples();
+    if (changed.has('catalog')) this.#showSearch();
+  }
+
+  #showSearch(): void {
+    const search = this.#search;
+    if (search?.kind === 'query') this.#showQuery();
+    else if (search?.kind === 'here') this.#showNearby(search.here);
+    else if (search?.kind === 'stop') this.#showAroundStop(search.stopId);
+    else this.#showExamples();
   }
 
   #showExamples(): void {
     if (!this.catalog) return;
     this.heading = 'Paradas junto al Ayuntamiento';
-    this.results = this.catalog
-      .nearby(AYUNTAMIENTO.lat, AYUNTAMIENTO.lon, { radiusM: 250, limit: 6 })
-      .map((n: NearbyStop) => ({ stop: n.stop, distanceM: n.distance_m }));
+    this.results = this.#around(AYUNTAMIENTO.lat, AYUNTAMIENTO.lon);
   }
 
-  #search(event: Event): void {
-    this.query = (event.target as HTMLInputElement).value;
-    if (!this.catalog) return;
-    if (!this.query.trim()) {
+  /** The stop chosen last and its neighbours, typically the one across the street. */
+  #showAroundStop(stopId: string): void {
+    const stop = this.catalog?.findStop(stopId);
+    if (!stop) {
       this.#showExamples();
       return;
     }
+    this.heading = `Paradas junto a ${stop.name} · nº ${stop.id}`;
+    this.results = this.#around(stop.lat, stop.lon);
+  }
+
+  #around(lat: number, lon: number): Result[] {
+    if (!this.catalog) return [];
+    return this.catalog
+      .nearby(lat, lon, { radiusM: AROUND_STOP_RADIUS_M, limit: AROUND_STOP_LIMIT })
+      .map((n: NearbyStop) => ({ stop: n.stop, distanceM: n.distance_m }));
+  }
+
+  #showQuery(): void {
+    if (!this.catalog) return;
     this.heading = `Resultados para «${this.query.trim()}»`;
     this.results = this.catalog
       .search(this.query, { limit: SEARCH_LIMIT })
       .map((stop) => ({ stop }));
+  }
+
+  /** Stops around the person; false when none is close enough to be worth listing. */
+  #showNearby(here: Here): boolean {
+    if (!this.catalog) return false;
+    const nearby = this.catalog.nearby(here.lat, here.lon, {
+      radiusM: NEARBY_RADIUS_M,
+      limit: NEARBY_LIMIT,
+    });
+    this.heading = 'Paradas cerca de ti';
+    this.results = nearby.map((n) => ({ stop: n.stop, distanceM: n.distance_m }));
+    return nearby.length > 0;
+  }
+
+  #remember(search: PickerSearch | null): void {
+    this.#search = search;
+    savePickerSearch(this.#tab, search);
+  }
+
+  #rememberMap(memory: MapMemory): void {
+    this.#mapView = memory.view;
+    saveMapMemory(this.#tab, memory);
+  }
+
+  #type(event: Event): void {
+    this.query = (event.target as HTMLInputElement).value;
+    this.#remember(this.query.trim() ? { kind: 'query', query: this.query } : null);
+    this.#showSearch();
   }
 
   #locate(): void {
@@ -182,17 +260,9 @@ export class LbStopPicker extends LitElement {
       (position) => {
         this.locating = false;
         const { latitude, longitude, accuracy } = position.coords;
-        this.here = { lat: latitude, lon: longitude, accuracyM: accuracy };
-        if (!this.catalog) return;
-        const nearby = this.catalog.nearby(latitude, longitude, {
-          radiusM: NEARBY_RADIUS_M,
-          limit: NEARBY_LIMIT,
-        });
-        this.heading = 'Paradas cerca de ti';
-        this.results = nearby.map((n) => ({ stop: n.stop, distanceM: n.distance_m }));
-        if (nearby.length === 0) {
-          this.problem = `No hay paradas a menos de ${NEARBY_RADIUS_M} m. ¿Estás en Logroño?`;
-        }
+        const here = validHere({ lat: latitude, lon: longitude, accuracyM: accuracy });
+        if (here) this.#located(here);
+        else this.problem = geolocationError(new Error('invalid position'));
       },
       (error) => {
         this.locating = false;
@@ -202,12 +272,38 @@ export class LbStopPicker extends LitElement {
     );
   }
 
-  async #toggleMap(): Promise<void> {
-    this.showMap = !this.showMap;
-    if (this.showMap) await import('./stop-map.ts');
+  /** Lists the stops around the person and shows them on the map, wherever the person is. */
+  #located(here: Here): void {
+    this.here = here;
+    this.query = '';
+    this.#remember({ kind: 'here', here, locatedAt: Date.now() });
+    if (!this.catalog) return;
+    if (!this.#showNearby(here)) {
+      this.problem = `No hay paradas a menos de ${NEARBY_RADIUS_M} m. ¿Estás en Logroño?`;
+    }
+    if (!this.showMap) {
+      this.#rememberMap({ open: true, view: closeUpOn(here.lat, here.lon, this.#mapView) });
+      void this.#showMap();
+    }
+  }
+
+  async #showMap(): Promise<void> {
+    this.showMap = true;
+    await import('./stop-map.ts');
+  }
+
+  #toggleMap(): void {
+    this.#rememberMap({ open: !this.showMap, view: this.#mapView });
+    if (this.showMap) this.showMap = false;
+    else void this.#showMap();
   }
 
   #select(stopId: string): void {
+    const stop = this.catalog?.findStop(stopId);
+    if (stop) {
+      this.#rememberMap({ open: this.showMap, view: closeUpOn(stop.lat, stop.lon, this.#mapView) });
+    }
+    this.#remember(searchAfterPicking(this.#search, stopId));
     this.dispatchEvent(
       new CustomEvent('stop-selected', { detail: { stopId }, bubbles: true, composed: true }),
     );
@@ -252,7 +348,7 @@ export class LbStopPicker extends LitElement {
               type="search"
               placeholder="Nombre o número de parada (p. ej. Ayuntamiento)"
               .value=${this.query}
-              @input=${this.#search}
+              @input=${this.#type}
               autocomplete="off"
               enterkeyhint="search"
             />
@@ -271,6 +367,9 @@ export class LbStopPicker extends LitElement {
                 class="map"
                 .catalog=${this.catalog}
                 .here=${this.here}
+                .view=${this.#mapView}
+                @map-view-change=${(e: MapViewChangeEvent) =>
+                  this.#rememberMap({ open: true, view: e.detail })}
                 @stop-selected=${(e: StopSelectedEvent) => {
                   e.stopPropagation();
                   this.#select(e.detail.stopId);

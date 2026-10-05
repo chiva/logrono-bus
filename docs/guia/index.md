@@ -53,13 +53,15 @@ y se cierra sola al cabo de 15 minutos sin tocarla (o con **Volver**).
 
 - Se ven **4 paradas antes de la tuya**; puedes poner entre 1 y 12 en
   [el aspecto](04-aspecto.md#recorrido). Si la pantalla no tiene sitio, se muestran menos.
-- Los **puntos suspensivos** (····) indican que la línea sigue: antes de la primera parada que ves
-  y, si tu parada no es la última, después de ella.
+- El **tramo gris** indica que la línea sigue: antes de la primera parada que ves y, si tu parada
+  no es la última, después de ella.
 - Si se ve **el principio o el final de la línea**, esa parada lleva un círculo grande relleno y
   su nombre en negrita, como en los planos de metro. Tu parada lleva el círculo grande hueco, o
   relleno si la línea acaba en ella.
-- Un autobús que viene **más lejos** que las paradas que ves espera sobre los puntos del
+- Un autobús que viene **más lejos** que las paradas que ves espera sobre el tramo gris del
   principio, con sus minutos; «+1» quiere decir que hay otro más detrás.
+- Los autobuses solo avanzan: si la posición que llega lo pone un poco más atrás (pasa en calles
+  con curvas), se queda donde estaba hasta que vuelva a avanzar.
 
 === "Móvil"
     ![Recorrido en el móvil](img/recorrido-movil.png){ width="300" }

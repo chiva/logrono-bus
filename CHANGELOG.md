@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/chiva/logrono-bus/compare/app-v0.4.0...app-v0.4.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* **pwa:** el horario se ve aunque fallen las posiciones, y el recorrido aunque falle el horario ([#20](https://github.com/chiva/logrono-bus/issues/20)) ([274f4e9](https://github.com/chiva/logrono-bus/commit/274f4e95f0ce8f09031c87fe9df79ea0ea6f968f))
+
 ## [0.4.0](https://github.com/chiva/logrono-bus/compare/app-v0.3.0...app-v0.4.0) (2026-10-05)
 
 

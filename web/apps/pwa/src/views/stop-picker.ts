@@ -247,6 +247,7 @@ export class LbStopPicker extends LitElement {
 
   #type(event: Event): void {
     this.query = (event.target as HTMLInputElement).value;
+    this.problem = undefined;
     this.#remember(this.query.trim() ? { kind: 'query', query: this.query } : null);
     this.#showSearch();
   }
@@ -371,7 +372,7 @@ export class LbStopPicker extends LitElement {
                 .here=${this.here}
                 .view=${this.#mapView}
                 @map-view-change=${(e: MapViewChangeEvent) =>
-                  this.#rememberMap({ open: true, view: e.detail })}
+                  this.#rememberMap({ open: this.showMap, view: e.detail })}
                 @stop-selected=${(e: StopSelectedEvent) => {
                   e.stopPropagation();
                   this.#select(e.detail.stopId);

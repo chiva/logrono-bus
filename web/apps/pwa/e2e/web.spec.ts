@@ -174,6 +174,10 @@ test.describe('fuera de Logroño', () => {
     await page.reload();
     await expect(page.getByRole('alert')).toContainText('¿Estás en Logroño?');
     await expect(map.locator('path.here')).toBeVisible();
+
+    await page.getByPlaceholder(/Nombre o número de parada/).fill('ayunta');
+    await expect(page.getByRole('button', { name: /Ayuntamiento · nº 101/ })).toBeVisible();
+    await expect(page.getByRole('alert')).toHaveCount(0);
   });
 });
 

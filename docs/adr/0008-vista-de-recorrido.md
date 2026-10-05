@@ -30,5 +30,7 @@ Al tocar una tarjeta se quiere ver por dónde va el autobús. El Ayuntamiento pu
 
 Es la única consulta periódica nueva al Ayuntamiento; está acotada a una línea y a una vista
 abierta y visible. Con el cierre a los 15 minutos (antes, un minuto: se cerraba antes de que
-llegase el autobús que estabas mirando) una vista olvidada hace como mucho 60 consultas. En Home Assistant, la tarjeta pide las posiciones desde el navegador, porque no son
-sensores.
+llegase el autobús que estabas mirando), una vista olvidada a la vista hace unas 60 consultas.
+Cada vez que la página vuelve a verse se consulta en el acto sin reiniciar esos 15 minutos, así
+que ocultarla y mostrarla muchas veces puede sumar alguna más. En Home Assistant, la tarjeta pide
+las posiciones desde el navegador, porque no son sensores.

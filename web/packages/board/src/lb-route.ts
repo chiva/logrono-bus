@@ -141,6 +141,8 @@ export class LbRoute extends LitElement {
   #catalog: CatalogIndex | undefined;
   /** When the positions shown arrived, by this device's clock. */
   #fetchedAt = 0;
+  /** Whether a bus of this direction was left out only because its position aged out. */
+  #agedOut = false;
 
   readonly #poller = new Poller((signal) => this.#load(signal), {
     intervalMs: ROUTE_REFRESH_MS,
@@ -190,17 +192,14 @@ export class LbRoute extends LitElement {
   protected override willUpdate(): void {
     const patternId = this.patternId;
     if (!this.#catalog || !this.vehicles || !this.card || !patternId) return;
-    this.route = buildRoute(
-      this.#catalog,
-      patternId,
-      this.card.stop_id,
-      trustedAfter(this.vehicles, this.now - this.#fetchedAt),
-      this.arrivals,
-      {
-        previousStops: Math.min(this.previousStops, this.room),
-        now: new Date(this.now).toISOString(),
-      },
-    );
+    const trusted = trustedAfter(this.vehicles, this.now - this.#fetchedAt);
+    const onPattern = (vehicles: LineVehicles) =>
+      vehicles.vehicles.filter((vehicle) => vehicle.pattern_id === patternId).length;
+    this.#agedOut = onPattern(trusted) < onPattern(this.vehicles);
+    this.route = buildRoute(this.#catalog, patternId, this.card.stop_id, trusted, this.arrivals, {
+      previousStops: Math.min(this.previousStops, this.room),
+      now: new Date(this.now).toISOString(),
+    });
   }
 
   static override styles = css`
@@ -668,15 +667,12 @@ export class LbRoute extends LitElement {
     const route = this.route;
     // By this device's clock alone, so a server or device clock off by minutes does not matter.
     const age = this.vehicles ? this.now - this.#fetchedAt : 0;
-    // Empty because every position aged out is not "no bus coming": that waits for fresh data.
-    const noBuses =
-      route &&
-      route.buses.length === 0 &&
-      route.earlierBuses.length === 0 &&
-      !this.problem &&
-      age <= STALE_POSITION_MS;
-    // A failed refresh leaves the last positions up, flagged, while they can still be trusted.
-    const lastRoute = route && age <= STALE_POSITION_MS ? route : null;
+    const empty = route && route.buses.length === 0 && route.earlierBuses.length === 0;
+    // Empty because positions aged out is not "no bus coming": that waits for fresh data.
+    const noBuses = empty && !this.#agedOut && !this.problem && age <= STALE_POSITION_MS;
+    // A failed refresh leaves the last positions up, flagged, while they can still be trusted;
+    // a road emptied by positions aging out says nothing, so the failure is explained instead.
+    const lastRoute = route && age <= STALE_POSITION_MS && !(empty && this.#agedOut) ? route : null;
     return html`
       <header
         style=${styleMap({ '--line-colour': card.colour, '--line-text': card.text_colour })}

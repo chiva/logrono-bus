@@ -521,6 +521,43 @@ describe('route view', () => {
       expect(busesOn(route)).toEqual([]);
     });
 
+    it('does not call a road emptied by aged-out positions "no bus coming"', async () => {
+      vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
+      // Every position of the recording already 150 s old when fetched.
+      const aged = Object.fromEntries(
+        ['946', '2315', '1200', '2109', '7290'].map((id) => [id, 150_000]),
+      );
+      const source = new RecordedSource(aged);
+      const route = await openRoute(source);
+      expect(busesOn(route)).toEqual(['946', '2315']);
+      const root = route.shadowRoot!;
+
+      // 40 s on, all of them are past the trust window although the fetch is not.
+      await tick(route, VEHICLES_AT + 40_000);
+      expect(busesOn(route)).toEqual([]);
+      expect(root.querySelector('footer')?.textContent).not.toContain('Ningún autobús');
+
+      // A failed refresh then explains itself instead of leaving an empty road up.
+      source.failWith = new UpstreamUnavailable('offline');
+      setHidden(true);
+      setHidden(false);
+      await vi.waitFor(() => expect(route.problem).toBeDefined());
+      await route.updateComplete;
+      expect(root.querySelector('.track')).toBeNull();
+      expect(root.querySelector('.body [role=alert]')?.textContent).toContain('posiciones');
+    });
+
+    it('still says "no bus coming" when the latest positions have none on the way', async () => {
+      vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
+      class EmptySource extends RecordedSource {
+        override async vehicles(lineId: string): Promise<LineVehicles> {
+          return { ...(await super.vehicles(lineId)), vehicles: [] };
+        }
+      }
+      const route = await openRoute(new EmptySource());
+      expect(route.shadowRoot!.querySelector('footer')?.textContent).toContain('Ningún autobús');
+    });
+
     it('counts the minutes down between refreshes, failed ones included', async () => {
       vi.useFakeTimers({ now: VEHICLES_AT, toFake: ['Date'] });
       const source = new RecordedSource();

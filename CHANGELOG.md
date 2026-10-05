@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/chiva/logrono-bus/compare/app-v0.2.0...app-v0.3.0) (2026-10-05)
+
+
+### Features
+
+* **pwa:** el buscador de paradas recuerda dónde lo dejaste y Cerca de mí abre el mapa ([#15](https://github.com/chiva/logrono-bus/issues/15)) ([a48aaf4](https://github.com/chiva/logrono-bus/commit/a48aaf48e22d2b035e84654dba1d5b03c00181b7))
+
+
+### Bug Fixes
+
+* **pwa:** el recorrido no pierde el autobús parado ni se cierra solo ([#17](https://github.com/chiva/logrono-bus/issues/17)) ([d48fb95](https://github.com/chiva/logrono-bus/commit/d48fb95685dc0bf58a776577bd6c3e5f0111d7fc))
+
 ## [0.2.0](https://github.com/chiva/logrono-bus/compare/app-v0.1.3...app-v0.2.0) (2026-10-05)
 
 

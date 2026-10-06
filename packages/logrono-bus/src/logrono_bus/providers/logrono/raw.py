@@ -174,6 +174,19 @@ def _timestamp(value: object, path: str) -> datetime:
     return parsed
 
 
+def _arrival_time(obj: Mapping[str, object], kind: str, path: str) -> datetime | None:
+    """``{kind}ArrivalTime``, or the same row's ``{kind}DepartureTime`` when the arrival comes
+    empty, as it may for a bus starting its trip at the stop. ``None`` when both are empty."""
+    arrival_path = f"{path}.{kind}ArrivalTime"
+    arrival = _str(_required(obj, f"{kind}ArrivalTime", path), arrival_path)
+    if arrival:
+        return _timestamp(arrival, arrival_path)
+    departure_path = f"{path}.{kind}DepartureTime"
+    raw_departure = obj.get(f"{kind}DepartureTime")
+    departure = _str("" if raw_departure is None else raw_departure, departure_path)
+    return _timestamp(departure, departure_path) if departure else None
+
+
 def _clock(value: object, path: str) -> str:
     """``"7:05"`` or ``"07:05"`` → ``"07:05"``."""
     match = _CLOCK.match(_str(value, path))
@@ -243,12 +256,20 @@ def parse_stops(payload: object) -> list[RawStop]:
 
 
 def parse_arrivals(payload: object) -> list[RawArrival]:
-    """Parse ``GET estimatedTimetable/byStop/{id}``."""
+    """Parse ``GET estimatedTimetable/byStop/{id}``.
+
+    A row with no arrival or departure time is skipped: there is nothing to show for it, and one
+    such row must not take down every other arrival at the stop.
+    """
     arrivals = []
     for index, item in enumerate(_result(payload, "arrivals")):
         path = f"$.result.arrivals[{index}]"
         obj = _expect_mapping(item, path)
         order = obj.get("order")
+        aimed = _arrival_time(obj, "aimed", path)
+        expected = _arrival_time(obj, "expected", path)
+        if aimed is None or expected is None:
+            continue
         arrivals.append(
             RawArrival(
                 line_id=_identifier(_required(obj, "lineRef", path), f"{path}.lineRef"),
@@ -256,12 +277,8 @@ def parse_arrivals(payload: object) -> list[RawArrival]:
                 direction_ref=_optional_identifier(obj.get("directionRef"), f"{path}.directionRef"),
                 vehicle_ref=_optional_identifier(obj.get("vehicleRef"), f"{path}.vehicleRef"),
                 order=None if order is None else _int(order, f"{path}.order"),
-                aimed=_timestamp(
-                    _required(obj, "aimedArrivalTime", path), f"{path}.aimedArrivalTime"
-                ),
-                expected=_timestamp(
-                    _required(obj, "expectedArrivalTime", path), f"{path}.expectedArrivalTime"
-                ),
+                aimed=aimed,
+                expected=expected,
                 arrival_status=_str(obj.get("arrivalStatus", ""), f"{path}.arrivalStatus"),
                 cancelled=_bool(obj.get("cancellation", False), f"{path}.cancellation"),
                 inaccurate=_bool(

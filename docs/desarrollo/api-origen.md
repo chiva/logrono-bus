@@ -22,6 +22,10 @@ autenticación. `access-control-allow-origin: *`.
 - **Sin orden**: hay que ordenar por `expectedArrivalTime`.
 - **Tiempo real vs horario**: `vehicleRef` con valor y `arrivalStatus: "NO_REPORT"` = autobús
   localizado; `vehicleRef: ""` y `"scheduled"` = horario (y `directionRef` puede venir vacío).
+- **Llegadas sin hora**: el 2026-10-06 una llegada en la cabecera de la línea 2 trajo
+  `aimedArrivalTime` vacío. Si falta la hora de llegada se usa la de salida de la misma fila
+  (`aimedDepartureTime` / `expectedDepartureTime`); si tampoco hay, se descarta solo esa llegada
+  en vez de dar por roto todo el panel. Un campo ausente o con otro tipo sigue siendo un error.
 - `predictionInaccurate` viene `true` en prácticamente todas las predicciones en tiempo real: se
   expone como `is_approximate` pero la interfaz no lo destaca (sería ruido).
 - **`directionRef`** es un código opaco (`"320"`, `"321"`) que no aparece en el catálogo.

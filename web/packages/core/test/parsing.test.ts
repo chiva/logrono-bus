@@ -82,6 +82,48 @@ describe('upstream parsing', () => {
     expect(schemaPath(() => parseArrivals(payload))).toBe(path);
   });
 
+  it('falls back to the departure time when the arrival time is empty', () => {
+    const [parsed] = parseArrivals(
+      wrap(
+        arrival({
+          aimedArrivalTime: '',
+          expectedArrivalTime: ' ',
+          aimedDepartureTime: '2026-10-03T17:50:00+02:00',
+          expectedDepartureTime: '2026-10-03T18:01:00+02:00',
+        }),
+      ),
+    );
+    expect(parsed).toMatchObject({
+      aimed: '2026-10-03T17:50:00+02:00',
+      expected: '2026-10-03T18:01:00+02:00',
+    });
+  });
+
+  it.each([
+    [arrival({ aimedArrivalTime: '' })],
+    [arrival({ expectedArrivalTime: '', expectedDepartureTime: null })],
+    [arrival({ aimedArrivalTime: '', aimedDepartureTime: '' })],
+  ])('skips an arrival without any time and keeps the rest (%#)', (untimed) => {
+    const parsed = parseArrivals(
+      wrap(arrival({ vehicleRef: '61' }), untimed, arrival({ vehicleRef: '62' })),
+    );
+    expect(parsed.map((a) => a.vehicleRef)).toEqual(['61', '62']);
+  });
+
+  it.each([
+    [{ aimedArrivalTime: null }, '$.result.arrivals[0].aimedArrivalTime'],
+    [
+      { aimedArrivalTime: '', aimedDepartureTime: 'mañana' },
+      '$.result.arrivals[0].aimedDepartureTime',
+    ],
+    [
+      { expectedArrivalTime: '', expectedDepartureTime: 0 },
+      '$.result.arrivals[0].expectedDepartureTime',
+    ],
+  ])('still rejects malformed arrival times (%#)', (overrides, path) => {
+    expect(schemaPath(() => parseArrivals(wrap(arrival(overrides))))).toBe(path);
+  });
+
   it('reports missing fields', () => {
     const incomplete = arrival();
     delete incomplete['aimedArrivalTime'];

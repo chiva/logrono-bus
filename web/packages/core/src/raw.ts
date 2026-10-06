@@ -232,25 +232,40 @@ export function parseStops(payload: unknown): RawStop[] {
   });
 }
 
+/**
+ * `{kind}ArrivalTime`, or the same row's `{kind}DepartureTime` when the arrival comes empty, as it
+ * may for a bus starting its trip at the stop. `null` when both are empty.
+ */
+function arrivalTime(obj: JsonObject, kind: 'aimed' | 'expected', path: string): string | null {
+  const arrivalPath = `${path}.${kind}ArrivalTime`;
+  const arrival = str(required(obj, `${kind}ArrivalTime`, path), arrivalPath);
+  if (arrival) return canonicalTimestamp(arrival, arrivalPath);
+  const departurePath = `${path}.${kind}DepartureTime`;
+  const departure = str(obj[`${kind}DepartureTime`] ?? '', departurePath);
+  return departure ? canonicalTimestamp(departure, departurePath) : null;
+}
+
+/**
+ * Parse `GET estimatedTimetable/byStop/{id}`. A row with no arrival or departure time is skipped:
+ * there is nothing to show for it, and one such row must not take down every other arrival at the
+ * stop.
+ */
 export function parseArrivals(payload: unknown): RawArrival[] {
-  return result(payload, 'arrivals').map((item, index) => {
+  return result(payload, 'arrivals').flatMap((item, index) => {
     const path = `$.result.arrivals[${index}]`;
     const obj = expectObject(item, path);
     const order = obj['order'];
+    const aimed = arrivalTime(obj, 'aimed', path);
+    const expected = arrivalTime(obj, 'expected', path);
+    if (aimed === null || expected === null) return [];
     return {
       lineId: identifier(required(obj, 'lineRef', path), `${path}.lineRef`),
       stopId: identifier(required(obj, 'stopPointRef', path), `${path}.stopPointRef`),
       directionRef: optionalIdentifier(obj['directionRef'], `${path}.directionRef`),
       vehicleRef: optionalIdentifier(obj['vehicleRef'], `${path}.vehicleRef`),
       order: order === undefined || order === null ? null : int(order, `${path}.order`),
-      aimed: canonicalTimestamp(
-        required(obj, 'aimedArrivalTime', path),
-        `${path}.aimedArrivalTime`,
-      ),
-      expected: canonicalTimestamp(
-        required(obj, 'expectedArrivalTime', path),
-        `${path}.expectedArrivalTime`,
-      ),
+      aimed,
+      expected,
       arrivalStatus: str(obj['arrivalStatus'] ?? '', `${path}.arrivalStatus`),
       cancelled: bool(obj['cancellation'] ?? false, `${path}.cancellation`),
       inaccurate: bool(obj['predictionInaccurate'] ?? false, `${path}.predictionInaccurate`),

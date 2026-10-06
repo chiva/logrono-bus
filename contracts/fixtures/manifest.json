@@ -65,7 +65,7 @@
     },
     {
       "name": "sintetico-5",
-      "description": "Casos límite: sentido aprendido, sin resolver, cancelado, pasado, línea ajena, id con ceros",
+      "description": "Casos límite: sentido aprendido, sin resolver, cancelado, pasado, línea ajena, id con ceros, sin hora de llegada",
       "stop_id": "5",
       "now": "2026-10-03T18:00:00+02:00",
       "upstream": "upstream/arrivals-sintetico-5.json",

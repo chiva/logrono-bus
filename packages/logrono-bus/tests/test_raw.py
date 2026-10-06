@@ -95,6 +95,57 @@ def test_malformed_arrivals_name_the_offending_path(payload: object, path: str) 
     assert error.value.path == path
 
 
+def test_empty_arrival_time_falls_back_to_the_departure_time() -> None:
+    (arrival,) = parse_arrivals(
+        _wrap(
+            _arrival(
+                aimedArrivalTime="",
+                expectedArrivalTime=" ",
+                aimedDepartureTime="2026-10-03T17:50:00+02:00",
+                expectedDepartureTime="2026-10-03T18:01:00+02:00",
+            )
+        )
+    )
+    print(f"aimed={arrival.aimed.isoformat()} expected={arrival.expected.isoformat()}")
+    assert arrival.aimed.isoformat() == "2026-10-03T17:50:00+02:00"
+    assert arrival.expected.isoformat() == "2026-10-03T18:01:00+02:00"
+
+
+@pytest.mark.parametrize(
+    "untimed",
+    [
+        _arrival(aimedArrivalTime=""),
+        _arrival(expectedArrivalTime="", expectedDepartureTime=None),
+        _arrival(aimedArrivalTime="", aimedDepartureTime=""),
+    ],
+)
+def test_arrival_without_any_time_is_skipped_and_the_rest_kept(untimed: dict[str, Any]) -> None:
+    arrivals = parse_arrivals(_wrap(_arrival(vehicleRef="61"), untimed, _arrival(vehicleRef="62")))
+    print([a.vehicle_ref for a in arrivals])
+    assert [a.vehicle_ref for a in arrivals] == ["61", "62"]
+
+
+@pytest.mark.parametrize(
+    ("overrides", "path"),
+    [
+        ({"aimedArrivalTime": None}, "$.result.arrivals[0].aimedArrivalTime"),
+        (
+            {"aimedArrivalTime": "", "aimedDepartureTime": "mañana"},
+            "$.result.arrivals[0].aimedDepartureTime",
+        ),
+        (
+            {"expectedArrivalTime": "", "expectedDepartureTime": 0},
+            "$.result.arrivals[0].expectedDepartureTime",
+        ),
+    ],
+)
+def test_malformed_arrival_times_still_fail(overrides: dict[str, Any], path: str) -> None:
+    with pytest.raises(UpstreamSchemaError) as error:
+        parse_arrivals(_wrap(_arrival(**overrides)))
+    print(error.value)
+    assert error.value.path == path
+
+
 def test_missing_required_field_is_reported() -> None:
     payload = _wrap({k: v for k, v in _arrival().items() if k != "aimedArrivalTime"})
     with pytest.raises(UpstreamSchemaError, match="falta el campo"):

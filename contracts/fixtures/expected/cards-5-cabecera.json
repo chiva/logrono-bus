@@ -9,7 +9,24 @@
     "text_colour": "#000000",
     "direction": "desc",
     "headsign": "Manresa",
-    "arrivals": []
+    "arrivals": [
+      {
+        "stop_id": "5",
+        "line_id": "2",
+        "pattern_id": "2:desc",
+        "direction": "desc",
+        "headsign": "Manresa",
+        "aimed": "2026-10-03T18:20:00+02:00",
+        "expected": "2026-10-03T18:21:00+02:00",
+        "minutes": 21,
+        "delay_s": 60,
+        "is_realtime": true,
+        "is_approximate": true,
+        "terminates": false,
+        "cancelled": false,
+        "vehicle_id": "63"
+      }
+    ]
   },
   {
     "stop_id": "5",

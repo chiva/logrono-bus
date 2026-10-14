@@ -1,5 +1,5 @@
 /** Screen mode on smart displays: everything visible at once, no scrolling, legible. */
-import { expect, test } from '@playwright/test';
+import { type Locator, expect, test } from '@playwright/test';
 
 import { useRecordedUpstream } from './upstream.ts';
 
@@ -8,6 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const [label, selection, expectedCards] of [
+  ['1 tarjeta', '101-2d', 1],
   ['4 tarjetas', '101-2d.5a.10d~100-2a', 4],
   ['6 tarjetas', '101-2d.5a.7d.10d~100-2a.10a', 6],
 ] as const) {
@@ -46,9 +47,35 @@ for (const [label, selection, expectedCards] of [
       });
       if (sizes.value !== null) expect(sizes.value).toBeGreaterThanOrEqual(28);
       if (sizes.empty !== null) expect(sizes.empty).toBeGreaterThanOrEqual(16);
+      // The countdown keeps clear of the card edge (and of the alert ring drawn over it) in
+      // proportion to the card, not by a fixed few pixels that vanish on a wall-sized card.
+      const inset = await card.evaluate((element) => {
+        const article = element.shadowRoot!.querySelector('article')!.getBoundingClientRect();
+        const value = element.shadowRoot!.querySelector('.next .value')?.getBoundingClientRect();
+        return value ? { left: value.left - article.left, width: article.width } : null;
+      });
+      if (inset !== null) expect(inset.left).toBeGreaterThanOrEqual(inset.width * 0.035);
     }
   });
 }
+
+test('«prog.» junto al tiempo principal no es más pequeño que en las siguientes llegadas', async ({
+  page,
+}) => {
+  // Stop 69: lines 5 and 9 only have timetable fill-ins at the recording time.
+  await page.goto('./?v=1&p=69-5a.9d&modo=kiosko&n=2');
+  const cards = page.locator('lb-card');
+  await expect(cards).toHaveCount(2);
+  const fontSize = (mark: Locator) =>
+    mark.evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
+  for (const card of await cards.all()) {
+    const next = card.locator('.next .mark');
+    const following = card.locator('li .mark').first();
+    await expect(next).toBeVisible();
+    await expect(following).toBeVisible();
+    expect(await fontSize(next)).toBeGreaterThanOrEqual(await fontSize(following));
+  }
+});
 
 test('un toque muestra cómo salir del modo pantalla', async ({ page }) => {
   await page.goto('./?v=1&p=101-2d&modo=kiosko');

@@ -300,6 +300,10 @@ export class LbCard extends LitElement {
       container-type: size;
       height: 100%;
     }
+    /* A fixed inset vanishes on a wall-sized card, and the alert ring is drawn over it. */
+    :host([fit]) article {
+      padding: max(10px, 3cqh) max(14px, 4cqi);
+    }
     header {
       display: flex;
       align-items: center;
@@ -404,13 +408,16 @@ export class LbCard extends LitElement {
       font-size: clamp(0.7em, calc(min(3.6cqi, 7cqh) * var(--lb-text-scale, 1)), 1.6em);
     }
     :host([fit]) .next .value {
-      font-size: clamp(1.6em, calc(min(30cqi, 34cqh) * var(--lb-text-scale, 1)), 12em);
+      font-size: clamp(1.6em, calc(min(30cqi, 34cqh) * var(--lb-text-scale, 1)), 20em);
     }
     :host([fit]) .next .value.word {
-      font-size: clamp(1.3em, calc(min(17cqi, 22cqh) * var(--lb-text-scale, 1)), 7em);
+      font-size: clamp(1.3em, calc(min(17cqi, 22cqh) * var(--lb-text-scale, 1)), 11.5em);
     }
     :host([fit]) .next .unit {
-      font-size: clamp(0.9em, calc(min(7cqi, 12cqh) * var(--lb-text-scale, 1)), 3.6em);
+      font-size: clamp(0.9em, calc(min(7cqi, 12cqh) * var(--lb-text-scale, 1)), 6em);
+    }
+    :host([fit]) .next .mark {
+      font-size: clamp(0.63em, calc(min(4.9cqi, 8.4cqh) * var(--lb-text-scale, 1)), 4.2em);
     }
     :host([fit]) .soon {
       font-size: clamp(0.8em, calc(min(4.5cqi, 9cqh) * var(--lb-text-scale, 1)), 2.4em);
@@ -422,6 +429,11 @@ export class LbCard extends LitElement {
       font-size: 0.7em;
       font-weight: 500;
       opacity: 0.85;
+    }
+    /* Beside the big number its parent is .next, which keeps the base size: scale like .unit. */
+    .next .mark {
+      font-size: 1.05em;
+      font-size: clamp(0.7em, calc(4.9cqi * var(--lb-text-scale, 1)), 1.4em);
     }
   `;
 

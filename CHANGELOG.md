@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.2](https://github.com/chiva/logrono-bus/compare/app-v0.5.1...app-v0.5.2) (2026-10-14)
+
+
+### Bug Fixes
+
+* **board:** el «prog.» del tiempo principal escala y en modo pantalla el tiempo se aparta del borde ([#31](https://github.com/chiva/logrono-bus/issues/31)) ([a76720c](https://github.com/chiva/logrono-bus/commit/a76720cb0f7042d693f07eaa3da3be5fe4a79f66))
+* **core:** una llegada sin hora ya no deja sin datos toda la parada ([#28](https://github.com/chiva/logrono-bus/issues/28)) ([f8009c9](https://github.com/chiva/logrono-bus/commit/f8009c99289846918556e5e2c7640322cd844f55))
+
 ## [0.5.1](https://github.com/chiva/logrono-bus/compare/app-v0.5.0...app-v0.5.1) (2026-10-05)
 
 

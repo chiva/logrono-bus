@@ -141,7 +141,9 @@ Te llegará algo así:
 En la integración → **Configurar**:
 
 - **Cada cuánto actualizar**: de 30 a 300 segundos (60 por defecto). No hace falta menos: el
-  servicio del Ayuntamiento es público y conviene no cargarlo.
+  servicio del Ayuntamiento es público y conviene no cargarlo. Entre una consulta y la siguiente,
+  los minutos se recalculan cada 15 s con la hora prevista (desde la versión 0.3.2), así que el
+  aviso no llega tarde aunque el intervalo sea largo.
 
 ## Ejemplos
 

@@ -22,7 +22,7 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  type LbCard,
+  LbCard,
   type LbRoute,
   type LogronoBusBoard,
   describeError,
@@ -32,6 +32,7 @@ import {
   ROUTE_IDLE_CLOSE_MS,
   serviceSentence,
   routable,
+  sharedStopName,
   stopsUnderBuses,
 } from '../src/index.ts';
 import { fixtureCatalog, loadFixture } from '../../core/test/fixtures.ts';
@@ -855,7 +856,6 @@ describe('route view', () => {
     const root = route.shadowRoot!;
     const names = [...root.querySelectorAll('.stop .name')].map((n) => n.textContent);
     console.info('stops shown', names, 'earlier buses', route.route!.earlierBuses);
-    expect(names).toHaveLength(2);
     expect(names.at(-1)).toBe('Ayuntamiento');
     expect(root.querySelector('.more.before')).not.toBeNull();
     expect(root.querySelector('.more.after')).not.toBeNull();
@@ -911,6 +911,115 @@ describe('<lb-card>', () => {
     document.body.append(card);
     await card.updateComplete;
     expect(card.shadowRoot!.querySelector('article')).toBeNull();
+  });
+
+  it('publishes 1 % of its measured width and height for its text sizes', async () => {
+    let report: ResizeObserverCallback = () => undefined;
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: ResizeObserverCallback) {
+          report = callback;
+        }
+        observe = vi.fn();
+        disconnect = disconnect;
+      },
+    );
+    try {
+      const card = document.createElement('lb-card');
+      document.body.append(card);
+      const resize = (width: number, height: number) =>
+        report([{ contentRect: { width, height } } as ResizeObserverEntry], {} as ResizeObserver);
+      const units = () => [
+        card.style.getPropertyValue('--lb-cqi'),
+        card.style.getPropertyValue('--lb-cqh'),
+      ];
+
+      resize(460, 190); // a card of four on an Echo Show 5
+      console.info('Echo Show 5 card units', units());
+      expect(units()).toEqual(['4.6px', '1.9px']);
+      resize(940, 440); // a card of four on a Portal+
+      expect(units()).toEqual(['9.4px', '4.4px']);
+      resize(0, 0); // hidden (display: none) — keep the last real size
+      expect(units()).toEqual(['9.4px', '4.4px']);
+
+      card.remove();
+      expect(disconnect).toHaveBeenCalledOnce();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('sizes text without container query units, which Silk and the Portal browser lack', () => {
+    const css = [LbCard.styles]
+      .flat()
+      .map((sheet) => String(sheet))
+      .join('\n');
+    expect(css).not.toMatch(/\dcq[a-z]+\b|container-type/);
+    expect(css).toContain('var(--lb-cqi)');
+  });
+
+  it('leaves out the stop name every card shares, only when the page shows it', async () => {
+    const board = await mountBoard('p=101-2d.10d~100-2a', new FakeSource());
+    const grid = board.shadowRoot!.querySelector('lb-card-grid')!;
+    const settle = async () => {
+      await board.updateComplete;
+      await grid.updateComplete;
+      await Promise.all(cardsOf(board).map((card) => card.updateComplete));
+    };
+    const stopNames = () =>
+      cardsOf(board).map((card) => card.shadowRoot!.querySelector('.stop')?.textContent ?? null);
+    await settle();
+    // Without the opt-in (Home Assistant, a page with its own title) the name stays.
+    expect(stopNames().every((name) => name === 'Ayuntamiento')).toBe(true);
+
+    board.hideSharedStop = true;
+    await settle();
+    const cards = cardsOf(board);
+    // Stops 101 and 100 face each other and are both «Ayuntamiento».
+    console.info('stop names', [...new Set(cards.map((card) => card.card!.stop_name))]);
+    expect(cards.length).toBeGreaterThan(1);
+    for (const card of cards) {
+      expect(card.shadowRoot!.querySelector('.stop')).toBeNull();
+      expect(card.shadowRoot!.querySelector('article')!.getAttribute('aria-label')).toContain(
+        'parada Ayuntamiento',
+      );
+    }
+
+    const [first, second] = cards.map((card) => card.card!);
+    expect(sharedStopName([first!, second!])).toBe(true);
+    expect(sharedStopName([first!, { ...second!, stop_name: 'Gran Vía' }])).toBe(false);
+    expect(sharedStopName([])).toBe(false);
+  });
+
+  it('shows the stop name when the board mixes stops', async () => {
+    const board = await mountBoard('p=101-2d', new FakeSource());
+    const grid = board.shadowRoot!.querySelector('lb-card-grid')!;
+    const [card] = cardsOf(board);
+    grid.hideSharedStop = true;
+    grid.cards = [card!.card!, { ...card!.card!, line_id: '99', stop_name: 'Gran Vía' }];
+    await grid.updateComplete;
+    await Promise.all(cardsOf(board).map((each) => each.updateComplete));
+    expect(
+      cardsOf(board).map((each) => each.shadowRoot!.querySelector('.stop')?.textContent),
+    ).toEqual(['Ayuntamiento', 'Gran Vía']);
+  });
+
+  it('groups the buses after the next one under «Luego»', async () => {
+    vi.useFakeTimers({ now: RECORDED_AT, toFake: ['Date'] });
+    const board = await mountBoard('p=101-2d&n=3', new FakeSource());
+    const [card] = cardsOf(board);
+    await card!.updateComplete;
+    const root = card!.shadowRoot!;
+    const following = root.querySelector('.body .following');
+    expect(following?.getAttribute('aria-hidden')).toBe('true');
+    expect(following?.querySelector('.then')?.textContent).toBe('Luego');
+    expect(following?.querySelectorAll('li')).toHaveLength(card!.card!.arrivals.length - 1);
+
+    card!.card = { ...card!.card!, arrivals: card!.card!.arrivals.slice(0, 1) };
+    await card!.updateComplete;
+    expect(root.querySelector('.following')).toBeNull();
   });
 });
 

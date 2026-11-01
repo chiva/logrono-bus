@@ -21,7 +21,7 @@ import { KioskGuard, keepScreenOn } from '../kiosk-guard.ts';
 import { applyTheme } from '../preferences.ts';
 import { type DisplayChangeEvent } from './display-settings.ts';
 import './display-settings.ts';
-import { boardTitle } from './panel.ts';
+import { boardTitle, titleNamesStops } from './panel.ts';
 
 const CLOCK_TICK_MS = 1_000;
 const CONTROLS_VISIBLE_MS = 6_000;
@@ -258,6 +258,7 @@ export class LbKiosk extends LitElement {
               layout="kiosk"
               .config=${this.config}
               .source=${this.source}
+              ?hide-shared-stop=${titleNamesStops(this.config)}
               @click=${this.#onBoardTap}
             ></logrono-bus-board>`
           : html`<p class="message" role=${this.problem ? 'alert' : 'status'}>

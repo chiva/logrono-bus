@@ -7,13 +7,18 @@ test.beforeEach(async ({ page }) => {
   await useRecordedUpstream(page);
 });
 
-for (const [label, selection, expectedCards] of [
-  ['1 tarjeta', '101-2d', 1],
-  ['4 tarjetas', '101-2d.5a.10d~100-2a', 4],
-  ['6 tarjetas', '101-2d.5a.7d.10d~100-2a.10a', 6],
+for (const [label, selection, expectedCards, extra] of [
+  ['1 tarjeta', '101-2d', 1, ''],
+  ['4 tarjetas', '101-2d.5a.10d~100-2a', 4, ''],
+  ['6 tarjetas', '101-2d.5a.7d.10d~100-2a.10a', 6, ''],
+  // The guide recommends 110–130 % on an Echo Show 5: larger text must still fit the cards.
+  ['6 tarjetas y texto al 130 %', '101-2d.5a.7d.10d~100-2a.10a', 6, '&n=2&tam=130'],
+  // Three buses after the next one: «Luego» and its times may wrap onto a second line.
+  ['6 tarjetas y 4 llegadas por tarjeta', '101-2d.5a.7d.10d~100-2a.10a', 6, '&n=4&aviso=5'],
 ] as const) {
   test(`modo pantalla con ${label}: todo cabe sin desplazarse`, async ({ page }) => {
-    await page.goto(`./?v=1&p=${selection}&modo=kiosko&n=2&titulo=Casa`);
+    const perCard = extra.includes('&n=') ? '' : '&n=2';
+    await page.goto(`./?v=1&p=${selection}&modo=kiosko${perCard}&titulo=Casa${extra}`);
     const cards = page.locator('lb-card');
     await expect(cards).toHaveCount(expectedCards);
     await expect(page.getByRole('heading', { name: 'Casa' })).toBeVisible();

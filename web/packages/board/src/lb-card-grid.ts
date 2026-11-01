@@ -37,6 +37,12 @@ export function routable(card: Card): boolean {
   return cardPatternId(card) !== null;
 }
 
+/** Whether every card shows the same stop name (one stop, or both sides of one street), so the
+ * name on each card is noise. Opposite stops share a name: 101 and 100 are both Ayuntamiento. */
+export function sharedStopName(cards: readonly Card[]): boolean {
+  return cards.length > 0 && cards.every((card) => card.stop_name === cards[0]?.stop_name);
+}
+
 /** Stable identity of a card across refreshes: its stop, line and direction. */
 export function cardKey(card: Card): string {
   return `${card.stop_id}|${card.line_id}|${card.direction ?? 'x'}`;
@@ -88,6 +94,7 @@ export class LbCardGrid extends LitElement {
     alertMinutes: { type: Number, attribute: 'alert-minutes' },
     layout: { type: String, reflect: true },
     openable: { type: Boolean },
+    hideSharedStop: { type: Boolean, attribute: 'hide-shared-stop' },
     services: { attribute: false },
     size: { state: true },
   };
@@ -102,6 +109,9 @@ export class LbCardGrid extends LitElement {
   declare layout: GridLayout;
   /** Whether tapping a card may open its route view. */
   declare openable: boolean;
+  /** Leave the stop name off the cards when they all share it. Only for a parent that already
+   * shows that name (the web's title, when it lists the stops); otherwise it would be lost. */
+  declare hideSharedStop: boolean;
   /** Where each card's line stands in its day (by `cardKey`), for cards with no bus due. */
   declare services: ReadonlyMap<string, ServiceStatus>;
   declare size: { width: number; height: number };
@@ -130,6 +140,7 @@ export class LbCardGrid extends LitElement {
     this.alertMinutes = 0;
     this.layout = 'auto';
     this.openable = true;
+    this.hideSharedStop = false;
     this.services = new Map();
     this.size = { width: 0, height: 0 };
   }
@@ -230,6 +241,7 @@ export class LbCardGrid extends LitElement {
   override render() {
     const variant = cardVariant(this);
     const still = !themeAllowsMotion(this);
+    const hideStop = this.hideSharedStop && sharedStopName(this.cards);
     const columns =
       this.layout === 'kiosk'
         ? `--lb-columns: ${kioskColumns(this.cards.length, this.size.width, this.size.height)}`
@@ -250,6 +262,7 @@ export class LbCardGrid extends LitElement {
             alert-minutes=${this.alertMinutes}
             ?fit=${this.layout === 'kiosk'}
             ?openable=${this.openable && routable(card)}
+            ?hide-stop=${hideStop}
             .service=${this.services.get(cardKey(card)) ?? null}
           ></lb-card>`,
       )}

@@ -247,6 +247,26 @@ describe('<logrono-bus-card>', () => {
     expect(card.getGridOptions()).toMatchObject({ columns: 12 });
   });
 
+  it('keeps the stop name on every card, with or without a title', async () => {
+    for (const titulo of [undefined, 'Casa']) {
+      document.body.replaceChildren();
+      const card = await mount(
+        { entities: [line2('min').entity_id, line10.entity_id], ...(titulo ? { titulo } : {}) },
+        hass(line2('min'), line10),
+      );
+      const grid = card.shadowRoot!.querySelector('lb-card-grid')!;
+      await grid.updateComplete;
+      const cards = cardsIn(card);
+      await Promise.all(
+        cards.map((c) => (c as unknown as { updateComplete: Promise<void> }).updateComplete),
+      );
+      const names = cards.map((c) => c.shadowRoot!.querySelector('.stop')?.textContent ?? null);
+      console.info(`stop names (titulo=${titulo ?? 'none'})`, names);
+      expect(names).toHaveLength(2);
+      expect(names.every((name) => name !== null && name.length > 0)).toBe(true);
+    }
+  });
+
   it('explains when the sensors are not from the integration', async () => {
     const card = await mount({ entities: ['sensor.salon'] }, hass());
     expect(card.shadowRoot!.querySelector('.empty')?.textContent).toContain('Logroño Bus');

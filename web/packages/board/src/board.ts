@@ -55,6 +55,7 @@ export class LogronoBusBoard extends LitElement {
     source: { attribute: false },
     status: { type: String, reflect: true },
     layout: { type: String, reflect: true },
+    hideSharedStop: { type: Boolean, attribute: 'hide-shared-stop' },
     cards: { state: true },
     now: { state: true },
     updatedAt: { state: true },
@@ -68,6 +69,8 @@ export class LogronoBusBoard extends LitElement {
   declare status: BoardStatus;
   /** `kiosk`: fill the host's height, no scrolling, columns chosen by card count. */
   declare layout: BoardLayout;
+  /** See `LbCardGrid.hideSharedStop`: set it only when the page shows the stop name itself. */
+  declare hideSharedStop: boolean;
   declare cards: readonly Card[];
   declare now: number;
   declare updatedAt: number | undefined;
@@ -90,6 +93,7 @@ export class LogronoBusBoard extends LitElement {
     this.source = undefined;
     this.status = 'loading';
     this.layout = 'auto';
+    this.hideSharedStop = false;
     this.cards = [];
     this.now = Date.now();
     this.updatedAt = undefined;
@@ -285,6 +289,7 @@ export class LogronoBusBoard extends LitElement {
         effect=${config.effect}
         alert-minutes=${config.alertMinutes}
         layout=${this.layout}
+        ?hide-shared-stop=${this.hideSharedStop}
         .services=${this.#services()}
         @card-open=${(event: CustomEvent<Card>) => (this.opened = cardKey(event.detail))}
       ></lb-card-grid>

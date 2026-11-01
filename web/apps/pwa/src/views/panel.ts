@@ -17,6 +17,11 @@ import { type DisplayChangeEvent } from './display-settings.ts';
 import './display-settings.ts';
 import './share.ts';
 
+/** Whether the board title is the stop names (no custom title), so cards need not repeat them. */
+export function titleNamesStops(config: BoardConfig): boolean {
+  return !config.title;
+}
+
 /** Board title: the configured one, or the stop names. */
 export function boardTitle(config: BoardConfig, catalog: CatalogIndex | undefined): string {
   if (config.title) return config.title;
@@ -161,6 +166,7 @@ export class LbPanel extends LitElement {
           ? html`<logrono-bus-board
               .config=${this.config}
               .source=${this.source}
+              ?hide-shared-stop=${titleNamesStops(this.config)}
             ></logrono-bus-board>`
           : html`<p
               class=${this.problem ? 'error' : 'muted'}

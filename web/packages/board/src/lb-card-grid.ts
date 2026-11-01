@@ -94,6 +94,7 @@ export class LbCardGrid extends LitElement {
     alertMinutes: { type: Number, attribute: 'alert-minutes' },
     layout: { type: String, reflect: true },
     openable: { type: Boolean },
+    hideSharedStop: { type: Boolean, attribute: 'hide-shared-stop' },
     services: { attribute: false },
     size: { state: true },
   };
@@ -108,6 +109,9 @@ export class LbCardGrid extends LitElement {
   declare layout: GridLayout;
   /** Whether tapping a card may open its route view. */
   declare openable: boolean;
+  /** Leave the stop name off the cards when they all share it. Only for a parent that already
+   * shows that name (the web's title, when it lists the stops); otherwise it would be lost. */
+  declare hideSharedStop: boolean;
   /** Where each card's line stands in its day (by `cardKey`), for cards with no bus due. */
   declare services: ReadonlyMap<string, ServiceStatus>;
   declare size: { width: number; height: number };
@@ -136,6 +140,7 @@ export class LbCardGrid extends LitElement {
     this.alertMinutes = 0;
     this.layout = 'auto';
     this.openable = true;
+    this.hideSharedStop = false;
     this.services = new Map();
     this.size = { width: 0, height: 0 };
   }
@@ -236,7 +241,7 @@ export class LbCardGrid extends LitElement {
   override render() {
     const variant = cardVariant(this);
     const still = !themeAllowsMotion(this);
-    const hideStop = sharedStopName(this.cards);
+    const hideStop = this.hideSharedStop && sharedStopName(this.cards);
     const columns =
       this.layout === 'kiosk'
         ? `--lb-columns: ${kioskColumns(this.cards.length, this.size.width, this.size.height)}`

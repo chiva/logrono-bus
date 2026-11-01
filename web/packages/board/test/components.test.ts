@@ -960,10 +960,23 @@ describe('<lb-card>', () => {
     expect(css).toContain('var(--lb-cqi)');
   });
 
-  it('leaves out the stop name when every card shows the same one', async () => {
+  it('leaves out the stop name every card shares, only when the page shows it', async () => {
     const board = await mountBoard('p=101-2d.10d~100-2a', new FakeSource());
+    const grid = board.shadowRoot!.querySelector('lb-card-grid')!;
+    const settle = async () => {
+      await board.updateComplete;
+      await grid.updateComplete;
+      await Promise.all(cardsOf(board).map((card) => card.updateComplete));
+    };
+    const stopNames = () =>
+      cardsOf(board).map((card) => card.shadowRoot!.querySelector('.stop')?.textContent ?? null);
+    await settle();
+    // Without the opt-in (Home Assistant, a page with its own title) the name stays.
+    expect(stopNames().every((name) => name === 'Ayuntamiento')).toBe(true);
+
+    board.hideSharedStop = true;
+    await settle();
     const cards = cardsOf(board);
-    await Promise.all(cards.map((card) => card.updateComplete));
     // Stops 101 and 100 face each other and are both «Ayuntamiento».
     console.info('stop names', [...new Set(cards.map((card) => card.card!.stop_name))]);
     expect(cards.length).toBeGreaterThan(1);
@@ -984,6 +997,7 @@ describe('<lb-card>', () => {
     const board = await mountBoard('p=101-2d', new FakeSource());
     const grid = board.shadowRoot!.querySelector('lb-card-grid')!;
     const [card] = cardsOf(board);
+    grid.hideSharedStop = true;
     grid.cards = [card!.card!, { ...card!.card!, line_id: '99', stop_name: 'Gran Vía' }];
     await grid.updateComplete;
     await Promise.all(cardsOf(board).map((each) => each.updateComplete));

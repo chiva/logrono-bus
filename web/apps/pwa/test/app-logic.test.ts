@@ -23,7 +23,7 @@ import {
   savedTheme,
 } from '../src/preferences.ts';
 import { route } from '../src/router.ts';
-import { boardTitle } from '../src/views/panel.ts';
+import { boardTitle, titleNamesStops } from '../src/views/panel.ts';
 import { qrSvg } from '../src/views/share.ts';
 import { destinationsSummary } from '../src/views/stop-picker.ts';
 import { boardablePatterns, selectionFor } from '../src/views/wizard.ts';
@@ -166,6 +166,11 @@ describe('wizard helpers', () => {
     expect(boardTitle(parseBoardConfig('p=101~69')!, catalog)).toBe('Ayuntamiento · Portales');
     expect(boardTitle(parseBoardConfig('p=101&titulo=Casa')!, catalog)).toBe('Casa');
     expect(boardTitle(config, undefined)).toBe('Parada 101 · Parada 100 · Parada 2');
+  });
+
+  it('lets cards drop a shared stop name only when the title lists the stops', () => {
+    expect(titleNamesStops(parseBoardConfig('p=101~100')!)).toBe(true);
+    expect(titleNamesStops(parseBoardConfig('p=101&titulo=Casa')!)).toBe(false);
   });
 });
 

@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - apps/*
-minimumReleaseAgeExclude:
-  - eslint@10.12.0
-  - vite-plugin-pwa@2.0.0
+# Supply-chain cooldown: refuse to resolve a version published less than 2 days (2880 min) ago.
+# Renovate waits 3 days (minimumReleaseAge), so every version it proposes is already eligible here;
+# its lock-file maintenance relies on this setting, since Renovate does not gate lock refreshes itself.
+minimumReleaseAge: 2880

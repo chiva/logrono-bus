@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/chiva/logrono-bus/compare/app-v0.5.2...app-v0.6.0) (2026-11-01)
+
+
+### Features
+
+* **board:** texto proporcional en Echo Show 5 y Portal+ ([#41](https://github.com/chiva/logrono-bus/issues/41)) ([68a3454](https://github.com/chiva/logrono-bus/commit/68a34541b4ea73ab779c2c8a05295e3ed0b38dfa))
+
 ## [0.5.2](https://github.com/chiva/logrono-bus/compare/app-v0.5.1...app-v0.5.2) (2026-10-14)
 
 

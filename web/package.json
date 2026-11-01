@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@11.28.2",
   "engines": {
-    "node": ">=22.12"
+    "node": "v26.13.0"
   },
   "scripts": {
     "gen:types": "openapi-typescript ../contracts/openapi.json --output packages/core/src/types.gen.ts && prettier --write packages/core/src/types.gen.ts",

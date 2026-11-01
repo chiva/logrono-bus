@@ -37,6 +37,12 @@ export function routable(card: Card): boolean {
   return cardPatternId(card) !== null;
 }
 
+/** Whether every card shows the same stop name (one stop, or both sides of one street), so the
+ * name on each card is noise. Opposite stops share a name: 101 and 100 are both Ayuntamiento. */
+export function sharedStopName(cards: readonly Card[]): boolean {
+  return cards.length > 0 && cards.every((card) => card.stop_name === cards[0]?.stop_name);
+}
+
 /** Stable identity of a card across refreshes: its stop, line and direction. */
 export function cardKey(card: Card): string {
   return `${card.stop_id}|${card.line_id}|${card.direction ?? 'x'}`;
@@ -230,6 +236,7 @@ export class LbCardGrid extends LitElement {
   override render() {
     const variant = cardVariant(this);
     const still = !themeAllowsMotion(this);
+    const hideStop = sharedStopName(this.cards);
     const columns =
       this.layout === 'kiosk'
         ? `--lb-columns: ${kioskColumns(this.cards.length, this.size.width, this.size.height)}`
@@ -250,6 +257,7 @@ export class LbCardGrid extends LitElement {
             alert-minutes=${this.alertMinutes}
             ?fit=${this.layout === 'kiosk'}
             ?openable=${this.openable && routable(card)}
+            ?hide-stop=${hideStop}
             .service=${this.services.get(cardKey(card)) ?? null}
           ></lb-card>`,
       )}

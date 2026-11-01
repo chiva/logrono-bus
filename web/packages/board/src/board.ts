@@ -111,9 +111,10 @@ export class LogronoBusBoard extends LitElement {
       display: grid;
       grid-template-rows: minmax(0, 1fr) auto;
     }
+    /* The kiosk fills the screen, so its status line follows the screen's height. */
     :host([layout='kiosk']) .status {
       margin-top: calc(var(--lb-gap, 12px) * 0.5);
-      font-size: 0.8rem;
+      font-size: calc(clamp(0.8rem, 1.8vh, 1.4rem) * var(--lb-text-scale, 1));
     }
     .status {
       margin-top: var(--lb-gap, 12px);

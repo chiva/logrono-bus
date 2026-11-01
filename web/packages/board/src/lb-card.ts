@@ -3,8 +3,10 @@
  *
  * Colours come from CSS custom properties inherited from the page (see the PWA's themes.css);
  * the board picks the `variant` a theme asks for through `--lb-card-style`. Sizes follow the
- * card's own width (container queries) — and its height too in `fit` mode — with a fixed
- * fallback declared first for browsers without container queries (older Silk on Echo Show).
+ * card's own width — and its height too in `fit` mode. The card measures itself and publishes
+ * 1 % of its width and height as `--lb-cqi` and `--lb-cqh`: container query units would do the
+ * same, but the browsers of the Echo Show (Silk) and the Portal predate them and would show fixed
+ * sizes, tiny on a Portal+ and cramped on an Echo Show 5.
  */
 import {
   type Arrival,
@@ -28,6 +30,8 @@ import { serviceSentence, timeLabel } from './format.ts';
 
 const UNKNOWN_DIRECTION = 'sentido desconocido';
 const SOON_LABEL = '¡Ya llega!';
+/** Leads the arrivals after the next one, like "Then 18 min" on a station board. */
+const THEN_LABEL = 'Luego';
 
 export type CardVariant = 'fill' | 'strip';
 
@@ -42,6 +46,7 @@ export class LbCard extends LitElement {
     still: { type: Boolean, reflect: true },
     alertMinutes: { type: Number, attribute: 'alert-minutes' },
     openable: { type: Boolean, reflect: true },
+    hideStop: { type: Boolean, attribute: 'hide-stop' },
     service: { attribute: false },
   };
 
@@ -60,6 +65,8 @@ export class LbCard extends LitElement {
   declare alertMinutes: number;
   /** Tapping opens the route view (`card-open` event). */
   declare openable: boolean;
+  /** Leave out the stop name: every card on the board shows the same one, so it says nothing. */
+  declare hideStop: boolean;
   /** Where the line stands in its day, to explain an empty card ("Primera salida a las 07:15"). */
   declare service: ServiceStatus | null;
 
@@ -74,7 +81,29 @@ export class LbCard extends LitElement {
     this.still = false;
     this.alertMinutes = 0;
     this.openable = false;
+    this.hideStop = false;
     this.service = null;
+  }
+
+  /** Publishes the card's size to its styles; set synchronously, so it lands before the paint. */
+  readonly #resize =
+    typeof ResizeObserver === 'undefined'
+      ? undefined
+      : new ResizeObserver(([entry]) => {
+          const { width, height } = entry?.contentRect ?? { width: 0, height: 0 };
+          if (width === 0 || height === 0) return; // hidden: keep the last size
+          this.style.setProperty('--lb-cqi', `${width / 100}px`);
+          this.style.setProperty('--lb-cqh', `${height / 100}px`);
+        });
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.#resize?.observe(this);
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#resize?.disconnect();
   }
 
   #open(): void {
@@ -121,9 +150,11 @@ export class LbCard extends LitElement {
   static override styles = css`
     :host {
       display: block;
-      container-type: inline-size;
       min-width: 0;
       font-size: calc(1rem * var(--lb-text-scale, 1));
+      /* Until measured (or without ResizeObserver): a typical 300 × 200 px card. */
+      --lb-cqi: 3px;
+      --lb-cqh: 2px;
       /* Alerts contrast in lightness, not hue: any fixed hue matches some line (red 4, pink, yellow). */
       --lb-alert-ring: #000;
       --lb-alert-ring-inner: #fff;
@@ -133,7 +164,7 @@ export class LbCard extends LitElement {
       box-sizing: border-box;
       height: 100%;
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: auto 1fr;
       gap: calc(var(--lb-gap, 12px) * 0.5);
       padding: var(--lb-card-padding, 14px 16px);
       border-radius: var(--lb-radius, 18px);
@@ -227,8 +258,7 @@ export class LbCard extends LitElement {
       align-self: center;
       padding: 0.15em 0.55em;
       border-radius: 999px;
-      font-size: 1.1em;
-      font-size: clamp(0.85em, calc(4.5cqi * var(--lb-text-scale, 1)), 1.4em);
+      font-size: clamp(0.85em, calc(4.5 * var(--lb-cqi) * var(--lb-text-scale, 1)), 1.4em);
       font-weight: 800;
       line-height: 1.2;
       white-space: nowrap;
@@ -297,12 +327,11 @@ export class LbCard extends LitElement {
       outline-offset: 2px;
     }
     :host([fit]) {
-      container-type: size;
       height: 100%;
     }
     /* A fixed inset vanishes on a wall-sized card, and the alert ring is drawn over it. */
     :host([fit]) article {
-      padding: max(10px, 3cqh) max(14px, 4cqi);
+      padding: max(10px, 3 * var(--lb-cqh)) max(14px, 4 * var(--lb-cqi));
     }
     header {
       display: flex;
@@ -315,8 +344,7 @@ export class LbCard extends LitElement {
       min-width: 2.1em;
       padding: 0.1em 0.35em;
       border-radius: calc(var(--lb-radius, 18px) * 0.5);
-      font-size: 2em;
-      font-size: clamp(1.4em, calc(7cqi * var(--lb-text-scale, 1)), 2.6em);
+      font-size: clamp(1.4em, calc(7 * var(--lb-cqi) * var(--lb-text-scale, 1)), 2.6em);
       font-weight: 800;
       line-height: 1.15;
       text-align: center;
@@ -328,23 +356,28 @@ export class LbCard extends LitElement {
       min-width: 0;
     }
     .towards {
-      font-size: 1.38em;
-      font-size: clamp(1.05em, calc(5.5cqi * var(--lb-text-scale, 1)), 1.7em);
+      font-size: clamp(1.05em, calc(5.5 * var(--lb-cqi) * var(--lb-text-scale, 1)), 1.7em);
       font-weight: 700;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .stop {
-      font-size: 0.93em;
-      font-size: clamp(0.8em, calc(3.6cqi * var(--lb-text-scale, 1)), 1.05em);
+      font-size: clamp(0.8em, calc(3.6 * var(--lb-cqi) * var(--lb-text-scale, 1)), 1.05em);
       opacity: 0.8;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    /* The countdown and the buses after it read as one group, centred in the space left. */
+    .body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: calc(var(--lb-gap, 12px) * 0.4);
+      min-height: 0;
+    }
     .next {
-      align-self: center;
       display: flex;
       flex-wrap: wrap;
       align-items: baseline;
@@ -353,30 +386,36 @@ export class LbCard extends LitElement {
       line-height: 1;
     }
     .next .value {
-      font-size: 4.2em;
-      font-size: clamp(2.4em, calc(22cqi * var(--lb-text-scale, 1)), 6em);
+      font-size: clamp(2.4em, calc(22 * var(--lb-cqi) * var(--lb-text-scale, 1)), 6em);
       font-weight: 800;
       letter-spacing: -0.02em;
     }
     .next .value.word {
-      font-size: 2.7em;
-      font-size: clamp(1.8em, calc(13cqi * var(--lb-text-scale, 1)), 3.6em);
+      font-size: clamp(1.8em, calc(13 * var(--lb-cqi) * var(--lb-text-scale, 1)), 3.6em);
     }
     .next .unit {
-      font-size: 1.5em;
-      font-size: clamp(1em, calc(7cqi * var(--lb-text-scale, 1)), 2em);
+      font-size: clamp(1em, calc(7 * var(--lb-cqi) * var(--lb-text-scale, 1)), 2em);
       font-weight: 600;
     }
     .next .headsign {
-      font-size: 0.98em;
-      font-size: clamp(0.85em, calc(4cqi * var(--lb-text-scale, 1)), 1.1em);
+      font-size: clamp(0.85em, calc(4 * var(--lb-cqi) * var(--lb-text-scale, 1)), 1.1em);
       opacity: 0.85;
     }
     .empty {
-      align-self: center;
-      font-size: 1.3em;
-      font-size: clamp(1em, calc(6cqi * var(--lb-text-scale, 1)), 1.6em);
+      font-size: clamp(1em, calc(6 * var(--lb-cqi) * var(--lb-text-scale, 1)), 1.6em);
       opacity: 0.8;
+    }
+    .following {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.35em 0.5em;
+      font-size: clamp(0.95em, calc(5 * var(--lb-cqi) * var(--lb-text-scale, 1)), 1.5em);
+      font-variant-numeric: tabular-nums;
+    }
+    .then {
+      font-weight: 500;
+      opacity: 0.85;
     }
     ul {
       list-style: none;
@@ -385,10 +424,7 @@ export class LbCard extends LitElement {
       display: flex;
       flex-wrap: wrap;
       gap: 0.35em 1em;
-      font-size: 1.23em;
-      font-size: clamp(0.95em, calc(5cqi * var(--lb-text-scale, 1)), 1.5em);
       font-weight: 600;
-      font-variant-numeric: tabular-nums;
     }
     .scheduled {
       font-style: italic;
@@ -398,32 +434,70 @@ export class LbCard extends LitElement {
       text-decoration: line-through;
       opacity: 0.7;
     }
+    /* The height bounds take no text scale: they already share out the card's height, and a
+       larger text may only grow where the card has width to spare. */
     :host([fit]) .badge {
-      font-size: clamp(1em, calc(min(7cqi, 14cqh) * var(--lb-text-scale, 1)), 4em);
+      font-size: clamp(
+        1em,
+        min(7 * var(--lb-cqi) * var(--lb-text-scale, 1), 14 * var(--lb-cqh)),
+        4em
+      );
     }
     :host([fit]) .towards {
-      font-size: clamp(0.9em, calc(min(5.5cqi, 11cqh) * var(--lb-text-scale, 1)), 2.8em);
+      font-size: clamp(
+        0.9em,
+        min(5.5 * var(--lb-cqi) * var(--lb-text-scale, 1), 11 * var(--lb-cqh)),
+        2.8em
+      );
     }
     :host([fit]) .stop {
-      font-size: clamp(0.7em, calc(min(3.6cqi, 7cqh) * var(--lb-text-scale, 1)), 1.6em);
+      font-size: clamp(
+        0.7em,
+        min(3.6 * var(--lb-cqi) * var(--lb-text-scale, 1), 7 * var(--lb-cqh)),
+        1.6em
+      );
     }
     :host([fit]) .next .value {
-      font-size: clamp(1.6em, calc(min(30cqi, 34cqh) * var(--lb-text-scale, 1)), 20em);
+      font-size: clamp(
+        1.6em,
+        min(32 * var(--lb-cqi) * var(--lb-text-scale, 1), 40 * var(--lb-cqh)),
+        20em
+      );
     }
     :host([fit]) .next .value.word {
-      font-size: clamp(1.3em, calc(min(17cqi, 22cqh) * var(--lb-text-scale, 1)), 11.5em);
+      font-size: clamp(
+        1.3em,
+        min(17 * var(--lb-cqi) * var(--lb-text-scale, 1), 25 * var(--lb-cqh)),
+        11.5em
+      );
     }
     :host([fit]) .next .unit {
-      font-size: clamp(0.9em, calc(min(7cqi, 12cqh) * var(--lb-text-scale, 1)), 6em);
+      font-size: clamp(
+        0.9em,
+        min(7 * var(--lb-cqi) * var(--lb-text-scale, 1), 12 * var(--lb-cqh)),
+        6em
+      );
     }
     :host([fit]) .next .mark {
-      font-size: clamp(0.63em, calc(min(4.9cqi, 8.4cqh) * var(--lb-text-scale, 1)), 4.2em);
+      font-size: clamp(
+        0.63em,
+        min(4.9 * var(--lb-cqi) * var(--lb-text-scale, 1), 8.4 * var(--lb-cqh)),
+        4.2em
+      );
     }
     :host([fit]) .soon {
-      font-size: clamp(0.8em, calc(min(4.5cqi, 9cqh) * var(--lb-text-scale, 1)), 2.4em);
+      font-size: clamp(
+        0.8em,
+        min(4.5 * var(--lb-cqi) * var(--lb-text-scale, 1), 9 * var(--lb-cqh)),
+        2.4em
+      );
     }
-    :host([fit]) ul {
-      font-size: clamp(0.8em, calc(min(5cqi, 10cqh) * var(--lb-text-scale, 1)), 2.6em);
+    :host([fit]) .following {
+      font-size: clamp(
+        0.8em,
+        min(5 * var(--lb-cqi) * var(--lb-text-scale, 1), 10 * var(--lb-cqh)),
+        2.6em
+      );
     }
     .mark {
       font-size: 0.7em;
@@ -432,8 +506,7 @@ export class LbCard extends LitElement {
     }
     /* Beside the big number its parent is .next, which keeps the base size: scale like .unit. */
     .next .mark {
-      font-size: 1.05em;
-      font-size: clamp(0.7em, calc(4.9cqi * var(--lb-text-scale, 1)), 1.4em);
+      font-size: clamp(0.7em, calc(4.9 * var(--lb-cqi) * var(--lb-text-scale, 1)), 1.4em);
     }
   `;
 
@@ -487,23 +560,33 @@ export class LbCard extends LitElement {
           <span class="badge" aria-hidden="true">${card.line_label}</span>
           <div class="route">
             <span class="towards">${card.headsign ? `→ ${card.headsign}` : card.line_name}</span>
-            <span class="stop">${card.stop_name}</span>
+            ${this.hideStop ? nothing : html`<span class="stop">${card.stop_name}</span>`}
           </div>
         </header>
-        ${
-          next
-            ? html`<div class="next">
-                ${this.#time(next, true)}
-                ${nextHeadsign ? html`<span class="headsign">→ ${nextHeadsign}</span>` : nothing}
-                ${this.#soon(next)}
-              </div>`
-            : html`<div class="empty">${serviceSentence(this.service)}</div>`
-        }
-        <ul aria-hidden="true">
-          ${following.map(
-            (arrival) => html`<li>${this.#time(arrival, false)}${this.#soon(arrival)}</li>`,
-          )}
-        </ul>
+        <div class="body">
+          ${
+            next
+              ? html`<div class="next">
+                  ${this.#time(next, true)}
+                  ${nextHeadsign ? html`<span class="headsign">→ ${nextHeadsign}</span>` : nothing}
+                  ${this.#soon(next)}
+                </div>`
+              : html`<div class="empty">${serviceSentence(this.service)}</div>`
+          }
+          ${
+            following.length > 0
+              ? html`<div class="following" aria-hidden="true">
+                  <span class="then">${THEN_LABEL}</span>
+                  <ul>
+                    ${following.map(
+                      (arrival) =>
+                        html`<li>${this.#time(arrival, false)}${this.#soon(arrival)}</li>`,
+                    )}
+                  </ul>
+                </div>`
+              : nothing
+          }
+        </div>
       </article>
     `;
   }

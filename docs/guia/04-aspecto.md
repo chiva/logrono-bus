@@ -38,7 +38,9 @@ la pantalla → **Ajustes**). Los cambios se ven al momento.
 ## Tamaño del texto
 
 De **80 %** a **150 %**. En el modo pantalla el texto ya se ajusta solo al tamaño de cada tarjeta;
-este ajuste lo hace más grande (o más pequeño) a partir de ahí.
+este ajuste lo hace más grande (o más pequeño) a partir de ahí, pero sin salirse nunca de la
+tarjeta. Si las tarjetas ya están llenas de arriba abajo, el texto no puede crecer más: para verlo
+más grande, pon menos tarjetas en el panel.
 
 ## Intensidad del color
 

@@ -17,7 +17,7 @@ COPY web/ ./
 RUN pnpm --filter @logrono-bus/pwa build
 
 # --- Python environment ---------------------------------------------------------------------------
-FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim@sha256:935c631d7b95582b1f2f3466a6583ec420e1fcf0a3c66204deab2b393bb81b14 AS builder
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim@sha256:e586c1c65b7071aec78f02c5587c76c5011159cd76b3d6f1255f40e48e850abc AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
@@ -29,7 +29,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # --- Runtime --------------------------------------------------------------------------------------
 # Same Debian release (trixie) and Python minor as the builder: the venv is built against it.
-FROM python:3.13-slim-trixie@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285
+FROM python:3.13-slim-trixie@sha256:2d44738ebf4ce5f63b9d9ea871e9c7cfdc0426f7b0c97cac915fd88ded1d86bb
 
 ARG VERSION=dev
 LABEL org.opencontainers.image.title="logrono-bus" \

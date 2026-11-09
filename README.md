@@ -65,7 +65,7 @@ Más en [Arquitectura](docs/desarrollo/arquitectura.md).
 
 ## Desarrollo
 
-Requisitos: [uv](https://docs.astral.sh/uv/), Node 24 con corepack, Docker (opcional).
+Requisitos: [uv](https://docs.astral.sh/uv/), Node 26 (`just setup` instala corepack si falta), Docker (opcional).
 
 ```bash
 uv sync && uv run just setup   # dependencias, hooks y navegador de pruebas

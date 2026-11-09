@@ -1,5 +1,5 @@
 # Task runner. `just` lists every recipe; `just ci` runs what CI runs.
-# Install the toolchain once with `just setup` (needs uv and Node 24 with corepack).
+# Install the toolchain once with `just setup` (needs uv and Node 26).
 
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
@@ -13,6 +13,7 @@ default:
 # Install Python and web dependencies, the pre-commit hooks and the e2e browser
 setup:
     uv sync
+    command -v corepack >/dev/null || npm install --global corepack
     corepack enable
     pnpm --dir {{web}} install --frozen-lockfile
     pnpm --dir {{pwa}} exec playwright install chromium

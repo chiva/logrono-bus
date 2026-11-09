@@ -22,13 +22,13 @@ default-groups = ["dev"]
 [dependency-groups]
 test = [
     "pytest==9.2.0",
-    "pytest-asyncio==1.4.1",
+    "pytest-asyncio==1.4.1.post1",
     "pytest-cov==7.1.0",
     # starlette.testclient imports httpx2 first (the httpx successor it is built against).
     "httpx2==2.16.0",
     "time-machine==3.6.0",
 ]
-lint = ["ruff==0.17.3", "yamllint==1.38.0"]
+lint = ["ruff==0.17.4", "yamllint==1.38.0"]
 typing = ["mypy==2.4.1"]
 docs = ["mkdocs-material==9.8.0"]
 tasks = ["rust-just==1.59.0", "pre-commit==4.7.0"]

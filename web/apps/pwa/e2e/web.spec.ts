@@ -189,6 +189,31 @@ test.describe('paradas cerca de mí desde la portada', () => {
     await expect(page).toHaveURL(/#asistente\/v=1&p=101~100$/);
     await expect(page.getByRole('heading', { name: 'Tu panel' })).toBeVisible();
   });
+
+  test('al cambiar de parada no quedan las llegadas de la anterior', async ({ page, context }) => {
+    await page.goto('./#cerca');
+    await expect(cards(page)).toHaveCount(8);
+
+    // Walk to Portales (stop 69) and its neighbours, whose arrivals fail: none of 101/100's cards
+    // may stay.
+    const elsewhere = (url: URL) =>
+      /\/estimatedTimetable\/byStop\/(?!10[01]$)\w+$/.test(url.pathname);
+    await page.route(elsewhere, (route) =>
+      route.fulfill({
+        status: 503,
+        headers: { 'access-control-allow-origin': '*' },
+        body: '{}',
+      }),
+    );
+    await context.setGeolocation({ latitude: 42.46626, longitude: -2.442653, accuracy: 20 });
+    await page.getByRole('button', { name: /Volver a ubicar/ }).click();
+
+    await expect(page.getByText(/Portales · nº 69/)).toBeVisible();
+    await expect(page.locator('logrono-bus-board').getByRole('alert')).toContainText(
+      'No se puede contactar con el servicio de autobuses',
+    );
+    await expect(cards(page)).toHaveCount(0);
+  });
 });
 
 test('sin permiso de ubicación, Cerca de ti explica cómo buscar la parada', async ({ page }) => {

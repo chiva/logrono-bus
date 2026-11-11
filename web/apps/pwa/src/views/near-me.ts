@@ -15,8 +15,10 @@ import {
   type DataSource,
   type NearbyStop,
   formatBoardConfig,
+  formatSelection,
 } from '@logrono-bus/core';
 import { LitElement, type PropertyDeclarations, css, html, nothing } from 'lit';
+import { keyed } from 'lit/directives/keyed.js';
 
 import { navigate, sourceFor, wizardHref } from '../context.ts';
 import { LocationUnavailable, NO_STOPS_NEARBY, locate } from '../geolocation.ts';
@@ -159,7 +161,12 @@ export class LbNearMe extends LitElement {
   #renderBoard() {
     const { config, source } = this;
     if (config && source) {
-      return html`<logrono-bus-board .config=${config} .source=${source}></logrono-bus-board>`;
+      // A fresh board per set of stops: one kept from the previous stop would show its cards
+      // (and an open route) under the new stop's name until, or if, the new stop answers.
+      return keyed(
+        formatSelection(config.stops),
+        html`<logrono-bus-board .config=${config} .source=${source}></logrono-bus-board>`,
+      );
     }
     if (this.locating) return html`<p class="muted" role="status">Buscando tu ubicación…</p>`;
     return nothing;

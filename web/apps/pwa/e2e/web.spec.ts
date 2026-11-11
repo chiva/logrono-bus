@@ -214,6 +214,28 @@ test.describe('paradas cerca de mí desde la portada', () => {
     );
     await expect(cards(page)).toHaveCount(0);
   });
+
+  test('si no se puede volver a ubicar, no deja las llegadas de antes', async ({ page }) => {
+    await page.goto('./#cerca');
+    await expect(cards(page)).toHaveCount(8);
+
+    await page.evaluate(() => {
+      navigator.geolocation.getCurrentPosition = (_found, failed) =>
+        failed?.({
+          code: 3,
+          message: 'Timeout expired',
+          PERMISSION_DENIED: 1,
+          POSITION_UNAVAILABLE: 2,
+          TIMEOUT: 3,
+        });
+    });
+    await page.getByRole('button', { name: /Volver a ubicar/ }).click();
+
+    await expect(page.getByRole('alert')).toContainText('No se ha podido obtener tu ubicación');
+    await expect(cards(page)).toHaveCount(0);
+    await expect(page.getByText(/Ayuntamiento · nº 101/)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Guardar como panel/ })).toHaveCount(0);
+  });
 });
 
 test('sin permiso de ubicación, Cerca de ti explica cómo buscar la parada', async ({ page }) => {

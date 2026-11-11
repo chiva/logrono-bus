@@ -105,6 +105,10 @@ export class LbNearMe extends LitElement {
       this.config = nearMeConfig(this.stops, loadDisplayPreferences(browserStore()));
       if (!this.config) this.problem = NO_STOPS_NEARBY;
     } catch (error) {
+      // The stops found before may be behind the person now: no answer beats the wrong stop's.
+      this.here = undefined;
+      this.stops = [];
+      this.config = null;
       if (error instanceof LocationUnavailable) {
         this.problem = error.message;
       } else {

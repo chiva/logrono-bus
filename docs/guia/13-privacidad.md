@@ -19,11 +19,13 @@ consulta.
 - La **ubicación**, si la usas, no se envía a nadie: ordena las paradas por distancia y te marca en
   el mapa. El navegador la recuerda solo en esa pestaña y como mucho 15 minutos, para que al añadir
   otra parada no tengas que pedirla otra vez. La zona donde dejaste el mapa también se olvida al
-  cerrar la pestaña.
+  cerrar la pestaña. **📍 Cerca de mí**, en la portada, no la guarda en ningún sitio: la usa para
+  elegir la parada y la olvida.
 - Para mostrar las llegadas, tu navegador pide los datos directamente al Ayuntamiento (o a tu
   servidor). El mapa descarga imágenes de [OpenStreetMap](https://www.openstreetmap.org/copyright)
-  de la zona que muestra. **📍 Cerca de mí** abre el mapa centrado en tu ubicación, así que
-  OpenStreetMap puede deducir en qué zona estás, como cuando mueves el mapa a mano hasta allí.
+  de la zona que muestra. En **Crear panel**, **📍 Cerca de mí** abre el mapa centrado en tu
+  ubicación, así que OpenStreetMap puede deducir en qué zona estás, como cuando mueves el mapa a
+  mano hasta allí.
 - La web se aloja en GitHub Pages, que como cualquier servidor web registra direcciones IP
   ([política de GitHub](https://docs.github.com/es/site-policy/privacy-policies/github-general-privacy-statement)).
 

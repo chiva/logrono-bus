@@ -29,18 +29,16 @@ import {
   saveMapMemory,
   savePickerSearch,
   searchAfterPicking,
-  validHere,
 } from '../picker-memory.ts';
+import { LocationUnavailable, NEARBY_RADIUS_M, NO_STOPS_NEARBY, locate } from '../geolocation.ts';
 import { tabStore } from '../preferences.ts';
 import { uiStyles } from '../ui.ts';
 import type { Here, MapViewChangeEvent } from './stop-map.ts';
 
-export const NEARBY_RADIUS_M = 600;
 export const NEARBY_LIMIT = 12;
 export const SEARCH_LIMIT = 15;
 export const AROUND_STOP_RADIUS_M = 250;
 export const AROUND_STOP_LIMIT = 6;
-const GEOLOCATION_TIMEOUT_MS = 15_000;
 /** Plaza del Ayuntamiento, Logroño: where the examples start. */
 export const AYUNTAMIENTO = { lat: 42.4655, lon: -2.439 } as const;
 
@@ -64,16 +62,6 @@ export function destinationsSummary(catalog: CatalogIndex, stopId: string): stri
   if (headsigns.length === 0) return 'final de trayecto';
   if (headsigns.length === 1) return `hacia ${headsigns[0]}`;
   return `hacia ${headsigns.slice(0, -1).join(', ')} y ${headsigns[headsigns.length - 1] ?? ''}`;
-}
-
-export function geolocationError(error: GeolocationPositionError | Error): string {
-  if (!window.isSecureContext) {
-    return 'El navegador solo permite usar la ubicación en páginas https. Busca la parada por nombre o en el mapa.';
-  }
-  if ('code' in error && error.code === error.PERMISSION_DENIED) {
-    return 'No has dado permiso para usar tu ubicación. Puedes buscar la parada por nombre o en el mapa.';
-  }
-  return 'No se ha podido obtener tu ubicación. Prueba a buscar la parada por nombre.';
 }
 
 export class LbStopPicker extends LitElement {
@@ -231,7 +219,7 @@ export class LbStopPicker extends LitElement {
     this.heading = 'Paradas cerca de ti';
     this.results = nearby.map((n) => ({ stop: n.stop, distanceM: n.distance_m }));
     if (nearby.length === 0) {
-      this.problem = `No hay paradas a menos de ${NEARBY_RADIUS_M} m. ¿Estás en Logroño?`;
+      this.problem = NO_STOPS_NEARBY;
     }
   }
 
@@ -252,27 +240,17 @@ export class LbStopPicker extends LitElement {
     this.#showSearch();
   }
 
-  #locate(): void {
+  async #locate(): Promise<void> {
     this.problem = undefined;
-    if (!('geolocation' in navigator) || !window.isSecureContext) {
-      this.problem = geolocationError(new Error('unavailable'));
-      return;
-    }
     this.locating = true;
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        this.locating = false;
-        const { latitude, longitude, accuracy } = position.coords;
-        const here = validHere({ lat: latitude, lon: longitude, accuracyM: accuracy });
-        if (here) this.#located(here);
-        else this.problem = geolocationError(new Error('invalid position'));
-      },
-      (error) => {
-        this.locating = false;
-        this.problem = geolocationError(error);
-      },
-      { enableHighAccuracy: true, timeout: GEOLOCATION_TIMEOUT_MS, maximumAge: 60_000 },
-    );
+    try {
+      this.#located(await locate());
+    } catch (error) {
+      if (!(error instanceof LocationUnavailable)) throw error;
+      this.problem = error.message;
+    } finally {
+      this.locating = false;
+    }
   }
 
   /**
@@ -356,7 +334,7 @@ export class LbStopPicker extends LitElement {
               enterkeyhint="search"
             />
           </label>
-          <button @click=${this.#locate} ?disabled=${this.locating}>
+          <button @click=${() => void this.#locate()} ?disabled=${this.locating}>
             ${this.locating ? 'Buscando…' : '📍 Cerca de mí'}
           </button>
           <button @click=${this.#toggleMap} aria-pressed=${this.showMap}>

@@ -35,6 +35,8 @@ describe('router', () => {
     ['', '', 'home'],
     ['?tema=oscuro', '', 'home'],
     ['', '#acerca', 'about'],
+    ['', '#cerca', 'near'],
+    ['?v=1&p=101', '#cerca', 'near'],
     ['', '#asistente', 'wizard'],
     ['?v=1&p=101', '', 'panel'],
     ['?v=1&p=101&modo=kiosko', '', 'kiosk'],

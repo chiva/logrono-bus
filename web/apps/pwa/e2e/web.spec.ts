@@ -83,9 +83,10 @@ test('el mapa de paradas aplica los estilos de Leaflet', async ({ page }) => {
   await expect(page.locator('lb-stop-map .leaflet-control-zoom-in')).toBeVisible();
 });
 
+/** Standing on stop 101, Ayuntamiento (contracts/fixtures/upstream/stops.json). */
+const AT_STOP_101 = { latitude: 42.46563, longitude: -2.439249, accuracy: 20 };
+
 test.describe('el mapa con tu ubicación', () => {
-  /** Standing on stop 101, Ayuntamiento (contracts/fixtures/upstream/stops.json). */
-  const AT_STOP_101 = { latitude: 42.46563, longitude: -2.439249, accuracy: 20 };
   test.use({ geolocation: AT_STOP_101, permissions: ['geolocation'] });
 
   const locateOnMap = async (page: import('@playwright/test').Page) => {
@@ -157,10 +158,114 @@ test.describe('el mapa con tu ubicación', () => {
   });
 });
 
+test.describe('paradas cerca de mí desde la portada', () => {
+  test.use({ geolocation: AT_STOP_101, permissions: ['geolocation'] });
+
+  test('muestra las llegadas de tu parada y la de enfrente', async ({ page }) => {
+    await page.goto('./');
+    await page.getByRole('link', { name: /Cerca de mí/ }).click();
+    await expect(page).toHaveURL(/#cerca$/);
+    await expect(page.getByRole('heading', { name: 'Cerca de mí' })).toBeVisible();
+    await expect(
+      page.getByText(/Ayuntamiento · nº 101 · a 0 m — Ayuntamiento · nº 100/),
+    ).toBeVisible();
+    // The same two stops as the Ayuntamiento example board: all their lines.
+    await expect(cards(page)).toHaveCount(8);
+    await expect(page.getByRole('alert')).toHaveCount(0);
+
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    expect(
+      results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(', ')}`),
+    ).toEqual([]);
+  });
+
+  test('vuelve a ubicarte y guarda las paradas como panel', async ({ page }) => {
+    await page.goto('./#cerca');
+    await expect(cards(page)).toHaveCount(8);
+    await page.getByRole('button', { name: /Volver a ubicar/ }).click();
+    await expect(cards(page)).toHaveCount(8);
+
+    await page.getByRole('button', { name: /Guardar como panel/ }).click();
+    await expect(page).toHaveURL(/#asistente\/v=1&p=101~100$/);
+    await expect(page.getByRole('heading', { name: 'Tu panel' })).toBeVisible();
+  });
+
+  test('al cambiar de parada no quedan las llegadas de la anterior', async ({ page, context }) => {
+    await page.goto('./#cerca');
+    await expect(cards(page)).toHaveCount(8);
+
+    // Walk to Portales (stop 69) and its neighbours, whose arrivals fail: none of 101/100's cards
+    // may stay.
+    const elsewhere = (url: URL) =>
+      /\/estimatedTimetable\/byStop\/(?!10[01]$)\w+$/.test(url.pathname);
+    await page.route(elsewhere, (route) =>
+      route.fulfill({
+        status: 503,
+        headers: { 'access-control-allow-origin': '*' },
+        body: '{}',
+      }),
+    );
+    await context.setGeolocation({ latitude: 42.46626, longitude: -2.442653, accuracy: 20 });
+    await page.getByRole('button', { name: /Volver a ubicar/ }).click();
+
+    await expect(page.getByText(/Portales · nº 69/)).toBeVisible();
+    await expect(page.locator('logrono-bus-board').getByRole('alert')).toContainText(
+      'No se puede contactar con el servicio de autobuses',
+    );
+    await expect(cards(page)).toHaveCount(0);
+  });
+
+  test('si no se puede volver a ubicar, no deja las llegadas de antes', async ({ page }) => {
+    await page.goto('./#cerca');
+    await expect(cards(page)).toHaveCount(8);
+
+    await page.evaluate(() => {
+      navigator.geolocation.getCurrentPosition = (_found, failed) =>
+        failed?.({
+          code: 3,
+          message: 'Timeout expired',
+          PERMISSION_DENIED: 1,
+          POSITION_UNAVAILABLE: 2,
+          TIMEOUT: 3,
+        });
+    });
+    await page.getByRole('button', { name: /Volver a ubicar/ }).click();
+
+    await expect(page.getByRole('alert')).toContainText('No se ha podido obtener tu ubicación');
+    await expect(cards(page)).toHaveCount(0);
+    await expect(page.getByText(/Ayuntamiento · nº 101/)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Guardar como panel/ })).toHaveCount(0);
+  });
+});
+
+test('sin permiso de ubicación, Cerca de mí explica cómo buscar la parada', async ({ page }) => {
+  await page.addInitScript(() => {
+    navigator.geolocation.getCurrentPosition = (_found, failed) =>
+      failed?.({
+        code: 1,
+        message: 'User denied Geolocation',
+        PERMISSION_DENIED: 1,
+        POSITION_UNAVAILABLE: 2,
+        TIMEOUT: 3,
+      });
+  });
+  await page.goto('./#cerca');
+  await expect(page.getByRole('alert')).toContainText('No has dado permiso');
+  await expect(cards(page)).toHaveCount(0);
+  await page.getByRole('link', { name: /Buscar la parada/ }).click();
+  await expect(page).toHaveURL(/#asistente$/);
+});
+
 test.describe('fuera de Logroño', () => {
   test.use({
     geolocation: { latitude: 40.4168, longitude: -3.7038, accuracy: 20 },
     permissions: ['geolocation'],
+  });
+
+  test('Cerca de mí, en la portada, avisa de que no hay paradas', async ({ page }) => {
+    await page.goto('./#cerca');
+    await expect(page.getByRole('alert')).toContainText('¿Estás en Logroño?');
+    await expect(cards(page)).toHaveCount(0);
   });
 
   test('Cerca de mí avisa de que no hay paradas y abre el mapa donde estás', async ({ page }) => {

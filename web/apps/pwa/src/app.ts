@@ -17,6 +17,7 @@ import { uiStyles } from './ui.ts';
 import './views/about.ts';
 import './views/home.ts';
 import './views/kiosk.ts';
+import './views/near-me.ts';
 import './views/panel.ts';
 import './views/wizard.ts';
 
@@ -150,6 +151,8 @@ export class LbApp extends LitElement {
         return html`<lb-home></lb-home>`;
       case 'about':
         return html`<lb-about></lb-about>`;
+      case 'near':
+        return html`<lb-near-me></lb-near-me>`;
       case 'wizard':
         return html`<lb-wizard .initial=${current.initial}></lb-wizard>`;
       // Keyed by data source: the views pick theirs once, when connected, so a link with another

@@ -42,6 +42,8 @@ export function boardUrl(query: string, base: string = location.href): string {
 
 export const WIZARD_HASH = '#asistente';
 export const ABOUT_HASH = '#acerca';
+/** Live arrivals at the stop the person is standing at (and its pair across the street). */
+export const NEAR_HASH = '#cerca';
 
 /** `#asistente/<board query>` opens the wizard pre-filled to edit that board. */
 export function wizardHref(query?: string): string {

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.0](https://github.com/chiva/logrono-bus/compare/app-v0.6.0...app-v0.7.0) (2026-11-11)
+
+
+### Features
+
+* **pwa:** «Paradas cerca de mí» — live arrivals at the stop you are at ([#53](https://github.com/chiva/logrono-bus/issues/53)) ([ba1245b](https://github.com/chiva/logrono-bus/commit/ba1245b28c77f6cb92ebc7ae66f89183f36857a0))
+
+
+### Bug Fixes
+
+* **deps:** update non-major dependencies ([#46](https://github.com/chiva/logrono-bus/issues/46)) ([e25ae51](https://github.com/chiva/logrono-bus/commit/e25ae515e998f3886dcdf043bb44836d70958bb3))
+* **deps:** update non-major dependencies ([#50](https://github.com/chiva/logrono-bus/issues/50)) ([e2c6df4](https://github.com/chiva/logrono-bus/commit/e2c6df4f053027832fe0461c3636a3d90be5bdce))
+
 ## [0.6.0](https://github.com/chiva/logrono-bus/compare/app-v0.5.2...app-v0.6.0) (2026-11-01)
 
 

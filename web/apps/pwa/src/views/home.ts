@@ -136,7 +136,7 @@ export class LbHome extends LitElement {
               e.preventDefault();
               navigate(NEAR_HREF);
             }}
-            >📍 Paradas cerca de mí</a
+            >📍 Cerca de mí</a
           >
           <a
             class="button"

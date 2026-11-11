@@ -49,8 +49,7 @@ export default defineConfig({
         // Long-press the app icon: arrivals at the stop you are at, without opening a board.
         shortcuts: [
           {
-            name: 'Paradas cerca de mí',
-            short_name: 'Cerca de mí',
+            name: 'Cerca de mí',
             url: './#cerca',
             icons: [{ src: 'icon-192.png', sizes: '192x192', type: 'image/png' }],
           },

@@ -180,7 +180,7 @@ export class LbNearMe extends LitElement {
     const config = this.config;
     return html`
       <div class="toolbar">
-        <h1>Cerca de ti</h1>
+        <h1>Cerca de mí</h1>
         <div class="row">
           <button @click=${() => void this.#relocate()} ?disabled=${this.locating}>
             📍 ${this.locating ? 'Buscando…' : 'Volver a ubicar'}

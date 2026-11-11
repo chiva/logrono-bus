@@ -22,7 +22,7 @@ tocarlo se abre directamente tu panel, sin la barra del navegador.
 
 ## Estoy en la parada: ¿viene el autobús?
 
-En la portada, toca **📍 Paradas cerca de mí**. Sin crear ningún panel, verás las llegadas de
+En la portada, toca **📍 Cerca de mí**. Sin crear ningún panel, verás las llegadas de
 todas las líneas de la parada más cercana y, si la hay, de la de enfrente (a unos 120 metros o
 menos). Cada tarjeta dice la parada y hacia dónde va el autobús, así que no se confunden las dos
 aceras.

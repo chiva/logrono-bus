@@ -163,9 +163,9 @@ test.describe('paradas cerca de mí desde la portada', () => {
 
   test('muestra las llegadas de tu parada y la de enfrente', async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('link', { name: /Paradas cerca de mí/ }).click();
+    await page.getByRole('link', { name: /Cerca de mí/ }).click();
     await expect(page).toHaveURL(/#cerca$/);
-    await expect(page.getByRole('heading', { name: 'Cerca de ti' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Cerca de mí' })).toBeVisible();
     await expect(
       page.getByText(/Ayuntamiento · nº 101 · a 0 m — Ayuntamiento · nº 100/),
     ).toBeVisible();
@@ -238,7 +238,7 @@ test.describe('paradas cerca de mí desde la portada', () => {
   });
 });
 
-test('sin permiso de ubicación, Cerca de ti explica cómo buscar la parada', async ({ page }) => {
+test('sin permiso de ubicación, Cerca de mí explica cómo buscar la parada', async ({ page }) => {
   await page.addInitScript(() => {
     navigator.geolocation.getCurrentPosition = (_found, failed) =>
       failed?.({
@@ -262,7 +262,7 @@ test.describe('fuera de Logroño', () => {
     permissions: ['geolocation'],
   });
 
-  test('Cerca de ti avisa de que no hay paradas', async ({ page }) => {
+  test('Cerca de mí, en la portada, avisa de que no hay paradas', async ({ page }) => {
     await page.goto('./#cerca');
     await expect(page.getByRole('alert')).toContainText('¿Estás en Logroño?');
     await expect(cards(page)).toHaveCount(0);

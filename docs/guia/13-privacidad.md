@@ -19,7 +19,8 @@ consulta.
 - La **ubicación**, si la usas, no se envía a nadie: ordena las paradas por distancia y te marca en
   el mapa. El navegador la recuerda solo en esa pestaña y como mucho 15 minutos, para que al añadir
   otra parada no tengas que pedirla otra vez. La zona donde dejaste el mapa también se olvida al
-  cerrar la pestaña.
+  cerrar la pestaña. **📍 Paradas cerca de mí**, en la portada, no la guarda en ningún sitio: la
+  usa para elegir la parada y la olvida.
 - Para mostrar las llegadas, tu navegador pide los datos directamente al Ayuntamiento (o a tu
   servidor). El mapa descarga imágenes de [OpenStreetMap](https://www.openstreetmap.org/copyright)
   de la zona que muestra. **📍 Cerca de mí** abre el mapa centrado en tu ubicación, así que

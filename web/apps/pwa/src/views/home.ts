@@ -2,12 +2,13 @@
 import { parseBoardConfig } from '@logrono-bus/core';
 import { LitElement, type PropertyDeclarations, css, html, nothing } from 'lit';
 
-import { navigate, wizardHref } from '../context.ts';
+import { NEAR_HASH, navigate, wizardHref } from '../context.ts';
 import { type SavedBoard, browserStore, forgetBoard, loadSavedBoards } from '../preferences.ts';
 import { uiStyles } from '../ui.ts';
 
 export const EXAMPLE_QUERY = 'v=1&p=101~100&titulo=Ayuntamiento';
 export const GUIDE_URL = 'https://chiva.github.io/logrono-bus/guia/';
+const NEAR_HREF = `./${NEAR_HASH}`;
 
 export class LbHome extends LitElement {
   static override properties: PropertyDeclarations = {
@@ -130,6 +131,15 @@ export class LbHome extends LitElement {
         <div class="row">
           <a
             class="button primary"
+            href=${NEAR_HREF}
+            @click=${(e: Event) => {
+              e.preventDefault();
+              navigate(NEAR_HREF);
+            }}
+            >📍 Paradas cerca de mí</a
+          >
+          <a
+            class="button"
             href=${wizardHref()}
             @click=${(e: Event) => {
               e.preventDefault();

@@ -31,6 +31,37 @@ export function boardTitle(config: BoardConfig, catalog: CatalogIndex | undefine
   return [...new Set(names)].join(' · ');
 }
 
+/** A page around one `<logrono-bus-board>`: title and buttons above, the cards below. */
+export const boardPageStyles = css`
+  :host {
+    display: block;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+  }
+  logrono-bus-board {
+    --lb-card-min: 250px;
+  }
+  @media (max-width: 600px) {
+    logrono-bus-board {
+      --lb-card-min: 150px;
+      --lb-card-padding: 10px 12px;
+    }
+    .toolbar .row button {
+      padding: 0.4em 0.8em;
+    }
+  }
+`;
+
 export class LbPanel extends LitElement {
   static override properties: PropertyDeclarations = {
     config: { attribute: false },
@@ -59,38 +90,7 @@ export class LbPanel extends LitElement {
     this.styling = false;
   }
 
-  static override styles = [
-    uiStyles,
-    css`
-      :host {
-        display: block;
-      }
-      .toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 16px;
-      }
-      h1 {
-        margin: 0;
-        font-size: clamp(1.4rem, 4vw, 2rem);
-      }
-      logrono-bus-board {
-        --lb-card-min: 250px;
-      }
-      @media (max-width: 600px) {
-        logrono-bus-board {
-          --lb-card-min: 150px;
-          --lb-card-padding: 10px 12px;
-        }
-        .toolbar .row button {
-          padding: 0.4em 0.8em;
-        }
-      }
-    `,
-  ];
+  static override styles = [uiStyles, boardPageStyles];
 
   override connectedCallback(): void {
     super.connectedCallback();

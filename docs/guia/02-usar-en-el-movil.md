@@ -20,7 +20,22 @@ tocarlo se abre directamente tu panel, sin la barra del navegador.
 2. Toca el botón **Compartir** (el cuadrado con una flecha hacia arriba).
 3. Baja y toca **Añadir a pantalla de inicio** → **Añadir**.
 
-## Ver las paradas que tengo cerca
+## Estoy en la parada: ¿viene el autobús?
+
+En la portada, toca **📍 Paradas cerca de mí**. Sin crear ningún panel, verás las llegadas de
+todas las líneas de la parada más cercana y, si la hay, de la de enfrente (a unos 120 metros o
+menos). Cada tarjeta dice la parada y hacia dónde va el autobús, así que no se confunden las dos
+aceras.
+
+- **📍 Volver a ubicar**: si te has movido a otra parada.
+- **✎ Guardar como panel**: si es una parada que usas a menudo, la convierte en un panel tuyo.
+
+Esta pantalla busca tu ubicación cada vez que la abres. Si has instalado la app en Android, mantén
+pulsado su icono y elige **Cerca de mí** para ir directo; en iPhone, abre
+`chiva.github.io/logrono-bus/#cerca` en Safari y añádelo a la pantalla de inicio como se explica
+arriba.
+
+## Buscar paradas cercanas para un panel
 
 En **Crear panel**, el botón **📍 Cerca de mí** busca las paradas a unos 600 metros. El navegador te
 preguntará si das permiso para usar tu ubicación: hace falta para esto, y **tu ubicación no se envía

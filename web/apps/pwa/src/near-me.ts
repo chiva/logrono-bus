@@ -24,15 +24,21 @@ export const NEAR_MAX_STOPS = 3;
 /** Beyond this, the position may not be at the stop the person is at: say so. */
 export const NEAR_POOR_ACCURACY_M = 100;
 
-/** The nearest stop within `NEARBY_RADIUS_M`, then any within `NEAR_PAIR_RADIUS_M` of it. */
+/**
+ * The nearest stop within `NEARBY_RADIUS_M`, then any within `NEAR_PAIR_RADIUS_M` of it, even if
+ * that puts the pair beyond `NEARBY_RADIUS_M` from the person. Nearest to the person first.
+ */
 export function nearMeStops(catalog: CatalogIndex, here: Here): NearbyStop[] {
-  const [nearest, ...others] = catalog.nearby(here.lat, here.lon, {
-    radiusM: NEARBY_RADIUS_M,
+  const [nearest] = catalog.nearby(here.lat, here.lon, { radiusM: NEARBY_RADIUS_M, limit: 1 });
+  if (!nearest) return [];
+  // Triangle inequality: a stop within the pair radius of `nearest` is within this of the person.
+  const candidates = catalog.nearby(here.lat, here.lon, {
+    radiusM: nearest.distance_m + NEAR_PAIR_RADIUS_M,
     limit: Number.POSITIVE_INFINITY,
   });
-  if (!nearest) return [];
-  const pairs = others.filter(
+  const pairs = candidates.filter(
     ({ stop }) =>
+      stop.id !== nearest.stop.id &&
       distanceM(nearest.stop.lat, nearest.stop.lon, stop.lat, stop.lon) <= NEAR_PAIR_RADIUS_M,
   );
   return [nearest, ...pairs].slice(0, NEAR_MAX_STOPS);

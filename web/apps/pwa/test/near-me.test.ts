@@ -1,4 +1,4 @@
-import { distanceM } from '@logrono-bus/core';
+import { CatalogIndex, distanceM } from '@logrono-bus/core';
 import { describe, expect, it } from 'vitest';
 
 import { fixtureCatalog } from '../../../packages/core/test/fixtures.ts';
@@ -47,6 +47,22 @@ describe('nearMeStops', () => {
     const b = catalog.stop('100');
     const here = { lat: a.lat * 0.6 + b.lat * 0.4, lon: a.lon * 0.6 + b.lon * 0.4, accuracyM: 50 };
     expect(ids(here)).toEqual(['101', '100']);
+  });
+
+  it(`keeps the pair even when it is farther than ${NEARBY_RADIUS_M} m from the person`, () => {
+    // Only Ayuntamiento 101/100, so nothing else lies on the way. The person stands in line with
+    // both, 590 m beyond 101: 100 (66 m behind it) is out of the search radius but still its pair.
+    const a = catalog.stop('101');
+    const b = catalog.stop('100');
+    const pairOnly = new CatalogIndex({ ...catalog.catalog, stops: [a, b] });
+    const k = 1 + 590 / distanceM(a.lat, a.lon, b.lat, b.lon);
+    const here = {
+      lat: b.lat + (a.lat - b.lat) * k,
+      lon: b.lon + (a.lon - b.lon) * k,
+      accuracyM: 20,
+    };
+    expect(distanceM(here.lat, here.lon, b.lat, b.lon)).toBeGreaterThan(NEARBY_RADIUS_M);
+    expect(nearMeStops(pairOnly, here).map(({ stop }) => stop.id)).toEqual(['101', '100']);
   });
 
   it(`shows at most ${NEAR_MAX_STOPS} stops`, () => {

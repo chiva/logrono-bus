@@ -83,13 +83,21 @@ export class LbNearMe extends LitElement {
     void this.#relocate();
   }
 
-  /** Loaded once per view; a failed load is retried on the next «Volver a ubicar». */
+  /**
+   * Loaded once per view. A failed load forgets itself, so the next «Volver a ubicar» retries it
+   * even when a location error was what that attempt reported.
+   */
   #loadCatalog(): Promise<CatalogIndex> {
-    this.#catalog ??= sourceFor(NEAR_SOURCE).then((source) => {
+    if (this.#catalog) return this.#catalog;
+    const catalog = sourceFor(NEAR_SOURCE).then((source) => {
       this.source = source;
       return source.catalog();
     });
-    return this.#catalog;
+    this.#catalog = catalog;
+    catalog.catch(() => {
+      if (this.#catalog === catalog) this.#catalog = undefined;
+    });
+    return catalog;
   }
 
   async #relocate(): Promise<void> {
@@ -112,7 +120,6 @@ export class LbNearMe extends LitElement {
       if (error instanceof LocationUnavailable) {
         this.problem = error.message;
       } else {
-        this.#catalog = undefined;
         this.problem = describeError(error);
       }
     } finally {

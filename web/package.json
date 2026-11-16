@@ -2,9 +2,9 @@
   "name": "logrono-bus-web",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@12.18.0",
+  "packageManager": "pnpm@12.20.0",
   "engines": {
-    "node": "v26.13.0"
+    "node": "26.13.1"
   },
   "scripts": {
     "gen:types": "openapi-typescript ../contracts/openapi.json --output packages/core/src/types.gen.ts && prettier --write packages/core/src/types.gen.ts",
@@ -29,9 +29,9 @@
     "globals": "17.14.0",
     "happy-dom": "21.0.4",
     "openapi-typescript": "7.13.0",
-    "prettier": "3.9.10",
+    "prettier": "3.10.1",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.72.1",
+    "typescript-eslint": "8.72.2",
     "vitest": "5.1.0"
   }
 }

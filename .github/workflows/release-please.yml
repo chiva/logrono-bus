@@ -1,8 +1,8 @@
 name: Release
 
-# release-please opens one release PR per component (the PyPI library and the app). Merging one
-# publishes it from this same run: tags pushed with GITHUB_TOKEN do not trigger other workflows,
-# so publishing cannot live in a separate tag-triggered workflow.
+# release-please opens one release PR per component (the PyPI library and the app), acting
+# through the release GitHub App so CI runs on them. Merging one publishes it from this same run,
+# gated on that component's release_created output.
 
 on:
   push:
@@ -19,8 +19,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     outputs:
       prs: ${{ steps.release.outputs.prs }}
       lib_released: ${{ steps.release.outputs['packages/logrono-bus--release_created'] }}
@@ -28,9 +27,19 @@ jobs:
       app_released: ${{ steps.release.outputs.release_created }}
       app_tag: ${{ steps.release.outputs.tag_name }}
     steps:
+      # A GitHub App token, not GITHUB_TOKEN: GitHub starts no workflows for events made with
+      # GITHUB_TOKEN, so the release PR it opened never got its required checks.
+      - id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         id: release
         with:
+          token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
@@ -40,13 +49,21 @@ jobs:
     if: ${{ needs.release-please.outputs.prs && needs.release-please.outputs.prs != '[]' }}
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     strategy:
       matrix:
         pr: ${{ fromJson(needs.release-please.outputs.prs) }}
     steps:
+      # Pushing with the App token (not GITHUB_TOKEN) starts CI on the release PR's new head.
+      - id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          token: ${{ steps.app-token.outputs.token }}
           ref: ${{ matrix.pr.headBranchName }}
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       - run: uv lock

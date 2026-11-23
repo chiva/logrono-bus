@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/chiva/logrono-bus/compare/app-v0.7.1...app-v0.7.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* **deps:** update non-major dependencies ([#60](https://github.com/chiva/logrono-bus/issues/60)) ([3a1d50c](https://github.com/chiva/logrono-bus/commit/3a1d50c3ea1bc9416622f3eb94c4f36d6905f529))
+
 ## [0.7.1](https://github.com/chiva/logrono-bus/compare/app-v0.7.0...app-v0.7.1) (2026-11-16)
 
 
